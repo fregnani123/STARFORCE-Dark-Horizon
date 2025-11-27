@@ -62,7 +62,12 @@ function initGame() {
         "../assets/img/nave.png",
         500 
     );
-
+    
+    // 🚨 CORREÇÃO: Inicializa a variável global 'lastTime' para sincronizar o gameLoop
+    if (typeof lastTime !== 'undefined') {
+        lastTime = performance.now();
+    }
+    
     // 2. Inicia o loop principal do jogo
     requestAnimationFrame(gameLoop);
 }

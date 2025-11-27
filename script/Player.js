@@ -25,7 +25,7 @@ class Player extends GameObject {
         // Fatores de Arrasto e Deslocamento
         this.lateralDrag = 0.8; // Quão a nave "escorrega" lateralmente ao inclinar
         this.verticalDrag = 0.6; // Quão a nave "cai" ao inclinar
-        this.movementDampeningX = 0.7; // Reduz a velocidade de movimento horizontal
+        this.movementDampeningX = 1; // Reduz a velocidade de movimento horizontal
         this.movementDampeningY = 1.0; // Mantém a velocidade de movimento vertical (ou ajuste para reduzir)
 
         // 🚨 NOVOS FATORES para o efeito de PERSPECTIVA 3D NO DRAW
