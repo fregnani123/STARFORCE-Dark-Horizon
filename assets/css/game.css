@@ -1,0 +1,88 @@
+/* === ESTILOS GERAIS === */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #222;
+    overflow: hidden;
+}
+
+/* === ESTILO DO CANVAS === */
+canvas {
+    display: block; 
+    aspect-ratio: 2 / 3; 
+    border: 2px solid #00ffff;
+    background-color: #000022;
+}
+
+/* === ESTILO PARA CELULAR (Largura máxima de 768px) === */
+@media (max-width: 768px) {
+    #gameCanvas {
+        width: 100vw; 
+        height: 100vh;
+        object-fit: cover; 
+    }
+}
+
+/* === ESTILO PARA PC/TABLET (Largura mínima de 769px) === */
+@media (min-width: 769px) {
+    #gameCanvas {
+        max-width: 500px; 
+        max-height: 750px; 
+        width: auto;
+        height: auto;
+        object-fit: contain; 
+    }
+}
+
+/* === ESTILO DA TELA DE INÍCIO === */
+.tela-inicio {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw; 
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-image: url('../img/poster-pc.png');
+    background-size: cover; 
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: rgba(0, 0, 0, 0.121); 
+    background-blend-mode: darken; 
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    z-index: 100;
+    transition: opacity 0.5s ease-out;
+}
+
+/* Estilo para o botão dentro da tela de início */
+.tela-inicio button {
+    padding: 15px 30px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #00ffff;
+    background-color: #333;
+    border: 2px solid #00ffff;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.tela-inicio button:hover {
+    background-color: #00ffff;
+    color: #222;
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.8);
+}
+
+/* Classe para esconder a tela de início */
+.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
