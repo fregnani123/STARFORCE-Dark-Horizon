@@ -1,41 +1,130 @@
-/* === ESTILOS GERAIS === */
+/* --- Imports e Variáveis --- */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* === ESTILOS GERAIS: BODY (COCKPIT BACKGROUND) === */
 body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    min-height: 100vh;
+
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    background-color: #222;
-    overflow: hidden;
+    flex-direction: column;
+
+    /* Estilo de fundo do cockpit */
+    background-image: url('../img/img-body.png');
+    background-size: cover; 
+    background-repeat: no-repeat;
+    background-position: center center;
+
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+
+    transition: opacity 0.5s ease-out;
+    overflow: hidden; /* Impede barras de rolagem */
+}
+
+/* === CONTÊINER DA ÁREA DE JOGO === */
+/* ESSENCIAL: Este elemento deve ser o pai direto do Canvas e dos Botões */
+#gameContainer {
+    position: relative; /* Define o contexto de posicionamento para elementos 'absolute' internos (como o botão e o canvas) */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Ajustes iniciais, que serão sobrescritos pelas media queries */
+    width: 100%;
+    height: 100%;
 }
 
 /* === ESTILO DO CANVAS === */
-canvas {
+/* Agora o canvas é posicionado em relação ao #gameContainer */
+#gameCanvas {
     display: block; 
-    aspect-ratio: 2 / 3; 
-    border: 2px solid #00ffff;
-    background-color: #000022;
+    
+    /* Fundo transparente para evitar a "sobra azul escura" */
+    background-color: transparent; 
+    
+    /* Mantendo position: absolute apenas para permitir fácil sobreposição de outros elementos se necessário, 
+       mas ele precisa de 100% de largura e altura do seu contêiner. */
+    position: absolute;
+    width: 100%;
+    height: 100%;
 }
 
 /* === ESTILO PARA CELULAR (Largura máxima de 768px) === */
 @media (max-width: 768px) {
+    #gameContainer {
+        /* CORREÇÃO: Ocupa toda a viewport do celular */
+        width: 100vw;
+        height: 100vh; /* Usa 100vh para ocupar a tela inteira */
+        max-height: 100vh; /* Garante que não ultrapasse a altura da viewport */
+        margin-bottom: 0vh; 
+    }
     #gameCanvas {
-        width: 100vw; 
-        height: 100vh;
-        object-fit: cover; 
+        /* CORREÇÃO: O Canvas se expande para preencher todo o Container */
+        width: 100%;
+        height: 100%;
+        /* O object-fit: contain pode não ser o ideal se você quiser preencher 100% e não se importar com o alongamento */
+        object-fit: fill; 
+    }
+    
+    /* === AJUSTES DE BOTÕES PARA MOBILE === */
+
+    /* Botão de UPGRADE (ativar armas) - POSICIONAMENTO CANTO INFERIOR DIREITO */
+    .overlay-button {
+        /* Posição mais alta para não cobrir o texto */
+        bottom: 70px; 
+        right: 20px; 
+        left: auto; 
+        transform: none; 
+
+        /* Aumenta o tamanho para facilitar o toque no celular */
+        width: 80px;
+        height: 80px;
+        font-size: 12px;
+        line-height: 12px;
     }
 }
 
 /* === ESTILO PARA PC/TABLET (Largura mínima de 769px) === */
 @media (min-width: 769px) {
+    #gameContainer {
+        /* CORREÇÃO AQUI: Usamos max-width/max-height para garantir que ele caiba na tela */
+        width: 500px; 
+        max-width: 80vw; /* Garante que não ocupe mais de 80% da largura da tela */
+        
+        height: 700px; /* Altura reduzida para 700px (era 750px) para caber melhor */
+        max-height: 90vh; /* Garante que nunca exceda 90% da altura da tela do PC */
+        
+        /* Adiciona um margin-top para centralizar melhor verticalmente dentro do body */
+        margin-top: 2vh;
+        margin-bottom: 2vh;
+    }
     #gameCanvas {
-        max-width: 500px; 
-        max-height: 750px; 
-        width: auto;
-        height: auto;
-        object-fit: contain; 
+        object-fit: contain; /* Usar 'contain' para garantir que a imagem do canvas não seja cortada */
+    }
+    
+    /* === AJUSTES DE BOTÕES PARA PC === */
+    
+    /* Botão de UPGRADE (ativar armas) - POSICIONAMENTO CANTO INFERIOR DIREITO */
+    .overlay-button {
+        /* AJUSTE: Posição mais alta (subimos para 40px) */
+        bottom: 40px; /* <--- LINHA ALTERADA: 20px -> 40px */
+        right: 20px; 
+        left: auto; /* Garante que não use o posicionamento central */
+        transform: none; /* Remove a centralização por transformação */
+
+        /* Mantém o tamanho original */
+        width: 60px;
+        height: 60px;
+        font-size: 10px; 
+        line-height: 10px;
     }
 }
+
 
 /* === ESTILO DA TELA DE INÍCIO === */
 .tela-inicio {
@@ -61,28 +150,75 @@ canvas {
     transition: opacity 0.5s ease-out;
 }
 
-/* Estilo para o botão dentro da tela de início */
 .tela-inicio button {
-    padding: 15px 30px;
-    font-size: 28px;
-    font-weight: bold;
-    color: #00ffff;
-    background-color: #333;
-    border: 2px solid #00ffff;
-    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: 16px;
+    font-family: 'Press Start 2P', monospace;
+    background: #000;
+    color: #fff;
+    border: 3px solid #fff;
+    border-radius: 0;
     cursor: pointer;
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
-    transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+    image-rendering: pixelated;
+    box-shadow: 0 0 0 3px #000, 0 0 10px rgba(255, 255, 255, 0.6);
+    transition: 0.12s;
 }
 
 .tela-inicio button:hover {
-    background-color: #00ffff;
-    color: #222;
-    box-shadow: 0 0 25px rgba(0, 255, 255, 0.8);
+    background: #fff;
+    color: #000;
+    box-shadow: 0 0 0 3px #000, 0 0 14px rgba(255, 255, 255, 1);
+    transform: translateY(-2px);
 }
 
-/* Classe para esconder a tela de início */
+.tela-inicio button:active {
+    transform: translateY(0);
+    box-shadow: 0 0 0 3px #000, 0 0 6px rgba(255, 255, 255, 0.6);
+}
+
+
+/* === CLASSE DE UTILIDADE === */
 .hidden {
     opacity: 0;
     pointer-events: none;
+    display: none;
+}
+
+
+/* ------------------------------------------- */
+/* === ESTILOS BASE PARA BOTÕES DE SOBREPOSIÇÃO (Fora da Media Query) === */
+/* ------------------------------------------- */
+
+/* Botão de UPGRADE (ativar armas) */
+.overlay-button {
+    position: absolute;
+    z-index: 10;
+    
+    border-radius: 50%;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    
+    font-weight: bold;
+    
+    color: white;
+    /* Transparência reduzida */
+    background-color: rgba(40, 167, 69, 0.6); /* Cor Verde (Upgrade) */
+    border: 2px solid white; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+/* Efeito de clique */
+.overlay-button:active {
+    transform: scale(0.95);
+}
+
+/* Classe para indicar que o upgrade é possível (mantida, caso queira mudar a cor) */
+.overlay-button.can-upgrade {
+    /* Transparência reduzida */
+    background-color: rgba(40, 167, 69, 0.6);
 }

@@ -25,7 +25,7 @@ const touch = {
     targetY: null,
     xOffset: 0, 
     yOffset: 0,
-    // 🚨 NOVO: Armazenar a posição anterior para calcular o delta de movimento
+    // Armazenar a posição anterior para calcular o delta de movimento
     lastX: null,
     lastY: null
 };
@@ -35,7 +35,7 @@ let canvasRect;
 function updatePlayerMovement() {
     if (!playerShip) return; 
     
-    // --- 🚨 PRIORIDADE 1: LÓGICA DE ARRASTO (DRAG) ---
+    // --- PRIORIDADE 1: LÓGICA DE ARRASTO (DRAG) ---
     if (touch.isDragging && touch.targetX !== null && touch.targetY !== null) {
         
         const TOP_LIMIT = CANVAS_HEIGHT / 2; 
@@ -48,7 +48,7 @@ function updatePlayerMovement() {
         newX = Math.max(0, Math.min(newX, CANVAS_WIDTH - playerShip.width));
         newY = Math.max(TOP_LIMIT, Math.min(newY, CANVAS_HEIGHT - playerShip.height));
         
-        // 2. CORREÇÃO: CALCULA O DELTA DE POSIÇÃO PARA SABER A DIREÇÃO DE INCLINAÇÃO
+        // 2. CALCULA O DELTA DE POSIÇÃO PARA SABER A DIREÇÃO DE INCLINAÇÃO
         let deltaX = 0;
         let deltaY = 0;
 
@@ -60,7 +60,6 @@ function updatePlayerMovement() {
         }
 
         // 3. Define DX e DY para a ANIMAÇÃO DE INCLINAÇÃO
-        // Se a nave se moveu, setamos dx/dy para 1/-1.
         let dx = 0;
         let dy = 0;
 
@@ -77,7 +76,7 @@ function updatePlayerMovement() {
             dy = -1;
         }
 
-        // 4. Move a nave (Isso só atualiza this.dx/this.dy no Player.js para a animação)
+        // 4. Move a nave (Atualiza this.dx/this.dy no Player.js para a animação)
         playerShip.move(dx, dy); 
         
         // 5. Aplica a nova posição e atualiza o histórico
@@ -86,9 +85,6 @@ function updatePlayerMovement() {
         touch.lastX = newX;
         touch.lastY = newY;
         
-        // Dispara tiro (Se o tiro for manual, descomente. Se for automático no gameLoop, mantenha comentado)
-        // playerShip.fire(); 
-
     } else {
         // --- PRIORIDADE 2: LÓGICA DE TECLADO (PC) ---
         
@@ -102,13 +98,13 @@ function updatePlayerMovement() {
         // Usa o método de movimento por velocidade
         playerShip.move(dx, dy); 
         
-        // Ação do teclado (se necessário, ex: botão X)
+        // Ação do teclado
         if (keys.shoot) { 
             playerShip.fire();
         }
         // if (keys.bomb) { playerShip.useBomb(); }
 
-        // 🚨 IMPORTANTE: Reseta o histórico de toque quando o drag não está ativo
+        // Reseta o histórico de toque quando o drag não está ativo
         touch.lastX = null;
         touch.lastY = null;
     }
@@ -127,6 +123,15 @@ window.addEventListener('keydown', (e) => {
     if (keyName && keys[keyName] !== undefined) {
         keys[keyName] = true;
     }
+
+    // Ação de Upgrade para PC (Tecla G)
+    if (e.key === 'g' || e.key === 'G') {
+        // Chama a função definida em game.js
+        if (typeof tryUpgradeWeapon === 'function') {
+            tryUpgradeWeapon();
+        }
+    }
+
 });
 
 window.addEventListener('keyup', (e) => {
@@ -138,12 +143,14 @@ window.addEventListener('keyup', (e) => {
 });
 
 
-// --- 🚨 LÓGICA DE TOQUE (DRAG CONTROL) ---
+// --- LÓGICA DE TOQUE (DRAG CONTROL E BOTÕES VIRTUAIS) ---
 
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('gameCanvas');
     if (!canvas) return;
     
+    // Assumimos que CANVAS_WIDTH e CANVAS_HEIGHT são globais, definidas em game.js
+
     function getCanvasPosition(clientX, clientY) {
         canvasRect = canvas.getBoundingClientRect(); 
         
@@ -158,6 +165,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- TOUCH START ---
     canvas.addEventListener('touchstart', (e) => {
+        // Verifica se o toque não foi em um elemento de interface (como o botão de upgrade)
+        if (e.target.tagName !== 'CANVAS') return;
+
         if (!playerShip || !playerShip.isAlive || e.touches.length !== 1) return;
         e.preventDefault(); 
         
@@ -170,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
         touch.targetY = touchPos.y;
         touch.isDragging = true;
 
-        // 🚨 INICIALIZA O LASTX/Y NO TOUCH START para calcular o delta no próximo frame
+        // Inicializa o LASTX/Y NO TOUCH START
         touch.lastX = playerShip.x;
         touch.lastY = playerShip.y;
         
@@ -195,8 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
             touch.targetX = null;
             touch.targetY = null;
             
-            // 🚨 IMPORTANTE: ZERA O DX/DY da nave no final do toque 
-            // para que a animação de inclinação retorne ao centro imediatamente.
+            // ZERA O DX/DY da nave no final do toque 
             if (playerShip) {
                 playerShip.move(0, 0); 
             }
@@ -208,4 +217,35 @@ document.addEventListener('DOMContentLoaded', () => {
     
     canvas.addEventListener('touchend', handleTouchEnd);
     canvas.addEventListener('touchcancel', handleTouchEnd);
+
+    
+    // ----------------------------------------------------
+    // ✨ NOVO: VINCULAÇÃO DO BOTÃO VIRTUAL DE UPGRADE
+    // ----------------------------------------------------
+    const upgradeButton = document.getElementById('upgradeButton');
+    if (upgradeButton) {
+        
+        // Vincula o clique (PC/Mouse)
+        upgradeButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Impede que o clique caia no canvas
+            if (playerShip && !playerShip.inIntro) {
+                if (typeof tryUpgradeWeapon === 'function') {
+                    tryUpgradeWeapon();
+                }
+            }
+        });
+        
+        // Adiciona suporte a toque (Mobile)
+        upgradeButton.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Evita o zoom e outros comportamentos padrão
+            e.stopPropagation(); // Impede que o toque inicie o drag no canvas
+            if (playerShip && !playerShip.inIntro) {
+                if (typeof tryUpgradeWeapon === 'function') {
+                    tryUpgradeWeapon();
+                }
+            }
+        });
+    }
+    // ----------------------------------------------------
+
 });

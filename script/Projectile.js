@@ -14,7 +14,7 @@ class Projectile extends GameObject {
         this.y += direction * this.speed * deltaTime / 1000;
 
         // Se sair da tela (em cima ou embaixo)
-        if (this.y + this.height < 0 || this.y > 600) {
+        if (this.y + this.height < 0 || this.y > 750) {
             this.isAlive = false;
         }
     }
