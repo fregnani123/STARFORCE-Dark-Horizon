@@ -23,35 +23,70 @@ const touch = {
     isDragging: false,
     targetX: null,
     targetY: null,
-    xOffset: 0, // Deslocamento inicial do toque em relação ao centro da nave
-    yOffset: 0
+    xOffset: 0, 
+    yOffset: 0,
+    // 🚨 NOVO: Armazenar a posição anterior para calcular o delta de movimento
+    lastX: null,
+    lastY: null
 };
-let canvasRect; // Para armazenar a posição e o tamanho do canvas na tela
+let canvasRect; 
 
 // --- FUNÇÃO CHAMADA PELO gameLoop (VERIFICA PRIORIDADES) ---
 function updatePlayerMovement() {
     if (!playerShip) return; 
     
     // --- 🚨 PRIORIDADE 1: LÓGICA DE ARRASTO (DRAG) ---
-    // Se houver um toque ativo, o movimento é direto para a posição do toque.
     if (touch.isDragging && touch.targetX !== null && touch.targetY !== null) {
         
-        // Define a nova posição da nave
+        const TOP_LIMIT = CANVAS_HEIGHT / 2; 
+
+        // 1. Calcula a Nova Posição Absoluta
         let newX = touch.targetX - touch.xOffset;
         let newY = touch.targetY - touch.yOffset;
         
-        // Limite superior do mapa (usando constantes globais)
-        const TOP_LIMIT = CANVAS_HEIGHT / 2; 
-
         // Aplica a nova posição com limites de tela
-        playerShip.x = Math.max(0, Math.min(newX, CANVAS_WIDTH - playerShip.width));
-        playerShip.y = Math.max(TOP_LIMIT, Math.min(newY, CANVAS_HEIGHT - playerShip.height));
+        newX = Math.max(0, Math.min(newX, CANVAS_WIDTH - playerShip.width));
+        newY = Math.max(TOP_LIMIT, Math.min(newY, CANVAS_HEIGHT - playerShip.height));
         
-        // No modo arrasto, o dx e dy são 0, pois a posição é absoluta (importante para o roll/pitch visual!)
-        playerShip.move(0, 0);
+        // 2. CORREÇÃO: CALCULA O DELTA DE POSIÇÃO PARA SABER A DIREÇÃO DE INCLINAÇÃO
+        let deltaX = 0;
+        let deltaY = 0;
 
-        // Dispara tiro (se o tiro não for 100% automático, aqui seria o lugar)
-        // Se o tiro for automático no game.js, não precisa disso:
+        if (touch.lastX !== null) {
+            deltaX = newX - touch.lastX;
+        }
+        if (touch.lastY !== null) {
+            deltaY = newY - touch.lastY;
+        }
+
+        // 3. Define DX e DY para a ANIMAÇÃO DE INCLINAÇÃO
+        // Se a nave se moveu, setamos dx/dy para 1/-1.
+        let dx = 0;
+        let dy = 0;
+
+        // Limite de 0.5 é um "threshold" para garantir que a nave não incline em pequenos movimentos.
+        if (deltaX > 0.5) {
+            dx = 1;
+        } else if (deltaX < -0.5) {
+            dx = -1;
+        }
+
+        if (deltaY > 0.5) {
+            dy = 1;
+        } else if (deltaY < -0.5) {
+            dy = -1;
+        }
+
+        // 4. Move a nave (Isso só atualiza this.dx/this.dy no Player.js para a animação)
+        playerShip.move(dx, dy); 
+        
+        // 5. Aplica a nova posição e atualiza o histórico
+        playerShip.x = newX;
+        playerShip.y = newY;
+        touch.lastX = newX;
+        touch.lastY = newY;
+        
+        // Dispara tiro (Se o tiro for manual, descomente. Se for automático no gameLoop, mantenha comentado)
         // playerShip.fire(); 
 
     } else {
@@ -72,6 +107,10 @@ function updatePlayerMovement() {
             playerShip.fire();
         }
         // if (keys.bomb) { playerShip.useBomb(); }
+
+        // 🚨 IMPORTANTE: Reseta o histórico de toque quando o drag não está ativo
+        touch.lastX = null;
+        touch.lastY = null;
     }
 }
 
@@ -81,7 +120,6 @@ function updatePlayerMovement() {
 window.addEventListener('keydown', (e) => {
     const keyName = KEY_MAP[e.key] || KEY_MAP[e.key.toLowerCase()];
     
-    // Previne o scroll da página ao usar as setas
     if (keyName && (keyName === 'up' || keyName === 'down' || keyName === 'left' || keyName === 'right')) {
         e.preventDefault(); 
     }
@@ -106,12 +144,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('gameCanvas');
     if (!canvas) return;
     
-    // Função auxiliar para mapear coordenadas da tela para coordenadas do Canvas (jogo)
     function getCanvasPosition(clientX, clientY) {
-        // Recalcula o tamanho real do canvas na tela (necessário para responsividade)
         canvasRect = canvas.getBoundingClientRect(); 
         
-        // Calcula a posição do toque dentro do canvas (0 a 1)
         const scaleX = CANVAS_WIDTH / canvasRect.width;
         const scaleY = CANVAS_HEIGHT / canvasRect.height;
 
@@ -128,14 +163,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const touchPos = getCanvasPosition(e.touches[0].clientX, e.touches[0].clientY);
         
-        // Calcula o deslocamento (offset)
         touch.xOffset = touchPos.x - playerShip.x;
         touch.yOffset = touchPos.y - playerShip.y;
         
-        // Ativa o modo arrasto
         touch.targetX = touchPos.x;
         touch.targetY = touchPos.y;
         touch.isDragging = true;
+
+        // 🚨 INICIALIZA O LASTX/Y NO TOUCH START para calcular o delta no próximo frame
+        touch.lastX = playerShip.x;
+        touch.lastY = playerShip.y;
         
     }, { passive: false });
 
@@ -146,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const touchPos = getCanvasPosition(e.touches[0].clientX, e.touches[0].clientY);
         
-        // Atualiza a posição alvo
         touch.targetX = touchPos.x;
         touch.targetY = touchPos.y;
 
@@ -154,11 +190,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- TOUCH END / CANCEL ---
     const handleTouchEnd = (e) => {
-        // Desativa o arrasto
         if (touch.isDragging) {
             touch.isDragging = false;
             touch.targetX = null;
             touch.targetY = null;
+            
+            // 🚨 IMPORTANTE: ZERA O DX/DY da nave no final do toque 
+            // para que a animação de inclinação retorne ao centro imediatamente.
+            if (playerShip) {
+                playerShip.move(0, 0); 
+            }
+            // Zera o histórico de posição
+            touch.lastX = null;
+            touch.lastY = null;
         }
     };
     
