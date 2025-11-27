@@ -27,6 +27,9 @@ class Player extends GameObject {
         this.verticalDrag = 0.6; // Quão a nave "cai" ao inclinar
         this.movementDampeningX = 1; // Reduz a velocidade de movimento horizontal
         this.movementDampeningY = 1.0; // Mantém a velocidade de movimento vertical (ou ajuste para reduzir)
+        
+        // 🚨 NOVO: Fator de decaimento para touch/joystick
+        this.inputDecay = 0.1; // Velocidade com que dx/dy retornam a 0 se não houver input
 
         // 🚨 NOVOS FATORES para o efeito de PERSPECTIVA 3D NO DRAW
         this.perspectiveSkewX = 0.5; // Distorção horizontal para o efeito de profundidade (quanto maior, mais "torcido")
@@ -81,15 +84,39 @@ class Player extends GameObject {
         this.x += finalDx * baseMovement * this.movementDampeningX; 
         this.y += finalDy * baseMovement * this.movementDampeningY; 
 
+        // 🚨 CORREÇÃO PARA TOUCH/MOBILE: DECAIMENTO DA DIREÇÃO (DX/DY)
+        // Isso simula a soltura do joystick de forma gradual se o controle de entrada (touch) 
+        // não chamar this.move(0, 0) ao terminar o toque.
+        
+        // Move wingRotationX/Y em direção a zero se a direção de input (this.dx/this.dy) for zero.
+        // Usamos Lerp (Interpolação Linear) para suavizar a transição.
+        const decayAmount = this.inputDecay * deltaTime / 1000;
+        
+        // Se a nave está se movendo (dx/dy != 0), mantemos o valor.
+        // Se dx/dy for 0 (teclado solto ou touch finalizado), forçamos o decaimento suave.
+        if (this.dx === 0 && Math.abs(this.wingRotationX) > 0.01) {
+            this.wingRotationX *= (1 - decayAmount * 5); // Decaimento mais rápido para Roll
+        } else if (Math.abs(this.wingRotationX) < 0.01) {
+             this.wingRotationX = 0;
+        }
+
+        if (this.dy === 0 && Math.abs(this.wingRotationY) > 0.01) {
+            this.wingRotationY *= (1 - decayAmount * 5); // Decaimento mais rápido para Pitch
+        } else if (Math.abs(this.wingRotationY) < 0.01) {
+             this.wingRotationY = 0;
+        }
+
+
         // --- 2. LÓGICA DE INCLINAÇÃO (ROLL E PITCH) ---
         
         // A. Inclinação Lateral (Roll)
-        const targetRoll = this.dx * this.maxRollEffect; // dx controla a intensidade do roll
+        // Usamos this.dx/dy diretamente aqui, se eles vierem do touch/joystick com valores entre -1 e 1
+        const targetRoll = this.dx * this.maxRollEffect; 
         this.wingRotationX += (targetRoll - this.wingRotationX) * this.rollSpeed * deltaTime / 1000;
         this.wingRotationX = Math.max(-1, Math.min(1, this.wingRotationX));
 
         // B. Inclinação Vertical (Pitch)
-        const targetPitch = -this.dy * this.maxPitchEffect; // dy controla a intensidade do pitch (negativo para subir/inclinar pra trás)
+        const targetPitch = -this.dy * this.maxPitchEffect; 
         this.wingRotationY += (targetPitch - this.wingRotationY) * this.pitchSpeed * deltaTime / 1000;
         this.wingRotationY = Math.max(-1, Math.min(1, this.wingRotationY));
 
@@ -97,12 +124,10 @@ class Player extends GameObject {
         // --- 3. LÓGICA DE ARRSTO/INÉRCIA (EFEITO REALISTA) ---
         
         // Arrasto Vertical (Baixar / Lentada devido ao ROLL/PITCH)
-        // A nave "cai" um pouco ao inclinar lateralmente ou ao levantar o nariz
         const dragDownMovement = (Math.abs(this.wingRotationX) * this.verticalDrag + Math.abs(this.wingRotationY) * 0.2) * deltaTime / 1000;
         this.y += dragDownMovement; 
         
         // Arrasto Horizontal (Deslizar devido ao ROLL)
-        // A nave "escorrega" lateralmente na direção do roll
         const dragSideMovement = this.wingRotationX * this.lateralDrag * deltaTime / 1000;
         this.x += dragSideMovement; 
         
@@ -143,22 +168,18 @@ class Player extends GameObject {
         ctx.scale(1, pitchScaleY); // Aplica o achatamento no eixo Y
 
         // --- 2. Efeito de PERSPECTIVA 3D para o ROLL (asa menor/maior) ---
-        // Combinamos skew (distorção) com uma rotação real no eixo Z.
         
         // O skew faz a asa de um lado parecer mais "esticada" e a outra mais "encolhida".
         const skewAmountX = this.wingRotationX * this.perspectiveSkewX; 
         // A rotação real no eixo Z inclina a nave, reforçando o efeito visual.
         const rollAngleInRadians = this.wingRotationX * this.perspectiveRotateZ * (Math.PI / 180); 
         
-        // Aplica as transformações em ordem:
-        // CUIDADO: ctx.transform() é acumulativo. Se tiver problemas, use ctx.setTransform() ou teste a ordem.
-        // Ordem: Rotação Z -> Skew X
-        
         // Primeiro, a rotação real da nave
         ctx.rotate(rollAngleInRadians);
         
         // Em seguida, a distorção (skew) para a perspectiva
-        ctx.transform(1, 0, skewAmountX, 1, 0, 0); // Parametros: m11, m12, m21, m22, dx, dy
+        // Parametros: m11, m12, m21, m22, dx, dy
+        ctx.transform(1, 0, skewAmountX, 1, 0, 0); 
 
         // 3. Desenha a imagem centralizada
         ctx.drawImage(this.img, 
