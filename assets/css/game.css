@@ -1,7 +1,5 @@
-/* --- Imports e Variáveis --- */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-/* === ESTILOS GERAIS: BODY (COCKPIT BACKGROUND) === */
 body {
     margin: 0;
     padding: 0;
@@ -13,7 +11,6 @@ body {
     align-items: center;
     flex-direction: column;
 
-    /* Estilo de fundo do cockpit */
     background-image: url('../img/img-body.png');
     background-size: cover; 
     background-repeat: no-repeat;
@@ -24,104 +21,208 @@ body {
     font-size: 24px;
 
     transition: opacity 0.5s ease-out;
-    overflow: hidden; /* Impede barras de rolagem */
+    overflow: hidden;
 }
 
-/* === CONTÊINER DA ÁREA DE JOGO === */
-/* ESSENCIAL: Este elemento deve ser o pai direto do Canvas e dos Botões */
 #gameContainer {
-    position: relative; /* Define o contexto de posicionamento para elementos 'absolute' internos (como o botão e o canvas) */
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Ajustes iniciais, que serão sobrescritos pelas media queries */
     width: 100%;
     height: 100%;
 }
 
-/* === ESTILO DO CANVAS === */
-/* Agora o canvas é posicionado em relação ao #gameContainer */
 #gameCanvas {
     display: block; 
-    
-    /* Fundo transparente para evitar a "sobra azul escura" */
     background-color: transparent; 
-    
-    /* Mantendo position: absolute apenas para permitir fácil sobreposição de outros elementos se necessário, 
-       mas ele precisa de 100% de largura e altura do seu contêiner. */
     position: absolute;
     width: 100%;
     height: 100%;
 }
 
+/* === ESTILOS BASE PARA BOTÕES DE SOBREPOSIÇÃO (DIMENSÕES E POSICIONAMENTO BASE) === */
+.overlay-button {
+    position: absolute;
+    z-index: 10;
+    
+    /* REDUÇÃO DO TAMANHO BASE DOS BOTÕES */
+    width: 50px; 
+    height: 50px;
+    
+    border-radius: 50%;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    
+    font-weight: bold;
+    /* REDUÇÃO DO TAMANHO DA FONTE */
+    font-size: 8px; 
+    line-height: 9px;
+    
+    color: white;
+    background-color: rgba(40, 167, 70, 0.442);
+    border: 2px solid white; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.overlay-button:active {
+    transform: scale(0.95);
+}
+
+.overlay-button.can-upgrade {
+    background-color: rgba(40, 167, 70, 0.219);
+}
+
+
+#superLaserButton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;      
+    justify-content: center;
+    gap: 2px;
+
+    font-size: 8px !important; /* 🔥 Letras menores */
+    background-color: rgba(71, 71, 71, 0.352);
+    color: rgb(255, 255, 255);
+
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+
+    transition: 0.3s ease;
+}
+
+#superLaserButton .laser-label {
+    font-size: 8px !important;
+    font-weight: bold;
+    line-height: 14px;
+}
+
+#superLaserButton .laser-percent {
+    font-size: 7px; /* 🔽 % menor ainda */
+    opacity: 0.8;
+    margin-top: -1px;
+}
+
+/* Estado carregado */
+#superLaserButton.ready {
+    background: #ffe600;
+    box-shadow: 
+        0 0 10px #ffe600,
+        0 0 20px #ffd700,
+        0 0 35px #ffea00,
+        inset 0 0 10px #fff27a;
+    color: black;
+    font-weight: bold;
+    animation: pulseNeon 1.2s infinite alternate;
+}
+
+/* Animação */
+@keyframes pulseNeon {
+    0% {
+        box-shadow:
+            0 0 10px #ffe600,
+            0 0 20px #ffd700,
+            0 0 35px #ffea00,
+            inset 0 0 10px #fff27a;
+    }
+    100% {
+        box-shadow:
+            0 0 15px #fff27a,
+            0 0 30px #ffe600,
+            0 0 45px #ffd700,
+            inset 0 0 14px #ffe600;
+    }
+}
+
+
 /* === ESTILO PARA CELULAR (Largura máxima de 768px) === */
 @media (max-width: 768px) {
     #gameContainer {
-        /* CORREÇÃO: Ocupa toda a viewport do celular */
         width: 100vw;
-        height: 100vh; /* Usa 100vh para ocupar a tela inteira */
-        max-height: 100vh; /* Garante que não ultrapasse a altura da viewport */
+        height: 100vh;
+        max-height: 100vh;
         margin-bottom: 0vh; 
     }
     #gameCanvas {
-        /* CORREÇÃO: O Canvas se expande para preencher todo o Container */
         width: 100%;
         height: 100%;
-        /* O object-fit: contain pode não ser o ideal se você quiser preencher 100% e não se importar com o alongamento */
         object-fit: fill; 
     }
     
-    /* === AJUSTES DE BOTÕES PARA MOBILE === */
-
-    /* Botão de UPGRADE (ativar armas) - POSICIONAMENTO CANTO INFERIOR DIREITO */
     .overlay-button {
-        /* Posição mais alta para não cobrir o texto */
-        bottom: 70px; 
-        right: 20px; 
-        left: auto; 
-        transform: none; 
+        /* AUMENTO DA DISTÂNCIA DA BORDA INFERIOR E DA LATERAL */
+        width: 65px; /* Ligeiramente maior no mobile */
+        height: 65px;
+        font-size: 10px;
+        line-height: 10px;
+        bottom: 100px; /* SUBIU MAIS AQUI */
+        right: 10px; 
+        left: auto;
+        transform: none;
+    }
 
-        /* Aumenta o tamanho para facilitar o toque no celular */
-        width: 80px;
-        height: 80px;
-        font-size: 12px;
-        line-height: 12px;
+    /* Botão LASER (CANTO INFERIOR ESQUERDO) */
+    #superLaserButton {
+        bottom: 100px; /* SUBIU MAIS AQUI */
+        left: 10px;
+        right: auto;
+    }
+
+    /* Botão UPGRADE (CANTO INFERIOR DIREITO) */
+    #upgradeButton {
+        bottom: 100px; /* SUBIU MAIS AQUI */
+        right: 10px;
+        left: auto;
     }
 }
 
 /* === ESTILO PARA PC/TABLET (Largura mínima de 769px) === */
 @media (min-width: 769px) {
     #gameContainer {
-        /* CORREÇÃO AQUI: Usamos max-width/max-height para garantir que ele caiba na tela */
         width: 500px; 
-        max-width: 80vw; /* Garante que não ocupe mais de 80% da largura da tela */
+        max-width: 80vw;
         
-        height: 700px; /* Altura reduzida para 700px (era 750px) para caber melhor */
-        max-height: 90vh; /* Garante que nunca exceda 90% da altura da tela do PC */
+        height: 700px;
+        max-height: 90vh;
         
-        /* Adiciona um margin-top para centralizar melhor verticalmente dentro do body */
         margin-top: 2vh;
         margin-bottom: 2vh;
     }
     #gameCanvas {
-        object-fit: contain; /* Usar 'contain' para garantir que a imagem do canvas não seja cortada */
+        object-fit: contain;
     }
     
-    /* === AJUSTES DE BOTÕES PARA PC === */
-    
-    /* Botão de UPGRADE (ativar armas) - POSICIONAMENTO CANTO INFERIOR DIREITO */
     .overlay-button {
-        /* AJUSTE: Posição mais alta (subimos para 40px) */
-        bottom: 40px; /* <--- LINHA ALTERADA: 20px -> 40px */
-        right: 20px; 
-        left: auto; /* Garante que não use o posicionamento central */
-        transform: none; /* Remove a centralização por transformação */
+        /* AUMENTO DA DISTÂNCIA DA BORDA INFERIOR E REDUÇÃO DO TAMANHO */
+        width: 50px; 
+        height: 50px;
+        font-size: 8px; 
+        line-height: 9px;
+        bottom: 60px; /* SUBIU MAIS AQUI */
+        right: 10px; 
+        left: auto;
+        transform: none;
+    }
 
-        /* Mantém o tamanho original */
-        width: 60px;
-        height: 60px;
-        font-size: 10px; 
-        line-height: 10px;
+    /* Botão LASER (CANTO INFERIOR ESQUERDO) */
+    #superLaserButton {
+        bottom: 60px; /* SUBIU MAIS AQUI */
+        left: 10px; 
+        right: auto;
+    }
+
+    /* Botão UPGRADE (CANTO INFERIOR DIREITO) */
+    #upgradeButton {
+        bottom: 60px; /* SUBIU MAIS AQUI */
+        right: 10px;
+        left: auto;
     }
 }
 
@@ -176,49 +277,8 @@ body {
     box-shadow: 0 0 0 3px #000, 0 0 6px rgba(255, 255, 255, 0.6);
 }
 
-
-/* === CLASSE DE UTILIDADE === */
 .hidden {
     opacity: 0;
     pointer-events: none;
     display: none;
-}
-
-
-/* ------------------------------------------- */
-/* === ESTILOS BASE PARA BOTÕES DE SOBREPOSIÇÃO (Fora da Media Query) === */
-/* ------------------------------------------- */
-
-/* Botão de UPGRADE (ativar armas) */
-.overlay-button {
-    position: absolute;
-    z-index: 10;
-    
-    border-radius: 50%;
-    
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    
-    font-weight: bold;
-    
-    color: white;
-    /* Transparência reduzida */
-    background-color: rgba(40, 167, 69, 0.6); /* Cor Verde (Upgrade) */
-    border: 2px solid white; 
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-}
-
-/* Efeito de clique */
-.overlay-button:active {
-    transform: scale(0.95);
-}
-
-/* Classe para indicar que o upgrade é possível (mantida, caso queira mudar a cor) */
-.overlay-button.can-upgrade {
-    /* Transparência reduzida */
-    background-color: rgba(40, 167, 69, 0.6);
 }

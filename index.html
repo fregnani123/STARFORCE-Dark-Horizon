@@ -6,26 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Shooter JS</title>
     <link rel="stylesheet" href="./assets/css/game.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
 </head>
 
 <body>
-    <!-- Tela de início, que esconde o jogo até ser clicada -->
     <div id="startScreen" class="tela-inicio">
         <button id="startButton">
             INICIAR JOGO
         </button>
     </div>
 
-    <!-- Contêiner principal do jogo -->
     <div id="gameContainer">
         <canvas id="gameCanvas" width="400" height="600"></canvas>
-        
-        <!-- Botão de Upgrade (ativar armas): AGORA POSICIONADO NO CENTRO INFERIOR PELO CSS -->
-        <button id="upgradeButton" class="overlay-button">UPGRADE (500)</button>
-    </div>
-    
 
-    <audio id="bgMusic" src="./assets/audio/heavy_battle_1_bpm190.mp3" loop preload="auto"></audio>
+        <button id="upgradeButton" class="overlay-button">UPGRADE (500)</button>
+        <button id="superLaserButton" class="overlay-button" onclick="trySuperLaser()">
+            <span class="laser-label">BURST</span>
+            <span id="laserCost" class="laser-percent">0%</span>
+        </button>
+
+    </div>
+
 
     <script src="./script/GameObject.js"></script>
     <script src="./script/Projectile.js"></script>
@@ -33,7 +36,9 @@
     <script src="./script/Player.js"></script>
     <script src="./script/Enemy.js"></script>
     <script src="./script/start_game.js"></script>
-    <script src="./script/Projectile.js"></script>
+    <script src="./script/pickup.js"></script>
+    <script src="./script/Spawn.js"></script>
+    <script src="./script/btnUpdate.js"></script>
 
     <script src="./script/controle.js"></script>
     <script src="./script/game.js"></script>

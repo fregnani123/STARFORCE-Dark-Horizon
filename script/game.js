@@ -1,4 +1,7 @@
-// Arquivo: script/game.js
+// ----------------------------------------------------
+// CONSTANTES PRINCIPAIS
+// ----------------------------------------------------
+const MAX_DELTA_TIME_MS = 100; // Máx delta para travar lag
 
 // ----------------------------------------------------
 // VARIÁVEIS GLOBAIS
@@ -13,272 +16,304 @@ canvas.height = CANVAS_HEIGHT;
 
 let playerShip;
 const enemies = [];
-const enemyProjectiles = []; // Tiros dos inimigos
+const enemyProjectiles = [];
 let gameBackground;
 let lastTime = 0;
-let score = 0; // Pontuação
+let score = 0;
 
-// Custo para o próximo Upgrade
-let nextWeaponUpgradeCost = 100; // Custo inicial (ajuste conforme o desejado)
+// Super Laser
+let superLaserAvailable = true;
+let requiredScoreForNextLaser = 0;
+let superLaserUsed = false;
+let superLaserCharge = 0;
+const SUPER_LASER_REQUIREMENT = 500;
 
-// Variáveis de Spawn
+// Upgrade Weapon
+let nextWeaponUpgradeCost = 100;
+
+// Spawn de inimigos
 let enemySpawnTimer = 0;
 const ENEMY_SPAWN_INTERVAL = 2000;
 
 // ----------------------------------------------------
+// PICKUP DE VIDA (NOVO)
+// ----------------------------------------------------
+const pickups = [];
+let nextHealthPickupScore = 100;
+const HEALTH_PICKUP_VALUE = 30;
+const HEALTH_PICKUP_IMAGE = "../assets/img/concerto.png";
+
+// ----------------------------------------------------
 // FUNÇÕES DE SUPORTE
 // ----------------------------------------------------
-
-// --- FUNÇÃO DE COLISÃO (Bounding Box) ---
 function checkCollision(objA, objB) {
-    return (
-        objA.x < objB.x + objB.width &&
-        objA.x + objA.width > objB.x &&
-        objA.y < objB.y + objB.height &&
-        objA.y + objA.height > objB.y
-    );
+    return (
+        objA.x < objB.x + objB.width &&
+        objA.x + objA.width > objB.x &&
+        objA.y < objB.y + objB.height &&
+        objA.y + objA.height > objB.y
+    );
 }
 
-// --- FUNÇÃO PARA TENTAR UPGRADE DE ARMA POR PONTOS ---
-// Deve ser chamada pela tecla 'G' ou pelo botão virtual no mobile (em controle.js)
-function tryUpgradeWeapon() {
-    if (!playerShip || playerShip.weaponLevel >= playerShip.maxWeaponLevel) {
-        return false; // Não há nave ou já está no nível máximo
-    }
-
-    if (score >= nextWeaponUpgradeCost) {
-        score -= nextWeaponUpgradeCost; // Subtrai o custo
-        playerShip.upgradeWeapon(); // Chama o método do Player.js
-        
-        // Define o próximo custo (aumenta o custo em 50%)
-        nextWeaponUpgradeCost = Math.round(nextWeaponUpgradeCost * 1.5);
-        
-        console.log(`Upgrade de Arma realizado! Próximo custo: ${nextWeaponUpgradeCost}`);
-        return true;
-    }
-    return false;
-}
-
-
-// --- FUNÇÃO PARA SPAWN ALEATÓRIO ---
-function spawnRandomEnemy() {
-    const enemyTypes = [
-        {
-            imagePath: "../assets/img/inimigoverde.png",
-            width: 60, height: 60, maxHealth: 50, speed: 100, fireRate: 1500, damage: 10
-        },
-        {
-            imagePath: "../assets/img/inimigo2.png",
-            width: 100, height: 80, maxHealth: 200, speed: 50, fireRate: 3000, damage: 25
-        }
-    ];
-
-    const randomType = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
-    const spawnX = Math.random() * (CANVAS_WIDTH - randomType.width);
-    const spawnY = -randomType.height;
-
-    enemies.push(new Enemy(
-        spawnX, spawnY,
-        randomType.width, randomType.height,
-        randomType.imagePath,
-        randomType.maxHealth,
-        randomType.speed,
-        randomType.fireRate, 
-        randomType.damage    
-    ));
-}
-
-// --- FUNÇÃO PARA ENCONTRAR O INIMIGO MAIS PRÓXIMO (PARA ARMA GUIADA) ---
 function findNearestEnemy(projectile) {
-    let nearestEnemy = null;
-    let minDistanceSq = Infinity; 
+    let nearestEnemy = null;
+    let minDistanceSq = Infinity;
 
-    const projCenterX = projectile.x + projectile.width / 2;
-    const projCenterY = projectile.y + projectile.height / 2;
+    const projCenterX = projectile.x + projectile.width / 2;
+    const projCenterY = projectile.y + projectile.height / 2;
 
-    for (const enemy of enemies) {
-        // Apenas visa inimigos visíveis e vivos
-        if (enemy.isAlive && enemy.y > 0) {
-            const enemyCenterX = enemy.x + enemy.width / 2;
-            const enemyCenterY = enemy.y + enemy.height / 2;
+    for (const enemy of enemies) {
+        if (enemy.isAlive && enemy.y > 0) {
+            const enemyCenterX = enemy.x + enemy.width / 2;
+            const enemyCenterY = enemy.y + enemy.height / 2;
 
-            const dx = enemyCenterX - projCenterX;
-            const dy = enemyCenterY - projCenterY;
-            const distanceSq = dx * dx + dy * dy;
+            const dx = enemyCenterX - projCenterX;
+            const dy = enemyCenterY - projCenterY;
+            const distanceSq = dx * dx + dy * dy;
 
-            if (distanceSq < minDistanceSq) {
-                minDistanceSq = distanceSq;
-                nearestEnemy = enemy;
-            }
-        }
-    }
-    return nearestEnemy;
+            if (distanceSq < minDistanceSq) {
+                minDistanceSq = distanceSq;
+                nearestEnemy = enemy;
+            }
+        }
+    }
+    return nearestEnemy;
 }
 
-
-// --- FUNÇÃO PARA DESENHAR HUD ---
+// ----------------------------------------------------
+// HUD
+// ----------------------------------------------------
 function drawHUD() {
-    ctx.fillStyle = 'white';
-    ctx.font = '20px Arial';
-    
-    // Score
-    ctx.fillText(`Score: ${score}`, 30, CANVAS_HEIGHT - 60); 
-    
-    if (playerShip && playerShip.isAlive) {
-        // Health
-        ctx.fillText(`Health: ${Math.max(0, playerShip.health)}`, 30, CANVAS_HEIGHT - 30); 
-        // Nível da Arma
-        ctx.fillText(`Weapon Lvl: ${playerShip.weaponLevel}`, CANVAS_WIDTH - 150, CANVAS_HEIGHT - 30); 
-    } else if (playerShip && !playerShip.isAlive) {
-        ctx.font = '50px Arial';
-        ctx.fillStyle = 'red';
-        ctx.textAlign = 'center';
-        ctx.fillText('GAME OVER', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-    }
-    
-    // Lógica para atualizar o botão de Upgrade (Assumindo que você criou o botão no HTML)
-    const upgradeButton = document.getElementById('upgradeButton');
-    if (upgradeButton && playerShip && !playerShip.inIntro) {
-        if (playerShip.weaponLevel < playerShip.maxWeaponLevel) {
-            upgradeButton.style.display = 'block';
-            upgradeButton.textContent = `UPGRADE (${nextWeaponUpgradeCost})`;
-            
-            // Destaca se o jogador tem dinheiro suficiente
-            if (score >= nextWeaponUpgradeCost) {
-                upgradeButton.style.backgroundColor = '#28a745'; // Verde
+    ctx.fillStyle = 'white';
+    ctx.font = '20px Arial';
+    ctx.textAlign = 'left';
+
+    const PADDING = 20;
+    const HUD_Y = CANVAS_HEIGHT - PADDING;
+
+    const BAR_X = PADDING;
+    const BAR_Y = HUD_Y - 40;
+    const BAR_MAX_WIDTH = 200;
+    const BAR_HEIGHT = 15;
+
+    ctx.fillText(`Score: ${score}`, BAR_X, HUD_Y);
+
+    if (playerShip && playerShip.isAlive) {
+
+        ctx.fillStyle = 'white';
+        ctx.font = '16px Arial';
+        ctx.fillText(
+            `HULL: ${Math.max(0, playerShip.health)} / ${playerShip.maxHealth}`,
+            BAR_X,
+            BAR_Y - 5
+        );
+
+        ctx.fillStyle = '#404040';
+        ctx.fillRect(BAR_X, BAR_Y, BAR_MAX_WIDTH, BAR_HEIGHT);
+
+        const currentHealthWidth = BAR_MAX_WIDTH * (playerShip.health / playerShip.maxHealth);
+
+        if (playerShip.health > playerShip.maxHealth * 0.5) {
+            ctx.fillStyle = '#32cd32';
+        } else if (playerShip.health > playerShip.maxHealth * 0.2) {
+            ctx.fillStyle = '#ffc107';
+        } else {
+            ctx.fillStyle = '#dc3545';
+        }
+
+        ctx.fillRect(BAR_X, BAR_Y, currentHealthWidth, BAR_HEIGHT);
+
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(BAR_X, BAR_Y, BAR_MAX_WIDTH, BAR_HEIGHT);
+
+        ctx.fillStyle = 'white';
+        ctx.font = '20px Arial';
+        ctx.fillText(`Weapon Lvl: ${playerShip.weaponLevel}`, CANVAS_WIDTH - 150, HUD_Y - 30);
+    }
+
+    ctx.textAlign = 'left';
+}
+
+// ----------------------------------------------------
+// GAME LOOP
+// ----------------------------------------------------
+function gameLoop(timestamp) {
+    let deltaTime = timestamp - lastTime;
+    lastTime = timestamp;
+
+    if (deltaTime > MAX_DELTA_TIME_MS) {
+        deltaTime = MAX_DELTA_TIME_MS;
+    }
+
+// 🔥 Atualiza a % do Super Laser no botão
+updateSuperLaserButton();
+
+    // Fundo
+    if (gameBackground) {
+        gameBackground.update(deltaTime);
+        gameBackground.draw(ctx);
+    } else {
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    }
+
+    if (playerShip && playerShip.isAlive) {
+
+        // Spawn de inimigos
+        if (!playerShip.inIntro && !playerShip.superLaserActive) {
+            enemySpawnTimer += deltaTime;
+            if (enemySpawnTimer >= ENEMY_SPAWN_INTERVAL) {
+                if (typeof spawnRandomEnemy === 'function') {
+                    spawnRandomEnemy();
+                }
+                enemySpawnTimer -= ENEMY_SPAWN_INTERVAL;
+            }
+
+            // PICKUP DE VIDA
+            if (score >= nextHealthPickupScore && playerShip.health < playerShip.maxHealth) {
+                if (typeof spawnHealthPickup === 'function') {
+                    spawnHealthPickup();
+                }
+                nextHealthPickupScore += 100;
+            }
+        }
+
+        // Movimento do player
+        if (typeof updatePlayerMovement === 'function') {
+            updatePlayerMovement();
+        }
+
+        playerShip.update(deltaTime);
+        playerShip.fire();
+
+        // Projetéis do player
+        for (let i = playerShip.projectiles.length - 1; i >= 0; i--) {
+            const projectile = playerShip.projectiles[i];
+
+            projectile.update(deltaTime);
+            if (projectile.y + projectile.height < 0) {
+                playerShip.projectiles.splice(i, 1);
+            }
+        }
+
+        // Arma guiada
+        for (const projectile of playerShip.projectiles) {
+            if (projectile.isGuided && !projectile.target) {
+                projectile.target = findNearestEnemy(projectile);
+            }
+            if (projectile.isGuided && projectile.target && !projectile.target.isAlive) {
+                projectile.target = findNearestEnemy(projectile);
+            }
+        }
+
+        // Inimigos
+        for (let i = enemies.length - 1; i >= 0; i--) {
+            const enemy = enemies[i];
+
+            if (!playerShip.superLaserActive && enemy.y > 0 && enemy.y < CANVAS_HEIGHT) {
+                enemy.fire(enemyProjectiles);
+            }
+
+            enemy.update(deltaTime);
+
+            for (let j = playerShip.projectiles.length - 1; j >= 0; j--) {
+                const projectile = playerShip.projectiles[j];
+
+                if (checkCollision(projectile, enemy)) {
+                    enemy.takeDamage(projectile.damage);
+                    projectile.isAlive = false;
+                    playerShip.projectiles.splice(j, 1);
+
+                    if (!enemy.isAlive) {
+                        score += 100;
+                        superLaserCharge = Math.min(
+                            superLaserCharge + 100,
+                            SUPER_LASER_REQUIREMENT
+                        );
+                    }
+                }
+            }
+
+            if (!enemy.isAlive || enemy.y > CANVAS_HEIGHT + enemy.height) {
+                enemies.splice(i, 1);
             } else {
-                upgradeButton.style.backgroundColor = '#dc3545'; // Vermelho
+                enemy.draw(ctx);
+            }
+        }
+
+        // Super laser
+        if (playerShip.superLaserActive) {
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const enemy = enemies[i];
+
+                if (enemy.isAlive) {
+                    const wasAlive = enemy.isAlive;
+                    enemy.takeDamage(playerShip.superLaserDamage);
+
+                    if (wasAlive && !enemy.isAlive) {
+                        score += 100;
+                    }
+                }
+            }
+
+            enemies.splice(
+                0,
+                enemies.length,
+                ...enemies.filter(e => e.isAlive)
+            );
+        }
+
+        // Projetéis inimigos
+        if (!playerShip.superLaserActive) {
+            for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
+                const projectile = enemyProjectiles[i];
+
+                projectile.update(deltaTime);
+
+                if (checkCollision(projectile, playerShip)) {
+                    playerShip.takeDamage(projectile.damage);
+                    projectile.isAlive = false;
+                    enemyProjectiles.splice(i, 1);
+                } else if (!projectile.isAlive || projectile.y > CANVAS_HEIGHT) {
+                    enemyProjectiles.splice(i, 1);
+                } else {
+                    projectile.draw(ctx);
+                }
             }
         } else {
-            // Esconde quando a arma está no máximo
-            upgradeButton.style.display = 'none';
+            enemyProjectiles.length = 0;
+        }
+
+        // PICKUPS
+        for (let i = pickups.length - 1; i >= 0; i--) {
+            const pickup = pickups[i];
+
+            pickup.update(deltaTime);
+
+            if (checkCollision(pickup, playerShip)) {
+                pickup.applyEffect(playerShip);
+            }
+
+            if (!pickup.isAlive || pickup.y > CANVAS_HEIGHT) {
+                pickups.splice(i, 1);
+            } else {
+                pickup.draw(ctx);
+            }
         }
     }
 
-    ctx.textAlign = 'left'; // Reseta o alinhamento
-}
+    // Desenha projéteis
+    if (playerShip) {
+        playerShip.projectiles.forEach(p => p.draw(ctx));
+        playerShip.draw(ctx);
+    }
 
-// ----------------------------------------------------
-// LOOP PRINCIPAL DO JOGO
-// ----------------------------------------------------
-function gameLoop(timestamp) {
-    const deltaTime = timestamp - lastTime;
-    lastTime = timestamp;
+    drawHUD();
 
-    // 1. Atualizar e Desenhar o Fundo (SEMPRE PRIMEIRO)
-    gameBackground.update(deltaTime);
-    gameBackground.draw(ctx);
+    if (typeof updateUpgradeButton === 'function') {
+        updateUpgradeButton();
+    }
 
-    if (playerShip && playerShip.isAlive) { 
-        
-        // 2. Lógica de SPawn de Inimigos
-        if (!playerShip.inIntro) { // Spawnar apenas após a intro
-            enemySpawnTimer += deltaTime;
-            if (enemySpawnTimer >= ENEMY_SPAWN_INTERVAL) {
-                spawnRandomEnemy();
-                enemySpawnTimer -= ENEMY_SPAWN_INTERVAL;
-            }
-        }
-        
-        // 3. Atualizar a lógica dos objetos e Controle
-        if (typeof updatePlayerMovement === 'function') {
-            updatePlayerMovement();
-        }
-        playerShip.update(deltaTime);
-        playerShip.fire();
-
-        // ----------------------------------------------------
-        // 3.1. ATUALIZAÇÃO E LIMPEZA DOS PROJÉTEIS DO JOGADOR
-        // Garante que projéteis que saem da tela sejam removidos
-        for (let i = playerShip.projectiles.length - 1; i >= 0; i--) {
-            const projectile = playerShip.projectiles[i];
-            projectile.update(deltaTime);
-            
-            // Se saiu da tela (superior)
-            if (projectile.y + projectile.height < 0) {
-                playerShip.projectiles.splice(i, 1);
-            }
-        }
-        // ----------------------------------------------------
-        
-        // 4.1. Lógica de Arma Guiada (Nível 3)
-        // Busca o inimigo mais próximo para as bombas guiadas
-        for (const projectile of playerShip.projectiles) {
-            // Se for um projétil guiado e ainda não tiver um alvo
-            if (projectile.isGuided && !projectile.target) {
-                projectile.target = findNearestEnemy(projectile);
-            }
-            // Verifica se o alvo ainda está vivo (se o inimigo foi destruído, remove o alvo)
-            if (projectile.isGuided && projectile.target && !projectile.target.isAlive) {
-                projectile.target = findNearestEnemy(projectile); // Busca um novo alvo
-            }
-        }
-        
-        // 5. Loop de Atualização, Tiro do Inimigo e Colisão (Player Projectile vs Enemy)
-        for (let i = enemies.length - 1; i >= 0; i--) {
-            const enemy = enemies[i];
-
-            // Inimigo atira e atualiza
-            if (enemy.y > 0 && enemy.y < CANVAS_HEIGHT) {
-                enemy.fire(enemyProjectiles);
-            }
-            enemy.update(deltaTime);
-
-            // Colisão Projétil do Jogador ➡️ Inimigo
-            for (let j = playerShip.projectiles.length - 1; j >= 0; j--) {
-                const projectile = playerShip.projectiles[j];
-
-                if (checkCollision(projectile, enemy)) {
-                    enemy.takeDamage(projectile.damage);
-                    
-                    // Remove o projétil da colisão
-                    projectile.isAlive = false; 
-                    playerShip.projectiles.splice(j, 1);
-                    
-                    // Adicionar pontuação
-                    if (!enemy.isAlive) {
-                        score += 100;
-                    }
-                }
-            }
-
-            // Remove inimigos mortos ou que saíram da tela
-            if (!enemy.isAlive || enemy.y > CANVAS_HEIGHT + enemy.height) {
-                enemies.splice(i, 1);
-            } else {
-                enemy.draw(ctx);
-            }
-        }
-
-        // 6. Loop de Colisão (Enemy Projectile vs Player)
-        for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
-            const projectile = enemyProjectiles[i];
-            projectile.update(deltaTime);
-
-            if (checkCollision(projectile, playerShip)) {
-                playerShip.takeDamage(projectile.damage);
-                projectile.isAlive = false;
-                enemyProjectiles.splice(i, 1);
-            } else if (!projectile.isAlive || projectile.y > CANVAS_HEIGHT) { // Limpa projéteis que saem da tela (por baixo)
-                enemyProjectiles.splice(i, 1);
-            } else {
-                projectile.draw(ctx);
-            }
-        }
-    } // Fim do if (playerShip.isAlive)
-
-    // 7. Desenhar Elementos do Jogador e Projéteis (Para garantir que o último estado seja desenhado, mesmo após a morte)
-    if (playerShip) { 
-        // Projéteis do jogador
-        playerShip.projectiles.forEach(p => { p.draw(ctx); });
-
-        // Jogador
-        playerShip.draw(ctx);
-    }
-
-    // 8. Desenhar HUD
-    drawHUD();
-
-    // 9. Pede o próximo frame
-    requestAnimationFrame(gameLoop);
+    requestAnimationFrame(gameLoop);
 }

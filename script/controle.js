@@ -124,6 +124,10 @@ window.addEventListener('keydown', (e) => {
         keys[keyName] = true;
     }
 
+    // Tecla 'Q' para o Super Laser
+    if (event.key === 'q' || event.key === 'Q') {
+        trySuperLaser();
+    }
     // Ação de Upgrade para PC (Tecla G)
     if (e.key === 'g' || e.key === 'G') {
         // Chama a função definida em game.js
@@ -247,5 +251,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     // ----------------------------------------------------
-
+// Tecla 'Q' para o Super Laser
+    if (event.key === 'q' || event.key === 'Q') {
+        trySuperLaser();
+    }
 });
