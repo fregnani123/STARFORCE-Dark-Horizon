@@ -21,18 +21,28 @@ function tryPlayMusic() {
     }
 }
 
-// 🚨 FUNÇÃO PRINCIPAL: Inicia o Jogo e a Música após o clique do usuário
+// JavaScript
 function startGame() {
-    
-    const startScreenDiv = document.getElementById('startScreen');
-    if (startScreenDiv) {
-        startScreenDiv.classList.add('hidden'); 
-    }
-    
-    tryPlayMusic();
-    
-    initGame();
+    // Esconde a tela inicial
+    const startScreenDiv = document.getElementById('startScreen');
+    if (startScreenDiv) {
+        startScreenDiv.classList.add('hidden'); 
+    }
+
+    // Inicia o jogo
+    initGame();
+
+    // Toca a música de fundo
+    const bgMusic = document.getElementById('bgMusic');
+    if (bgMusic) {
+        bgMusic.volume = 0.35;  // Ajusta o volume
+        bgMusic.play();          // Toca a música
+    }
 }
+
+// Adiciona o evento ao botão
+document.getElementById('startButton').addEventListener('click', startGame);
+
 
 
 // --- FUNÇÃO DE INICIALIZAÇÃO (Configuração de objetos) ---

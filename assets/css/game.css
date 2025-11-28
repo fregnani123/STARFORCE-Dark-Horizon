@@ -77,6 +77,56 @@ body {
 .overlay-button.can-upgrade {
     background-color: rgba(40, 167, 70, 0.219);
 }
+/* 🔥 Estado máximo — energia interna laranja */
+.weapon-max {
+    background: radial-gradient(
+        circle,
+        rgba(255, 170, 50, 0.9) 0%,   /* núcleo brilhante */
+        rgba(255, 120, 0, 0.85) 40%, /* fogo leve */
+        rgba(255, 90, 0, 0.75) 70%,  /* brilho externo */
+        rgba(255, 150, 0, 0.3) 100%  /* borda suave */
+    );
+
+    color: #ffffff;
+    font-weight: 900;
+    border: 2px solid #ffe9a3;
+    border-radius: 50%;
+    
+    text-shadow: 
+        0 0 6px #ffffff,
+        0 0 12px #ffe8c0;
+
+    box-shadow:
+        0 0 12px #ffae00,
+        0 0 25px #ff8c00,
+        0 0 45px #ff6a00,
+        inset 0 0 15px #ffdd8a,
+        inset 0 0 30px #ff9d00;
+
+    animation: weaponMaxFire 1.4s infinite alternate ease-in-out;
+}
+
+/* 🔥 animação tipo chama respirando */
+@keyframes weaponMaxFire {
+    0% {
+        box-shadow:
+            0 0 10px #ffae00,
+            0 0 22px #ff8c00,
+            0 0 40px #ff6a00,
+            inset 0 0 12px #ffd57f,
+            inset 0 0 25px #ff9d00;
+        transform: scale(1);
+    }
+    100% {
+        box-shadow:
+            0 0 20px #ffd56b,
+            0 0 35px #ffb300,
+            0 0 60px #ff7a00,
+            inset 0 0 18px #ffe4a3,
+            inset 0 0 40px #ffae00;
+        transform: scale(1.04);
+    }
+}
 
 
 #superLaserButton {

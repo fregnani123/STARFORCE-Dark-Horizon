@@ -5,13 +5,17 @@ function updateUpgradeButton() {
     const button = document.getElementById('upgradeButton');
     if (!button || !playerShip) return;
 
-    // 1. Verifica se o nível máximo foi atingido
-    if (playerShip.weaponLevel >= playerShip.maxWeaponLevel) {
-        button.textContent = "MAX WEAPON";
-        button.disabled = true;
-        button.style.backgroundColor = 'gray';
-        return;
-    }
+// 1. Verifica se o nível máximo foi atingido
+if (playerShip.weaponLevel >= playerShip.maxWeaponLevel) {
+    button.textContent = "MAX WEAPON";
+    button.disabled = true;
+
+    // Ativa o neon corretamente 🎇
+    button.classList.add("weapon-max");
+
+    return;
+}
+
 
     // 2. Atualiza o custo
     button.textContent = `UPGRADE (${nextWeaponUpgradeCost})`;
