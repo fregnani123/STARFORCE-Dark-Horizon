@@ -70,7 +70,7 @@ function initGame() {
         SHIP_WIDTH, 
         SHIP_HEIGHT, 
         "../assets/img/nave.png",
-        500 
+        10000 
     );
     
     // 🚨 CORREÇÃO: Inicializa a variável global 'lastTime' para sincronizar o gameLoop

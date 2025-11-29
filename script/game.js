@@ -27,7 +27,7 @@ let superLaserAvailable = true;
 let requiredScoreForNextLaser = 0;
 let superLaserUsed = false;
 let superLaserCharge = 0;
-const SUPER_LASER_REQUIREMENT = 500;
+const SUPER_LASER_REQUIREMENT = 100;
 
 // Upgrade Weapon
 let nextWeaponUpgradeCost = 100;
