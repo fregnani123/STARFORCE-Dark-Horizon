@@ -20,8 +20,6 @@ function tryPlayMusic() {
             });
     }
 }
-
-// JavaScript
 function startGame() {
     // Esconde a tela inicial
     const startScreenDiv = document.getElementById('startScreen');
@@ -35,10 +33,32 @@ function startGame() {
     // Toca a música de fundo
     const bgMusic = document.getElementById('bgMusic');
     if (bgMusic) {
-        bgMusic.volume = 0.35;  // Ajusta o volume
-        bgMusic.play();          // Toca a música
+        bgMusic.volume = 0.35;  
+        bgMusic.play();         
+    }
+
+    // Prepara o som do tiro com atraso de 2 segundos
+    const shootSound = document.getElementById('shootSound');
+    if (shootSound) {
+        shootSound.volume = 0.1; // diminui o volume do tiro (0 a 1)
+        setTimeout(() => {
+            shootSound.currentTime = 0;
+            shootSound.loop = true; // loop infinito
+            shootSound.play();
+        }, 2000); // 2000 ms = 2 segundos
     }
 }
+
+
+// Função para disparar o tiro
+function shoot() {
+    const shootSound = document.getElementById('shootSound');
+    if (shootSound) {
+        shootSound.currentTime = 0; // Reinicia o som do início
+        shootSound.play();          // Toca o tiro
+    }
+}
+
 
 // Adiciona o evento ao botão
 document.getElementById('startButton').addEventListener('click', startGame);
