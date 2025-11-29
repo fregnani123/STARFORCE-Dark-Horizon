@@ -147,8 +147,8 @@ function gameLoop(timestamp) {
         deltaTime = MAX_DELTA_TIME_MS;
     }
 
-// 🔥 Atualiza a % do Super Laser no botão
-updateSuperLaserButton();
+    // 🔥 Atualiza a % do Super Laser no botão
+    updateSuperLaserButton();
 
     // Fundo
     if (gameBackground) {
@@ -166,7 +166,7 @@ updateSuperLaserButton();
             enemySpawnTimer += deltaTime;
             if (enemySpawnTimer >= ENEMY_SPAWN_INTERVAL) {
                 if (typeof spawnRandomEnemy === 'function') {
-                    spawnRandomEnemy();
+                    spawnRandomEnemy(score); // passa o score atual
                 }
                 enemySpawnTimer -= ENEMY_SPAWN_INTERVAL;
             }
