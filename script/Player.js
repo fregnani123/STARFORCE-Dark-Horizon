@@ -40,10 +40,11 @@ class Player extends GameObject {
         this.introDuration = 2000;
         this.introTimer = 0;
         this.inIntro = true;
-        this.initialScale = 2.5;
-        this.targetScale = 1.0;
-        this.initialX = (CANVAS_WIDTH / 2) - (this.width * this.initialScale / 2);
-        this.initialY = -this.height * this.initialScale;
+       this.initialScale = 2.5;
+this.targetScale = 1.0;
+this.initialX = (CANVAS_WIDTH / 2) - (this.width * this.initialScale / 2);
+this.initialY = -this.height * this.initialScale;
+
         this.x = this.initialX;
         this.y = this.initialY;
 

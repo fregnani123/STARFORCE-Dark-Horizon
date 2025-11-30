@@ -1,4 +1,43 @@
+// 🎯 Score necessário para chamar o boss
+const BOSS_SCORE_TRIGGER = 300;  // altere se quiser
+let bossDefeated = false;
+
+let currentBoss = null;
+
+function spawnBoss() {
+   if (bossDefeated) return; // já foi morto → não cria mais
+    if (currentBoss && currentBoss.isAlive) return; // já existe vivo
+
+    currentBoss = new Boss(
+        CANVAS_WIDTH / 2 - 150,
+        -300,
+        300,
+        250,
+        "../assets/img/boss.png",
+        2500
+    );
+
+    // 🔥 ATIVA A BARRA DE VIDA DO BOSS
+    const barContainer = document.getElementById("bossHealthBarContainer");
+    const bar = document.getElementById("bossHealthBar");
+
+    if (barContainer) {
+        barContainer.style.display = "block";
+    }
+
+    if (bar) {
+        bar.style.width = "100%"; // reinicia ao aparecer
+    }
+}
+
+
 function spawnRandomEnemy(currentScore = 0) {
+
+    // ⚠️ Quando atingir X pontos, para inimigos comuns e chama o boss
+    if (currentScore >= BOSS_SCORE_TRIGGER) {
+        spawnBoss();
+        return;
+    }
 
     const enemyTypes = [
         // ----------------------------------------------------------
@@ -64,7 +103,7 @@ function spawnRandomEnemy(currentScore = 0) {
             weaponLevel: 3
         },
 
-          // ⭐ NIVEL 4 — DISPARA PARA TODOS OS LADOS (SPREAD)
+        // ⭐ NIVEL 4 — DISPARA PARA TODOS OS LADOS (SPREAD)
         {
             imagePath: "../assets/img/inimigo4.png",
             width: 85, height: 85,
@@ -84,27 +123,26 @@ function spawnRandomEnemy(currentScore = 0) {
 
     ];
 
-    // --- Filtrar inimigos liberados ---
+    // --- Filtrar tipos permitidos pelo score ---
     const availableEnemies = enemyTypes.filter(t => currentScore >= t.minScore);
     if (!availableEnemies.length) return;
 
-    // --- Escolher aleatório ---
+    // --- Pega tipo aleatório ---
     const randomType = availableEnemies[Math.floor(Math.random() * availableEnemies.length)];
 
-    // --- Criar cópia segura ---
+    // --- Cópia segura ---
     const typeCopy = JSON.parse(JSON.stringify(randomType));
 
-    // --- Escala dificuldade ---
+    // --- Escalonar dificuldade ---
     typeCopy.speed += Math.floor(currentScore / 200);
     typeCopy.maxHealth += Math.floor(currentScore / 120);
 
-    // --- Criar lista de projéteis ---
-const projectileList = [
-    typeCopy.projectileImgUM,
-    typeCopy.projectileImgDois,
-    typeCopy.projectileImgTres
-].filter(img => img !== null && img !== undefined);
-
+    // --- Lista de projéteis usada pelo inimigo ---
+    const projectileList = [
+        typeCopy.projectileImgUM,
+        typeCopy.projectileImgDois,
+        typeCopy.projectileImgTres
+    ].filter(img => img);
 
     // --- Posição de spawn ---
     const spawnX = Math.random() * (CANVAS_WIDTH - typeCopy.width);
@@ -127,10 +165,6 @@ const projectileList = [
 
     enemies.push(newEnemy);
 }
-
-
-
-
 
 
 

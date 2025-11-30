@@ -106,6 +106,29 @@ body {
     animation: weaponMaxFire 1.4s infinite alternate ease-in-out;
 }
 
+#bossHealthBarContainer {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;              /* 🔥 Tamanho ideal para canvas 500px */
+    height: 18px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid #fff;
+    border-radius: 12px;
+    display: none;             /* Escondido até o boss nascer */
+    z-index: 999;
+}
+
+#bossHealthBar {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, #ff4b4b, #b30000);
+    border-radius: 10px;
+    transition: width 0.20s linear;  /* 🔥 ANIMAÇÃO BONITA */
+}
+
+
 /* 🔥 animação tipo chama respirando */
 @keyframes weaponMaxFire {
     0% {

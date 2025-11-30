@@ -159,6 +159,16 @@ function gameLoop(timestamp) {
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     }
 
+
+
+if (currentBoss && currentBoss.isAlive) {
+    currentBoss.update(deltaTime);
+    currentBoss.fire(enemyProjectiles);
+    currentBoss.draw(ctx);
+}
+
+
+
     if (playerShip && playerShip.isAlive) {
 
         // Spawn de inimigos
@@ -207,6 +217,30 @@ function gameLoop(timestamp) {
                 projectile.target = findNearestEnemy(projectile);
             }
         }
+
+        
+// 🔥 Colisão dos tiros do player com o Boss
+if (currentBoss && currentBoss.isAlive) {
+    for (let j = playerShip.projectiles.length - 1; j >= 0; j--) {
+        const projectile = playerShip.projectiles[j];
+
+      if (checkCollision(projectile, currentBoss)) {
+
+    const before = currentBoss.currentHealth;
+
+    currentBoss.takeDamage(projectile.damage);
+
+    console.log(
+        `%cBOSS HP: ${before} → ${currentBoss.currentHealth} (dano: ${projectile.damage})`,
+        'color: yellow; font-size: 16px; font-weight: bold;'
+    );
+
+    projectile.isAlive = false;
+    playerShip.projectiles.splice(j, 1);
+}
+
+    }
+}
 
         // Inimigos
         for (let i = enemies.length - 1; i >= 0; i--) {
@@ -317,4 +351,15 @@ function gameLoop(timestamp) {
     }
 
     requestAnimationFrame(gameLoop);
+}
+
+
+function endGame() {
+    setTimeout(() => {
+        alert("🎉 Você derrotou o chefe!");
+
+        // Recarrega a página e volta para a tela inicial
+        location.reload();
+
+    }, 800);
 }
