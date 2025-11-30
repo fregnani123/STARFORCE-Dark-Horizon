@@ -27,10 +27,10 @@ let superLaserAvailable = true;
 let requiredScoreForNextLaser = 0;
 let superLaserUsed = false;
 let superLaserCharge = 0;
-const SUPER_LASER_REQUIREMENT = 100;
+const SUPER_LASER_REQUIREMENT = 1000;
 
-// Upgrade Weapon
-let nextWeaponUpgradeCost = 100;
+// Upgrade Weapon - armas
+let nextWeaponUpgradeCost = 200;
 
 // Spawn de inimigos
 let enemySpawnTimer = 0;

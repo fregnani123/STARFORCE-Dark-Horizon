@@ -23,31 +23,34 @@ function tryPlayMusic() {
 function startGame() {
     // Esconde a tela inicial
     const startScreenDiv = document.getElementById('startScreen');
-    if (startScreenDiv) {
-        startScreenDiv.classList.add('hidden'); 
-    }
+    if (startScreenDiv) startScreenDiv.classList.add('hidden');
 
     // Inicia o jogo
     initGame();
 
-    // Toca a música de fundo
+    // Música de fundo
     const bgMusic = document.getElementById('bgMusic');
     if (bgMusic) {
-        bgMusic.volume = 0.35;  
-        bgMusic.play();         
+        bgMusic.volume = 0.35;
+        bgMusic.play();
     }
 
-    // Prepara o som do tiro com atraso de 2 segundos
-    const shootSound = document.getElementById('shootSound');
-    if (shootSound) {
-        shootSound.volume = 0.1; // diminui o volume do tiro (0 a 1)
+    // Som do tiro usando Web Audio API
+    const shootSoundElement = document.getElementById('shootSound');
+    if (shootSoundElement) {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const track = audioCtx.createMediaElementSource(shootSoundElement);
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.value = 0.2; // controla o volume real (0 a 1)
+        track.connect(gainNode).connect(audioCtx.destination);
+
         setTimeout(() => {
-            shootSound.currentTime = 0;
-            shootSound.loop = true; // loop infinito
-            shootSound.play();
-        }, 2000); // 2000 ms = 2 segundos
+            shootSoundElement.currentTime = 0;
+            shootSoundElement.play();
+        }, 2000); // espera 2 segundos
     }
 }
+
 
 
 // Função para disparar o tiro
@@ -68,8 +71,8 @@ document.getElementById('startButton').addEventListener('click', startGame);
 // --- FUNÇÃO DE INICIALIZAÇÃO (Configuração de objetos) ---
 function initGame() {
     // Dimensões da nave usadas no Player.js: width: 100, height: 80
-    const SHIP_WIDTH = 100;
-    const SHIP_HEIGHT = 80;
+    const SHIP_WIDTH = 80;
+    const SHIP_HEIGHT = 85;
 
     // 0. Cria o Fundo
     gameBackground = new Background(
@@ -90,7 +93,7 @@ function initGame() {
         SHIP_WIDTH, 
         SHIP_HEIGHT, 
         "../assets/img/nave.png",
-        10000 
+        2000 
     );
     
     // 🚨 CORREÇÃO: Inicializa a variável global 'lastTime' para sincronizar o gameLoop

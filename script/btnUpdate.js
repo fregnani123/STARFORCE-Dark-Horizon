@@ -70,8 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // 🔥 FUNÇÃO PARA ATIVAR SUPER LASER 
 // ------------------------------------------------------------------
 function trySuperLaser() {
-
-    // Bloqueia se não tem player
+    // Bloqueia se não tem player, estiver em intro ou já ativo
     if (!playerShip || playerShip.inIntro || playerShip.superLaserActive) return;
 
     // Verifica se já carregou os 100 pontos necessários
@@ -83,11 +82,21 @@ function trySuperLaser() {
     // Ativa o super laser normal da nave
     playerShip.activateSuperLaser();
     
+    // --- Toca o som do super laser ---
+    const superLaserSound = document.getElementById('superLaserSound');
+    if (superLaserSound) {
+        // Clona o áudio para não travar se ativar múltiplas vezes
+        const laserAudio = superLaserSound.cloneNode(true);
+        laserAudio.volume = 0.3;  // ajusta volume
+        laserAudio.play();
+    }
+
     // Reseta a carga para começar do zero de novo
     superLaserCharge = 0;
 
     console.log("🔥 Super Laser ativado! Recarga reiniciada.");
 }
+
 
 const superLaserButton = document.getElementById('superLaserButton') 
 

@@ -49,9 +49,9 @@ class Player extends GameObject {
 
         // Plasma e 3D
         this.plasmaColor = 'rgba(0, 191, 255, 0.7)';
-        this.plasmaLength = 40;
+        this.plasmaLength = 45;
         this.plasmaWidth = 20;
-        this.plasmaOffset = -10;
+        this.plasmaOffset = -15;
         this.plasmaOscillation = 5;
         this.plasmaSpeed = 0.02;
 
@@ -71,12 +71,6 @@ class Player extends GameObject {
         this.perspectiveSkewX = 0.5;
         this.perspectiveScaleY = 0.2;
         this.perspectiveRotateZ = 20;
-
-        // --- Áudio de tiro contínuo ---
-        this.shootingSound = new Audio("../assets/audio/060130_laser-bullet-86975.mp3"); // coloque o caminho correto
-        this.shootingSound.loop = true;
-        this.shootingSound.volume = 0.3;
-        this.isShooting = false;
     }
 
     upgradeWeapon() {
@@ -90,11 +84,15 @@ class Player extends GameObject {
 
     activateSuperLaser() {
         if (this.superLaserActive) return 0;
+
         if (score >= this.superLaserCost) {
             this.superLaserActive = true;
             this.superLaserTimer = 0;
+
+            // Ativa pulso visual
             this.superLaserPulsing = true;
             this.superLaserPulseTimer = 0;
+
             return this.superLaserCost;
         }
         return 0;
@@ -113,14 +111,7 @@ class Player extends GameObject {
     }
 
     fire() {
-        if (this.fireTimer < this.fireRate || !this.isAlive || this.inIntro || this.superLaserActive) {
-            // Para o som se não estiver mais atirando
-            if (this.isShooting) {
-                this.shootingSound.pause();
-                this.isShooting = false;
-            }
-            return;
-        }
+        if (this.fireTimer < this.fireRate || !this.isAlive || this.inIntro || this.superLaserActive) return;
 
         const newProjectiles = [];
 
@@ -137,26 +128,19 @@ class Player extends GameObject {
             if (this.bombTimer === undefined) this.bombTimer = 0;
             const BOMB_FIRE_RATE = 1000;
             if (this.bombTimer >= BOMB_FIRE_RATE) {
-                newProjectiles.push(new Projectile(this.x + this.width / 2 - 15, this.y - 10, 30, 30, "../assets/img/bomba.png", 250, 50, 'player', true));
+                newProjectiles.push(new Projectile(this.x + this.width / 15 - 15, this.y - 10, 30, 30, "../assets/img/bomba.png", 250, 50, 'player', false));
                 this.bombTimer = 0;
             }
         }
 
         this.projectiles.push(...newProjectiles);
         this.fireTimer = 0;
-
-        // Toca o som contínuo se não estiver tocando
-        if (!this.isShooting) {
-            this.shootingSound.currentTime = 0;
-            this.shootingSound.play();
-            this.isShooting = true;
-        }
     }
 
     update(deltaTime) {
         const REST_Y = CANVAS_HEIGHT * 0.8;
 
-        // --- Intro ---
+        // Intro
         if (this.inIntro) {
             this.introTimer += deltaTime;
             const linearProgress = Math.min(1, this.introTimer / this.introDuration);
@@ -177,7 +161,7 @@ class Player extends GameObject {
             }
         }
 
-        // --- Super Laser ---
+        // Super Laser
         if (this.superLaserActive) {
             this.superLaserTimer += deltaTime;
             if (this.superLaserTimer >= this.superLaserDuration) {
@@ -186,7 +170,7 @@ class Player extends GameObject {
             }
         }
 
-        // --- Pulso visual ---
+        // Pulso visual
         if (this.superLaserPulsing) {
             this.superLaserPulseTimer += deltaTime;
             if (this.superLaserPulseTimer >= this.superLaserPulseDuration) {
@@ -195,11 +179,9 @@ class Player extends GameObject {
             }
         }
 
-        // Atualiza timers
         this.fireTimer += deltaTime;
         if (this.weaponLevel === 3) this.bombTimer = (this.bombTimer || 0) + deltaTime;
 
-        // --- Movimento ---
         if (!this.superLaserActive) {
             const baseMovement = this.speed * deltaTime / 1000;
             let finalDx = this.dx;
@@ -231,97 +213,95 @@ class Player extends GameObject {
             this.x += dragSideMovement;
         }
 
-        // Limites da tela
         const TOP_LIMIT = CANVAS_HEIGHT * 0.4;
         const BOTTOM_LIMIT = REST_Y;
         this.x = Math.max(0, Math.min(this.x, CANVAS_WIDTH - this.width));
         this.y = Math.max(TOP_LIMIT, Math.min(this.y, BOTTOM_LIMIT));
 
-        // Atualiza projéteis
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             this.projectiles[i].update(deltaTime);
             this.projectiles[i].y += this.wingRotationY * 0.1;
             if (!this.projectiles[i].isAlive) this.projectiles.splice(i, 1);
         }
-
-        // Para o som se não estiver atirando
-        if (this.fireTimer >= this.fireRate && this.isShooting) {
-            this.shootingSound.pause();
-            this.isShooting = false;
-        }
     }
 
-    draw(ctx) {
-        if (!this.img.complete || !this.isAlive) return;
+  draw(ctx) {
+    if (!this.img.complete || !this.isAlive) return;
 
-        const centerX = this.x + this.width / 2;
-        const centerY = this.y + this.height / 2;
+    const centerX = this.x + this.width / 2;
+    const centerY = this.y + this.height / 2;
 
-        // --- Super Laser Épico ---
-        if (this.superLaserActive) {
-            const progress = this.superLaserTimer / this.superLaserDuration;
-            const alphaBase = 1.0 - progress;
-            const maxRadius = Math.sqrt(CANVAS_WIDTH ** 2 + CANVAS_HEIGHT ** 2);
-
-            ctx.save();
-            for (let i = 0; i < 3; i++) {
-                const waveProgress = Math.min(1, (progress + i * 0.1));
-                const radius = maxRadius * waveProgress;
-                const alpha = alphaBase * (1 - i * 0.3);
-
-                const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-                gradient.addColorStop(0, `rgba(0, 191, 255, ${alpha})`);
-                gradient.addColorStop(0.4, `rgba(0, 255, 255, ${alpha * 0.7})`);
-                gradient.addColorStop(0.7, `rgba(255, 255, 0, ${alpha * 0.5})`);
-                gradient.addColorStop(1, `rgba(255, 255, 0, 0)`);
-
-                ctx.fillStyle = gradient;
-
-                const stretchX = 1 + Math.abs(this.wingRotationX) * (1.5 + i * 0.5);
-                const stretchY = 1 + Math.abs(this.wingRotationY) * (0.5 + i * 0.2);
-
-                ctx.translate(centerX, centerY);
-                ctx.scale(stretchX, stretchY);
-                ctx.translate(-centerX, -centerY);
-
-                ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-            }
-            ctx.restore();
-        }
+    // --- Super Laser Épico: múltiplas ondas concêntricas ---
+    if (this.superLaserActive) {
+        const progress = this.superLaserTimer / this.superLaserDuration;
+        const alphaBase = 1.0 - progress;
+        const maxRadius = Math.sqrt(CANVAS_WIDTH ** 2 + CANVAS_HEIGHT ** 2);
 
         ctx.save();
+        for (let i = 0; i < 3; i++) { // 3 ondas sobrepostas
+            const waveProgress = Math.min(1, (progress + i * 0.1)); // cada onda inicia com atraso
+            const radius = maxRadius * waveProgress;
+            const alpha = alphaBase * (1 - i * 0.3); // ondas secundárias mais transparentes
 
-        let scale = this.inIntro ? this.currentScale : 1.0;
-        if (this.superLaserPulsing) {
-            const pulseProgress = Math.min(1, this.superLaserPulseTimer / this.superLaserPulseDuration);
-            const eased = easeOutQuad(pulseProgress);
-            scale = 1 + (this.superLaserScaleAmount - 1) * (1 - eased);
-        }
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+            gradient.addColorStop(0, `rgba(0, 191, 255, ${alpha})`); // azul intenso
+            gradient.addColorStop(0.4, `rgba(0, 255, 255, ${alpha * 0.7})`); // ciano
+            gradient.addColorStop(0.7, `rgba(255, 255, 0, ${alpha * 0.5})`); // amarelo
+            gradient.addColorStop(1, `rgba(255, 255, 0, 0)`); // borda transparente
 
-        ctx.translate(centerX, centerY);
-        const pitchScaleY = 1 - (Math.abs(this.wingRotationY) * this.perspectiveScaleY);
-        ctx.scale(scale, pitchScaleY * scale);
-
-        const skewAmountX = this.wingRotationX * this.perspectiveSkewX;
-        const rollAngleInRadians = this.wingRotationX * this.perspectiveRotateZ * (Math.PI / 180);
-        ctx.rotate(rollAngleInRadians);
-        ctx.transform(1, 0, skewAmountX, 1, 0, 0);
-
-        if (!this.inIntro && this.isAlive && !this.superLaserActive) {
-            const plasmaLength = this.plasmaLength + Math.sin(Date.now() * this.plasmaSpeed) * this.plasmaOscillation;
-            const plasmaWidth = this.plasmaWidth + Math.cos(Date.now() * this.plasmaSpeed * 0.5) * (this.plasmaOscillation / 2);
-            const gradient = ctx.createLinearGradient(0, this.height / 2 + this.plasmaOffset, 0, this.height / 2 + this.plasmaOffset + plasmaLength);
-            gradient.addColorStop(0, this.plasmaColor);
-            gradient.addColorStop(1, 'rgba(0, 191, 255, 0)');
             ctx.fillStyle = gradient;
-            ctx.globalAlpha = 0.8;
-            ctx.fillRect(-plasmaWidth / 2, this.height / 2 + this.plasmaOffset, plasmaWidth, plasmaLength);
-            ctx.globalAlpha = 1.0;
+
+            // Alongamento dinâmico baseado na rotação da nave
+            const stretchX = 1 + Math.abs(this.wingRotationX) * (1.5 + i * 0.5);
+            const stretchY = 1 + Math.abs(this.wingRotationY) * (0.5 + i * 0.2);
+
+            ctx.translate(centerX, centerY);
+            ctx.scale(stretchX, stretchY);
+            ctx.translate(-centerX, -centerY);
+
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         }
-
-        ctx.globalAlpha = 1.0;
-        ctx.drawImage(this.img, -this.width / 2, -this.height / 2, this.width, this.height);
-
         ctx.restore();
     }
+
+    ctx.save();
+
+    // --- Escala base + pulso ---
+    let scale = this.inIntro ? this.currentScale : 1.0;
+    if (this.superLaserPulsing) {
+        const pulseProgress = Math.min(1, this.superLaserPulseTimer / this.superLaserPulseDuration);
+        const eased = easeOutQuad(pulseProgress);
+        scale = 1 + (this.superLaserScaleAmount - 1) * (1 - eased);
+    }
+
+    ctx.translate(centerX, centerY);
+    const pitchScaleY = 1 - (Math.abs(this.wingRotationY) * this.perspectiveScaleY);
+    ctx.scale(scale, pitchScaleY * scale);
+
+    const skewAmountX = this.wingRotationX * this.perspectiveSkewX;
+    const rollAngleInRadians = this.wingRotationX * this.perspectiveRotateZ * (Math.PI / 180);
+    ctx.rotate(rollAngleInRadians);
+    ctx.transform(1, 0, skewAmountX, 1, 0, 0);
+
+    // --- Plasma traseiro da nave ---
+    if (!this.inIntro && this.isAlive && !this.superLaserActive) {
+        const plasmaLength = this.plasmaLength + Math.sin(Date.now() * this.plasmaSpeed) * this.plasmaOscillation;
+        const plasmaWidth = this.plasmaWidth + Math.cos(Date.now() * this.plasmaSpeed * 0.5) * (this.plasmaOscillation / 2);
+        const gradient = ctx.createLinearGradient(0, this.height / 2 + this.plasmaOffset, 0, this.height / 2 + this.plasmaOffset + plasmaLength);
+        gradient.addColorStop(0, this.plasmaColor);
+        gradient.addColorStop(1, 'rgba(0, 191, 255, 0)');
+        ctx.fillStyle = gradient;
+        ctx.globalAlpha = 0.8;
+        ctx.fillRect(-plasmaWidth / 2, this.height / 2 + this.plasmaOffset, plasmaWidth, plasmaLength);
+        ctx.globalAlpha = 1.0;
+    }
+
+    // --- Desenha a nave ---
+    ctx.globalAlpha = 1.0;
+    ctx.drawImage(this.img, -this.width / 2, -this.height / 2, this.width, this.height);
+
+    ctx.restore();
+}
+
+
 }
