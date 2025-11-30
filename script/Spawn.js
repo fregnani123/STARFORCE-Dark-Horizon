@@ -1,5 +1,5 @@
 // 🎯 Score necessário para chamar o boss
-const BOSS_SCORE_TRIGGER = 300;  // altere se quiser
+const BOSS_SCORE_TRIGGER = 800;  // altere se quiser
 let bossDefeated = false;
 
 let currentBoss = null;
@@ -14,7 +14,7 @@ function spawnBoss() {
         300,
         250,
         "../assets/img/boss.png",
-        2500
+        15000
     );
 
     // 🔥 ATIVA A BARRA DE VIDA DO BOSS
