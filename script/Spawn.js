@@ -1,5 +1,5 @@
 // 🎯 Score necessário para chamar o boss
-const BOSS_SCORE_TRIGGER = 800;  // altere se quiser
+const BOSS_SCORE_TRIGGER = 200;  // altere se quiser
 let bossDefeated = false;
 
 let currentBoss = null;

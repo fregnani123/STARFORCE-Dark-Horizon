@@ -107,17 +107,18 @@ body {
 }
 
 #bossHealthBarContainer {
-    position: absolute;
-    top: 20px;
-    left: 50%;
+    position: fixed !important;
+    top: 10px !important;
+    left: 50% !important;
     transform: translateX(-50%);
-    width: 300px;              /* 🔥 Tamanho ideal para canvas 500px */
+    width: 60vw;
+    max-width: 320px;
     height: 18px;
     background: rgba(255, 255, 255, 0.15);
     border: 2px solid #fff;
     border-radius: 12px;
-    display: none;             /* Escondido até o boss nascer */
-    z-index: 999;
+    z-index: 999999 !important;
+    display: none;
 }
 
 #bossHealthBar {
