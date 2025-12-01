@@ -117,19 +117,19 @@ this.initialY = -this.height * this.initialScale;
         const newProjectiles = [];
 
         if (this.weaponLevel === 1) {
-            newProjectiles.push(new Projectile(this.x + this.width / 2 - 10, this.y - 20, 20, 40, "../assets/img/tiro.png", 600, 15, 'player'));
+            newProjectiles.push(new Projectile(this.x + this.width / 2 - 10, this.y - 20, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player'));
         } else if (this.weaponLevel === 2) {
-            newProjectiles.push(new Projectile(this.x + this.width * 0.25 - 10, this.y - 10, 20, 40, "../assets/img/tiro.png", 600, 15, 'player'));
-            newProjectiles.push(new Projectile(this.x + this.width * 0.75 - 10, this.y - 10, 20, 40, "../assets/img/tiro.png", 600, 15, 'player'));
+            newProjectiles.push(new Projectile(this.x + this.width * 0.25 - 10, this.y - 10, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player'));
+            newProjectiles.push(new Projectile(this.x + this.width * 0.75 - 10, this.y - 10, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player'));
         } else if (this.weaponLevel === 3) {
-            newProjectiles.push(new Projectile(this.x + this.width / 2 - 10, this.y - 20, 20, 40, "../assets/img/tiro.png", 600, 15, 'player'));
-            newProjectiles.push(new Projectile(this.x + this.width * 0.15 - 10, this.y - 5, 20, 40, "../assets/img/tiro.png", 600, 15, 'player'));
-            newProjectiles.push(new Projectile(this.x + this.width * 0.85 - 10, this.y - 5, 20, 40, "../assets/img/tiro.png", 600, 15, 'player'));
+            newProjectiles.push(new Projectile(this.x + this.width / 2 - 10, this.y - 20, 20, 40, "../assets/img/projectile/tiro-azul.png", 600, 15, 'player'));
+            newProjectiles.push(new Projectile(this.x + this.width * 0.15 - 10, this.y - 5, 20, 40,"../assets/img/projectile/tiro.png", 600, 15, 'player'));
+            newProjectiles.push(new Projectile(this.x + this.width * 0.85 - 10, this.y - 5, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player'));
 
             if (this.bombTimer === undefined) this.bombTimer = 0;
             const BOMB_FIRE_RATE = 1000;
             if (this.bombTimer >= BOMB_FIRE_RATE) {
-                newProjectiles.push(new Projectile(this.x + this.width / 15 - 15, this.y - 10, 30, 30, "../assets/img/bomba.png", 250, 50, 'player', false));
+                newProjectiles.push(new Projectile(this.x + this.width / 15 - 15, this.y - 10, 30, 50, "../assets/img/projectile/bomba.png", 250, 50, 'player', false));
                 this.bombTimer = 0;
             }
         }

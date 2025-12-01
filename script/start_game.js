@@ -76,7 +76,7 @@ function initGame() {
 
     // 0. Cria o Fundo
     gameBackground = new Background(
-        "../assets/img/cenario.jpg",
+        "../assets/img/cenarios/cenario.jpg",
         150,
         CANVAS_WIDTH,
         CANVAS_HEIGHT
@@ -92,7 +92,7 @@ function initGame() {
         playerTargetY, 
         SHIP_WIDTH, 
         SHIP_HEIGHT, 
-        "../assets/img/nave.png",
+        "../assets/img/nave-player/nave-player.png",
         2000 
     );
     

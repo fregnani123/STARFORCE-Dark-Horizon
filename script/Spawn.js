@@ -1,20 +1,20 @@
 // 🎯 Score necessário para chamar o boss
-const BOSS_SCORE_TRIGGER = 200;  // altere se quiser
+const BOSS_SCORE_TRIGGER = 3000;  // altere se quiser
 let bossDefeated = false;
 
 let currentBoss = null;
 
 function spawnBoss() {
-   if (bossDefeated) return; // já foi morto → não cria mais
+    if (bossDefeated) return; // já foi morto → não cria mais
     if (currentBoss && currentBoss.isAlive) return; // já existe vivo
 
     currentBoss = new Boss(
         CANVAS_WIDTH / 2 - 150,
         -300,
-        300,
-        250,
-        "../assets/img/boss.png",
-        15000
+        300, // Largura
+        300, // Altura (AGORA IGUAL À LARGURA)
+        "../assets/img/boss/boss.png",
+        16000
     );
 
     // 🔥 ATIVA A BARRA DE VIDA DO BOSS
@@ -43,8 +43,10 @@ function spawnRandomEnemy(currentScore = 0) {
         // ----------------------------------------------------------
         // NIVEL 1
         // ----------------------------------------------------------
+        // Objeto de Configuração do Inimigo (Exemplo)
+
         {
-            imagePath: "../assets/img/inimigo1.png",
+            imagePath: "../assets/img/Enemy/boss-estrela (1).png",
             width: 60, height: 60,
             maxHealth: 50,
             speed: 100,
@@ -52,41 +54,46 @@ function spawnRandomEnemy(currentScore = 0) {
             damage: 10,
             projectileSpeed: 250,
 
-            projectileImgUM: "../assets/img/tiro1.png",
+            projectileImgUM: "../assets/img/projectile/tiro-espinho-cinza.png",
             projectileImgDois: null,
             projectileImgTres: null,
 
             minScore: 0,
             scoreValue: 10,
-            weaponLevel: 1
+            weaponLevel: 4,
+
+            // NOVO: Flag para que este inimigo gire
+            isRotating: true
         },
 
         // ----------------------------------------------------------
         // NIVEL 2
         // ----------------------------------------------------------
         {
-            imagePath: "../assets/img/inimigo2.png",
-            width: 70, height: 80,
+            imagePath: "../assets/img/Enemy/inimigo4.png",
+            width: 100, height: 60,
             maxHealth: 40,
             speed: 110,
             fireRate: 1400,
             damage: 20,
             projectileSpeed: 270,
 
-            projectileImgUM:"../assets/img/tiro2.png",
-            projectileImgDois: "../assets/img/tiro2.png",
+            projectileImgUM: "../assets/img/projectile/tiro-espinho-roxo.png",
+            projectileImgDois: "../assets/img/projectile/tiro-espinho-roxo.png",
             projectileImgTres: null,
 
             minScore: 0,
             scoreValue: 25,
-            weaponLevel: 2
+            weaponLevel: 2,
+             // NOVO: Flag para que este inimigo gire
+            isRotating: false
         },
 
         // ----------------------------------------------------------
         // NIVEL 3
         // ----------------------------------------------------------
         {
-            imagePath: "../assets/img/inimigo3.png",
+            imagePath: "../assets/img/Enemy/inimigo3.png",
             width: 100, height: 100,
             maxHealth: 90,
             speed: 120,
@@ -94,18 +101,20 @@ function spawnRandomEnemy(currentScore = 0) {
             damage: 14,
             projectileSpeed: 285,
 
-            projectileImgUM:"../assets/img/tiro4.png",
-            projectileImgDois: "../assets/img/tiro4.png",
-            projectileImgTres: "../assets/img/tiro4.png",
+            projectileImgUM: "../assets/img/projectile/tiro-azul-baixo.png",
+            projectileImgDois: "../assets/img/projectile/tiro-azul-baixo.png",
+            projectileImgTres: "../assets/img/projectile/tiro-azul-baixo.png",
 
             minScore: 300,
             scoreValue: 35,
-            weaponLevel: 3
+            weaponLevel: 3,
+             // NOVO: Flag para que este inimigo gire
+            isRotating: false
         },
 
         // ⭐ NIVEL 4 — DISPARA PARA TODOS OS LADOS (SPREAD)
         {
-            imagePath: "../assets/img/inimigo4.png",
+            imagePath: "../assets/img/Enemy/inimigo4.png",
             width: 85, height: 85,
             maxHealth: 150,
             speed: 130,
@@ -113,12 +122,14 @@ function spawnRandomEnemy(currentScore = 0) {
             damage: 16,
             projectileSpeed: 300,
 
-            projectileImgDois: "../assets/img/tiro3.png",
-            projectileImgTres: "../assets/img/tiro3.png",
+            projectileImgDois: "../assets/img/projectile/tiro-roxo.png",
+            projectileImgTres: "../assets/img/projectile/tiro-roxo.png",
 
-            minScore: 600,
+            minScore: 500,
             scoreValue: 60,
-            weaponLevel: 4
+            weaponLevel: 4,
+             // NOVO: Flag para que este inimigo gire
+            isRotating: false
         }
 
     ];
@@ -149,19 +160,20 @@ function spawnRandomEnemy(currentScore = 0) {
     const spawnY = -typeCopy.height;
 
     // --- Criar inimigo ---
-    const newEnemy = new Enemy(
-        spawnX, spawnY,
-        typeCopy.width, typeCopy.height,
-        typeCopy.imagePath,
-        typeCopy.maxHealth,
-        typeCopy.speed,
-        typeCopy.fireRate,
-        typeCopy.damage,
-        typeCopy.projectileSpeed,
-        projectileList,
-        typeCopy.weaponLevel,
-        typeCopy.scoreValue
-    );
+const newEnemy = new Enemy(
+    spawnX, spawnY,
+    typeCopy.width, typeCopy.height,
+    typeCopy.imagePath,
+    typeCopy.maxHealth,
+    typeCopy.speed,
+    typeCopy.fireRate,
+    typeCopy.damage,
+    typeCopy.projectileSpeed,
+    projectileList,
+    typeCopy.weaponLevel,
+    typeCopy.scoreValue,
+    typeCopy.isRotating || false // <--- O NOVO ARGUMENTO!
+);
 
     enemies.push(newEnemy);
 }

@@ -7,10 +7,13 @@ class Enemy extends GameObject {
         fireRate = 1500, damage = 10,
         projectileSpeed = 200,
 
-        projectileImgs = [],  // até 3 imagens de tiro
+        projectileImgs = [],    // até 3 imagens de tiro
 
-        weaponLevel = 1,      // nível da arma do inimigo
-        scoreValue = 10       // pontuação ao morrer
+        weaponLevel = 1,        // nível da arma do inimigo
+        scoreValue = 10,        // pontuação ao morrer
+        
+        // NOVO: Flag para ativar ou desativar a rotação. Padrão é FALSE.
+        isRotating = false 
     ) {
         super(x, y, width, height, imagePath);
 
@@ -24,6 +27,11 @@ class Enemy extends GameObject {
         this.initialX = x;
         this.amplitude = 50;
         this.frequency = 0.005;
+
+        // ** ROTAÇÃO ADICIONADA **
+        this.isRotating = isRotating; // Flag que controla a rotação
+        this.rotation = 0;            // Propriedade usada pelo GameObject.draw(ctx)
+        this.rotationSpeed = 0.05;    // Velocidade em graus por milissegundo
 
         // Tiro
         this.fireRate = fireRate;
@@ -52,6 +60,18 @@ class Enemy extends GameObject {
 
         // Movimento senoidal lateral
         this.x = this.initialX + Math.sin(this.y * this.frequency) * this.amplitude;
+
+        // ** LÓGICA DE ROTAÇÃO CONDICIONAL **
+        if (this.isRotating) {
+            this.rotation += this.rotationSpeed * deltaTime;
+            // Mantém o ângulo entre 0 e 360 graus
+            if (this.rotation > 360) {
+                this.rotation -= 360;
+            }
+        } else {
+            // Garante que inimigos que não devem girar fiquem em 0
+            this.rotation = 0;
+        }
 
         this.fireTimer += deltaTime;
     }
@@ -173,7 +193,6 @@ class Enemy extends GameObject {
             +0.28
         ));
     }
-
 
 
     // 4 – explosão instantânea 360° com 12 tiros

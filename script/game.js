@@ -42,7 +42,7 @@ const ENEMY_SPAWN_INTERVAL = 2000;
 const pickups = [];
 let nextHealthPickupScore = 100;
 const HEALTH_PICKUP_VALUE = 30;
-const HEALTH_PICKUP_IMAGE = "../assets/img/concerto.png";
+const HEALTH_PICKUP_IMAGE = "../assets/img/pickup/concerto.png";
 
 // ----------------------------------------------------
 // FUNÇÕES DE SUPORTE
@@ -160,11 +160,10 @@ function gameLoop(timestamp) {
     }
 
 
-
 if (currentBoss && currentBoss.isAlive) {
     currentBoss.update(deltaTime);
     currentBoss.fire(enemyProjectiles);
-    currentBoss.draw(ctx);
+    currentBoss.draw(ctx); // usa o draw específico do Boss
 }
 
 
