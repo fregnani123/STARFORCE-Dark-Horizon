@@ -41,7 +41,7 @@ function startGame() {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const track = audioCtx.createMediaElementSource(shootSoundElement);
         const gainNode = audioCtx.createGain();
-        gainNode.gain.value = 0.2; // controla o volume real (0 a 1)
+        gainNode.gain.value = 0.1; // controla o volume real (0 a 1)
         track.connect(gainNode).connect(audioCtx.destination);
 
         setTimeout(() => {
