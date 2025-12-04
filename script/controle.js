@@ -93,6 +93,10 @@ function updatePlayerMovement() {
 // --- LÓGICA DE TECLADO (PC) ---
 window.addEventListener('keydown', (e) => {
     const keyName = KEY_MAP[e.key] || KEY_MAP[e.key.toLowerCase()];
+
+    if (event.key === 'p' || event.key === 'P' || event.key === 'Escape') { 
+        togglePause();
+    }
     
     if (keyName && (keyName === 'up' || keyName === 'down' || keyName === 'left' || keyName === 'right')) {
         e.preventDefault(); 

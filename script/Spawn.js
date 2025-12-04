@@ -1,36 +1,3 @@
-// 🎯 Score necessário para chamar o boss
-const BOSS_SCORE_TRIGGER = 3000;  // altere se quiser
-let bossDefeated = false;
-
-let currentBoss = null;
-
-function spawnBoss() {
-    if (bossDefeated) return; // já foi morto → não cria mais
-    if (currentBoss && currentBoss.isAlive) return; // já existe vivo
-
-    currentBoss = new Boss(
-        CANVAS_WIDTH / 2 - 150,
-        -300,
-        300, // Largura
-        300, // Altura (AGORA IGUAL À LARGURA)
-        "../assets/img/boss/boss.png",
-        16000
-    );
-
-    // 🔥 ATIVA A BARRA DE VIDA DO BOSS
-    const barContainer = document.getElementById("bossHealthBarContainer");
-    const bar = document.getElementById("bossHealthBar");
-
-    if (barContainer) {
-        barContainer.style.display = "block";
-    }
-
-    if (bar) {
-        bar.style.width = "100%"; // reinicia ao aparecer
-    }
-}
-
-
 function spawnRandomEnemy(currentScore = 0) {
 
     // ⚠️ Quando atingir X pontos, para inimigos comuns e chama o boss
@@ -41,95 +8,97 @@ function spawnRandomEnemy(currentScore = 0) {
 
     const enemyTypes = [
         // ----------------------------------------------------------
-        // NIVEL 1
+        // NIVEL 1 - Ambos (Propulsor + Halo) <-- CORRIGIDO
         // ----------------------------------------------------------
-        // Objeto de Configuração do Inimigo (Exemplo)
-
         {
-            imagePath: "../assets/img/Enemy/boss-estrela (1).png",
-            width: 60, height: 60,
+            imagePath: "../assets/img/Enemy/inimigo4.png",
+            width:70, height: 110,
             maxHealth: 50,
             speed: 100,
             fireRate: 1500,
             damage: 10,
             projectileSpeed: 250,
 
-            projectileImgUM: "../assets/img/projectile/tiro-espinho-cinza.png",
+            projectileImgUM: "../assets/img/projectile/tiro-espinho-roxo.png",
             projectileImgDois: null,
             projectileImgTres: null,
 
             minScore: 0,
-            scoreValue: 10,
-            weaponLevel: 4,
+            scoreValue: 25,
+            weaponLevel: 3,
 
-            // NOVO: Flag para que este inimigo gire
-            isRotating: true
+            isRotating: false,
+            isPropulsor: false,
+            isPlasmaHalo: true
         },
 
         // ----------------------------------------------------------
-        // NIVEL 2
+        // NIVEL 2 - SÓ Plasma Halo (Brilho) <-- CORRIGIDO
         // ----------------------------------------------------------
         {
-            imagePath: "../assets/img/Enemy/inimigo4.png",
+            imagePath: "../assets/img/Enemy/inimigo1.png",
             width: 100, height: 60,
             maxHealth: 40,
-            speed: 110,
+            speed: 120,
             fireRate: 1400,
-            damage: 20,
+            damage: 15,
             projectileSpeed: 270,
-
-            projectileImgUM: "../assets/img/projectile/tiro-espinho-roxo.png",
-            projectileImgDois: "../assets/img/projectile/tiro-espinho-roxo.png",
+            projectileImgUM: "../assets/img/projectile/tiro-laranja.png",
+            projectileImgDois:  "../assets/img/projectile/tiro-laranja.png",
             projectileImgTres: null,
 
             minScore: 0,
-            scoreValue: 25,
+            scoreValue: 50,
             weaponLevel: 2,
-             // NOVO: Flag para que este inimigo gire
-            isRotating: false
+            isRotating: false,
+            isPropulsor: true,  // <-- CORRIGIDO: Deve ter o Propulsor
+            isPlasmaHalo: false // <-- CORRIGIDO: Não deve ter o Halo
         },
 
         // ----------------------------------------------------------
-        // NIVEL 3
+        // NIVEL 3 - Nenhum Efeito Visual Extra <-- CORRIGIDO
         // ----------------------------------------------------------
         {
-            imagePath: "../assets/img/Enemy/inimigo3.png",
-            width: 100, height: 100,
+            imagePath: "../assets/img/Enemy/inimigo1.png",
+            width: 130, height: 90,
             maxHealth: 90,
-            speed: 120,
+            speed: 130,
             fireRate: 1300,
-            damage: 14,
+            damage: 20,
             projectileSpeed: 285,
 
-            projectileImgUM: "../assets/img/projectile/tiro-azul-baixo.png",
-            projectileImgDois: "../assets/img/projectile/tiro-azul-baixo.png",
-            projectileImgTres: "../assets/img/projectile/tiro-azul-baixo.png",
+            projectileImgUM:"../assets/img/projectile/tiro-laranja.png",
+            projectileImgDois:"../assets/img/projectile/tiro-laranja.png",
+            projectileImgTres:  "../assets/img/projectile/tiro-laranja.png",
 
             minScore: 300,
-            scoreValue: 35,
+            scoreValue: 100,
             weaponLevel: 3,
-             // NOVO: Flag para que este inimigo gire
-            isRotating: false
+            isRotating: false,
+            isPropulsor: true,
+            isPlasmaHalo: false
         },
 
-        // ⭐ NIVEL 4 — DISPARA PARA TODOS OS LADOS (SPREAD)
+      
         {
             imagePath: "../assets/img/Enemy/inimigo4.png",
-            width: 85, height: 85,
+            width: 100, height: 50,
             maxHealth: 150,
-            speed: 130,
+            speed: 110,
             fireRate: 1100,
-            damage: 16,
+            damage: 25,
             projectileSpeed: 300,
 
-            projectileImgDois: "../assets/img/projectile/tiro-roxo.png",
-            projectileImgTres: "../assets/img/projectile/tiro-roxo.png",
+            projectileImgUM: "../assets/img/projectile/tiro-espinho-roxo.png",
+            projectileImgDois:"../assets/img/projectile/tiro-espinho-roxo.png",
+            projectileImgTres: "../assets/img/projectile/tiro-espinho-roxo.png",
 
             minScore: 500,
-            scoreValue: 60,
+            scoreValue: 100,
             weaponLevel: 4,
-             // NOVO: Flag para que este inimigo gire
-            isRotating: false
+            isRotating: false,
+            isPropulsor: false,
+            isPlasmaHalo: true
         }
 
     ];
@@ -160,36 +129,29 @@ function spawnRandomEnemy(currentScore = 0) {
     const spawnY = -typeCopy.height;
 
     // --- Criar inimigo ---
-const newEnemy = new Enemy(
-    spawnX, spawnY,
-    typeCopy.width, typeCopy.height,
-    typeCopy.imagePath,
-    typeCopy.maxHealth,
-    typeCopy.speed,
-    typeCopy.fireRate,
-    typeCopy.damage,
-    typeCopy.projectileSpeed,
-    projectileList,
-    typeCopy.weaponLevel,
-    typeCopy.scoreValue,
-    typeCopy.isRotating || false // <--- O NOVO ARGUMENTO!
-);
+    const newEnemy = new Enemy(
+        spawnX, spawnY,
+        typeCopy.width, typeCopy.height,
+        typeCopy.imagePath,
+        typeCopy.maxHealth,
+        typeCopy.speed,
+        typeCopy.fireRate,
+        typeCopy.damage,
+        typeCopy.projectileSpeed,
+        projectileList,
+        typeCopy.weaponLevel,
+        typeCopy.scoreValue,
+        typeCopy.isRotating,
+        typeCopy.isPropulsor,  // Argumento 10: isPropulsor
+        typeCopy.isPlasmaHalo  // 💡 Argumento 11: isPlasmaHalo
+    );
 
     enemies.push(newEnemy);
 }
 
 
-
-
-
-
-
-
-
-
-
 // ----------------------------------------------------
-// ✨ NOVO: FUNÇÃO PARA SPAWN DO ITEM DE VIDA
+// FUNÇÃO PARA SPAWN DO ITEM DE VIDA (Mantida, pois faz parte do seu código)
 // ----------------------------------------------------
 function spawnHealthPickup() {
     // Spawn em uma posição X aleatória no topo
@@ -208,7 +170,3 @@ function spawnHealthPickup() {
 
     console.log("Item de Vida Spawnado!");
 }
-// ----------------------------------------------------
-
-
-

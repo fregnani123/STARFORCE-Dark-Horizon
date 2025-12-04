@@ -1,145 +1,246 @@
-// Arquivo: script/Boss.js
+// ------------------ BOSS COMPLETO REFEITO ------------------
 class Boss extends GameObject {
     constructor(x, y, width, height, imagePath, maxHealth = 2000) {
-        super(x, y, width, height, imagePath);
+
+        const originalWidth = width;
+        const originalHeight = height;
+
+        super(x, -200, originalWidth, originalHeight, imagePath);
+
+        this.originalWidth = originalWidth;
+        this.originalHeight = originalHeight;
+
+        // ---- NOVO SISTEMA DE MOVIMENTO ----
+        this.baseX = x;
+        this.targetX = x;
+        this.moveTimer = 0;
+        this.moveInterval = 2000 + Math.random() * 2500;
+
+        this.startScale = 0.1;
+        this.targetScale = 1.0;
+        this.currentScale = this.startScale;
 
         this.maxHealth = maxHealth;
         this.currentHealth = maxHealth;
         this.isAlive = true;
 
-        // Movimento e fases
-        this.speed = 80;
+        this.speed = 300;
         this.phase = 1;
         this.fireTimer = 0;
         this.weaponCooldown = 900;
 
-        // Entrada do boss
         this.introDone = false;
         this.targetY = 80;
+        this.startY = this.y;
 
-        // Rotação do boss
+        this.tiltAngle = 0;
+        this.maxTilt = 8;
+        this.floatSpeed = 0.003;
+        this.floatAmplitude = 5;
+
+        // >>> GIRO RESTAURADO <<<
         this.rotation = 0;
-        this.rotationSpeed = 0;
+        this.rotationSpeed = 0;  // aumenta conforme HP baixa
 
-        // --- MOVIMENTO VERTICAL SUAVE ---
-        this.baseY = y; // Posição Y base para a flutuação
-        this.floatAmplitude = 5; // Altura máxima da flutuação (em pixels)
-        this.floatSpeed = 0.003; // Velocidade da flutuação
+        // >>> SISTEMA PARA SAIR DA TELA <<<
+        this.exitMode = false;
+        this.exitTimer = 0;
+        this.exitCooldown = 0;
+        this.exitInterval = 6000 + Math.random() * 5000;
 
-        // --- PLASMA/AURA (MODIFICADO PARA EFEITO IRREGULAR/NÉVOA) ---
-        this.auraReady = true; 
-        this.auraRotation = 0;          // rotação do plasma
-        this.auraRotationSpeed = 2;     // velocidade de rotação
-        this.auraScale = 1.25;          // tamanho relativo
-        this.auraOpacity = 0.6;         // transparência
-        this.auraPulseSpeed = 0.005;    // velocidade do efeito pulsante
-        this.waveSpeed = 0.0005;        // Velocidade da onda de irregularidade
+        // AURA
+        this.auraReady = true;
+        this.auraRotation = 0;
+        this.auraRotationSpeed = 2;
+        this.auraScale = 1.25;
+        this.auraOpacity = 0.6;
+        this.auraPulseSpeed = 0.005;
+        this.waveSpeed = 0.0005;
 
-        // Cor inicial do plasma (Fase 1: Roxo/Magenta)
-        this.auraColor = "rgba(255, 0, 255, 1.0)"; // Magenta/Roxo claro inicial
+        this.auraColor = "rgba(0,0,0,0.9)";
     }
 
+    // -------------------------------------------------------
+    //                    UPDATE COMPLETO
+    // -------------------------------------------------------
     update(deltaTime) {
         const t = deltaTime / 1000;
+        const now = Date.now();
 
-        // Entrada do boss
+        // ------------------ INTRO ANIMAÇÃO ------------------
         if (!this.introDone) {
             this.y += this.speed * t;
+
+            const progress = (this.y - this.startY) / (this.targetY - this.startY);
+            this.currentScale = this.startScale + (this.targetScale - this.startScale) * Math.min(1.0, progress);
+
+            this.width = this.originalWidth * this.currentScale;
+            this.height = this.originalHeight * this.currentScale;
+
             if (this.y >= this.targetY) {
+                this.y = this.targetY;
                 this.introDone = true;
-                this.baseY = this.y; // Define a posição Y final como base para a flutuação
+                this.currentScale = 1.0;
+                this.width = this.originalWidth;
+                this.height = this.originalHeight;
             }
             return;
         }
 
-        // --- MOVIMENTO VERTICAL SUAVE (FLUTUAÇÃO) ---
-        this.y = this.baseY + Math.sin(Date.now() * this.floatSpeed) * this.floatAmplitude;
+        const hpPercent = this.currentHealth / this.maxHealth;
 
-        // Movimento em zig-zag
-        this.x += Math.sin(Date.now() * 0.001) * 1.8;
+        // -----------------------------------------------------
+        //         >>> NOVO SISTEMA: BOSS SAI DA TELA <<<
+        // -----------------------------------------------------
+        this.exitCooldown += deltaTime;
 
-        // Rotação do boss
+        if (!this.exitMode && hpPercent < 0.70 && this.exitCooldown >= this.exitInterval) {
+
+            this.exitMode = true;
+            this.exitCooldown = 0;
+            this.exitInterval = 6000 + Math.random() * 7000;
+
+            this.exitDirection = Math.random() < 0.5 ? "left" : "right";
+
+            this.targetX = this.exitDirection === "left"
+                ? -this.width - 100
+                : CANVAS_WIDTH + 100;
+
+            this.exitTimer = 0;
+            this.exitHideTime = 1200;
+        }
+
+        if (this.exitMode) {
+            this.exitTimer += deltaTime;
+
+            this.x += (this.targetX - this.x) * 0.06;
+
+            if (this.exitTimer >= this.exitHideTime) {
+                this.x = Math.random() < 0.5 ? -this.width : CANVAS_WIDTH;
+                this.targetX = Math.random() * (CANVAS_WIDTH - this.width);
+                this.exitMode = false;
+            }
+
+            this.y = this.targetY;
+        } else {
+
+            // ------------------ MOVIMENTO ALEATÓRIO NORMAL ------------------
+            this.moveTimer += deltaTime;
+
+            if (this.moveTimer >= this.moveInterval) {
+                this.moveTimer = 0;
+                this.moveInterval = 2000 + Math.random() * 2500;
+
+                const options = [
+                    80,
+                    CANVAS_WIDTH / 2 - this.width / 2,
+                    CANVAS_WIDTH - this.width - 80,
+                    Math.random() * (CANVAS_WIDTH - this.width)
+                ];
+
+                this.targetX = options[Math.floor(Math.random() * options.length)];
+            }
+
+            this.x += (this.targetX - this.x) * 0.02;
+            this.y = this.targetY + Math.sin(now * this.floatSpeed) * this.floatAmplitude;
+        }
+
+        // tilt suave
+        this.tiltAngle = Math.sin(now * 0.002) * this.maxTilt;
+
+        // >>> GIRO AQUI <<<
         this.rotation += this.rotationSpeed * (deltaTime / 16.67);
 
-        // Rotação da aura
+        // rotações extras da aura
         this.auraRotation += this.auraRotationSpeed * (deltaTime / 16.67);
 
-        // Atualização de fase conforme vida
-        const hpPercent = this.currentHealth / this.maxHealth;
-        if (hpPercent < 0.70 && this.phase === 1) { this.phase = 2; this.weaponCooldown = 700; }
-        if (hpPercent < 0.40 && this.phase === 2) { this.phase = 3; this.weaponCooldown = 500; }
-        if (hpPercent < 0.15 && this.phase === 3) { this.phase = 4; this.weaponCooldown = 350; }
+        // ------------------ FASES PELO HP ------------------
+        if (hpPercent < 0.70 && this.phase === 1) {
+            this.phase = 2;
+            this.weaponCooldown = 700;
+            this.rotationSpeed = 1.5; // agora gira
+        }
+
+        if (hpPercent < 0.40 && this.phase === 2) {
+            this.phase = 3;
+            this.weaponCooldown = 500;
+            this.rotationSpeed = 3.5; // gira mais rápido
+        }
+
+        if (hpPercent < 0.15 && this.phase === 3) {
+            this.phase = 4;
+            this.weaponCooldown = 350;
+            this.rotationSpeed = 7.0; // GIRO VIOLENTO (vermelho)
+        }
 
         this.fireTimer += deltaTime;
     }
 
+    // -------------------------------------------------------
+    //                     DAMAGE SYSTEM
+    // -------------------------------------------------------
     takeDamage(dmg) {
         this.currentHealth -= dmg;
 
-        // Atualiza barra de vida
         const bar = document.getElementById("bossHealthBar");
         if (bar) bar.style.width = Math.max(0, this.currentHealth / this.maxHealth * 100) + "%";
 
-        const hpPercent = this.currentHealth / this.maxHealth;
+        const hp = this.currentHealth / this.maxHealth;
 
-        // --- AJUSTE DE ROTAÇÃO E COR DO PLASMA CONFORME A VIDA (NOVA PALETA) ---
-        if (hpPercent > 0.50) { 
-            this.rotationSpeed = 0; 
-            this.auraRotationSpeed = 2; 
-            // 1. Roxo/Magenta Claro (Alta vida)
-            this.auraColor = "rgba(255, 0, 255, 1.0)"; 
-        }
-        else if (hpPercent > 0.30) { 
-            this.rotationSpeed = 1.0; 
-            this.auraRotationSpeed = 3; 
-            // 2. Roxo Escuro/Índigo (Vida média/Fase 2)
-            this.auraColor = "rgba(75, 0, 130, 1.0)"; 
-        }
-        else if (hpPercent > 0.15) { 
-            this.rotationSpeed = 3.0; 
-            this.auraRotationSpeed = 4.5; 
-            // 3. Roxo Avermelhado/Magenta Escuro (Baixa vida/Fase 3)
-            this.auraColor = "rgba(180, 0, 180, 1.0)"; 
-        }
-        else { 
-            this.rotationSpeed = 6.0; 
-            this.auraRotationSpeed = 7; 
-            // 4. Vermelho Puro (Perigo/Crítico/Fase 4)
-            this.auraColor = "rgba(255, 0, 0, 1.0)"; 
+        if (hp > 0.50) {
+            this.auraRotationSpeed = 2;
+            this.auraColor = "rgba(40,0,60,1.0)";
+        } else if (hp > 0.30) {
+            this.auraRotationSpeed = 3;
+            this.auraColor = "rgba(90,0,140,1.0)";
+        } else if (hp > 0.15) {
+            this.auraRotationSpeed = 4.5;
+            this.auraColor = "rgba(200,0,200,1.0)";
+        } else {
+            this.auraRotationSpeed = 7;
+            this.auraColor = "rgba(255,0,0,1.0)";
         }
 
-        // Verifica morte
         if (this.currentHealth <= 0) {
             this.isAlive = false;
             bossDefeated = true;
+
             const barContainer = document.getElementById("bossHealthBarContainer");
             if (barContainer) barContainer.style.display = "none";
+
             endGame();
         }
     }
 
-    fire(projectiles) {
+    // -------------------------------------------------------
+    //                        ATAQUES
+    // -------------------------------------------------------
+    fire(arr) {
         if (this.fireTimer < this.weaponCooldown) return;
         this.fireTimer = 0;
 
         switch (this.phase) {
-            case 1: this.shootSingle(projectiles); break;
-            case 2: this.shootTriple(projectiles); break;
-            case 3: this.shootSpray(projectiles); break;
-            case 4: this.shoot360(projectiles); break;
+            case 1: this.shootSingle(arr); break;
+            case 2: this.shootTriple(arr); break;
+            case 3: this.shootSpray(arr); break;
+            case 4: this.shoot360(arr); break;
         }
     }
 
-    // --- Tiros ---
     shootSingle(arr) {
-        arr.push(new Projectile(this.x + this.width/2 - 15, this.y + this.height, 35, 35,
-            "../assets/img/projectile/tiro-roxo.png",  350, 25, "enemy", 0));
+        const cx = this.x + this.width / 2;
+        const cy = this.y + this.height - 10;
+        const offset = 105 * this.currentScale;
+
+        arr.push(new Projectile(cx - offset, cy, 35, 35, "../assets/img/projectile/tiro-roxo.png", 350, 25, "enemy", 0));
+        arr.push(new Projectile(cx + offset, cy, 35, 35, "../assets/img/projectile/tiro-roxo.png", 350, 25, "enemy", 0));
     }
 
     shootTriple(arr) {
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height;
-        arr.push(new Projectile(cx, cy, 35, 35, "../assets/img/projectile/tiro-roxo.png", 360, 25, "enemy", 0));
+
+        arr.push(new Projectile(cx, cy - 80, 35, 35, "../assets/img/projectile/tiro-roxo.png", 360, 25, "enemy", 0));
         arr.push(new Projectile(cx - 50, cy, 35, 35, "../assets/img/projectile/tiro-roxo.png", 360, 25, "enemy", -0.15));
         arr.push(new Projectile(cx + 50, cy, 35, 35, "../assets/img/projectile/tiro-roxo.png", 360, 25, "enemy", 0.15));
     }
@@ -148,90 +249,81 @@ class Boss extends GameObject {
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height;
         for (let i = -3; i <= 3; i++) {
-            arr.push(new Projectile(cx, cy, 28, 28, "../assets/img/projectile/tiro-azul-baixo.png", 400, 20, "enemy", i*0.1));
+            arr.push(new Projectile(cx, cy, 28, 28, "../assets/img/projectile/tiro-azul-baixo.png", 400, 20, "enemy", i * 0.1));
         }
     }
 
     shoot360(arr) {
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height / 2;
+
         const shots = 18;
-        const step = (Math.PI * 2) / shots;
+        const step = Math.PI * 2 / shots;
+
         for (let i = 0; i < shots; i++) {
-            arr.push(new Projectile(cx, cy, 30, 30, "../assets/img/projectile/tiro-espinho-vermelho.png", 420, 20, "enemy", step*i, true));
+            arr.push(new Projectile(cx, cy, 30, 30, "../assets/img/projectile/tiro-espinho-vermelho.png", 420, 20, "enemy", step * i, true));
         }
     }
 
+    // -------------------------------------------------------
+    //                      DESENHO
+    // -------------------------------------------------------
     draw(ctx) {
         if (!this.isReady) return;
 
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height / 2;
 
-        // --- PLASMA/AURA giratório, pulsante e esfumaçado ---
+        // ----- AURA -----
         if (this.auraReady) {
             ctx.save();
             ctx.translate(cx, cy);
-
-            // Rotação do plasma
             ctx.rotate(this.auraRotation * Math.PI / 180);
 
-            // Pulsação suave (raio varia com o tempo)
             const pulse = Math.sin(Date.now() * this.auraPulseSpeed) * 0.05;
-            const baseRadius = (Math.max(this.width, this.height) / 2) * (this.auraScale + pulse);
-            
-            // 1. Configuração do Brilho
-            ctx.globalCompositeOperation = 'lighter'; 
-            ctx.globalAlpha = this.auraOpacity; 
-            
-            // 2. Desenho de Múltiplas Camadas (para criar a irregularidade/névoa)
-            const numLayers = 3;
+            const baseRadius = Math.max(this.width, this.height) * 0.5 * (this.auraScale + pulse);
+
+            ctx.globalCompositeOperation = "lighter";
+            ctx.globalAlpha = this.auraOpacity;
+
+            const layers = 3;
             const now = Date.now();
 
-            for (let i = 0; i < numLayers; i++) {
+            for (let i = 0; i < layers; i++) {
                 ctx.save();
-                
-                const layerRadius = baseRadius * (1 + i * 0.1); 
-                
-                // Rotacionar cada camada em velocidades diferentes (cria o movimento nebuloso)
-                ctx.rotate(i * 10 * Math.PI / 180); 
-                
-                // Deslocamento para simular irregularidade (usando seno)
-                const offsetX = Math.sin(now * this.waveSpeed + i * 1) * 3;
-                const offsetY = Math.cos(now * this.waveSpeed + i * 1) * 3;
 
-                // Configurar Shadow Blur para o efeito esfumaçado
+                const r = baseRadius * (1 + i * 0.1);
+
+                ctx.rotate(i * 10 * Math.PI / 180);
+
+                const ox = Math.sin(now * this.waveSpeed + i) * 3;
+                const oy = Math.cos(now * this.waveSpeed + i) * 3;
+
                 ctx.shadowColor = this.auraColor;
-                ctx.shadowBlur = layerRadius * 0.4; 
+                ctx.shadowBlur = r * 0.4;
 
+                const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, r);
+                g.addColorStop(0, "rgba(0,0,0,0.35)");
+                g.addColorStop(0.65, "rgba(8,15,25,0.09)");
+                g.addColorStop(1, "rgba(0,0,0,0)");
+
+                ctx.fillStyle = g;
                 ctx.beginPath();
-                
-                // Gradiente radial para a transição suave de opacidade (efeito esfumaçado)
-                const gradient = ctx.createRadialGradient(offsetX, offsetY, 0, offsetX, offsetY, layerRadius);
-                gradient.addColorStop(0, this.auraColor.replace('1.0', '0.7')); 
-                gradient.addColorStop(0.7, this.auraColor.replace('1.0', '0.2')); 
-                gradient.addColorStop(1, this.auraColor.replace('1.0', '0.0')); 
-                
-                ctx.fillStyle = gradient;
-                ctx.arc(offsetX, offsetY, layerRadius, 0, Math.PI * 2);
+                ctx.arc(ox, oy, r, 0, Math.PI * 2);
                 ctx.fill();
 
                 ctx.restore();
             }
-            
-            // Resetar sombra e alpha para o BOSS
-            ctx.shadowBlur = 0; 
-            ctx.globalAlpha = 1.0;
 
             ctx.restore();
-            ctx.globalCompositeOperation = 'source-over'; // Retorna ao modo normal de composição
+            ctx.globalCompositeOperation = "source-over";
         }
 
-        // --- BOSS ---
+        // ----- BOSS -----
         ctx.save();
         ctx.translate(cx, cy);
-        ctx.rotate(this.rotation * Math.PI / 180);
-        ctx.drawImage(this.img, -this.width/2, -this.height/2, this.width, this.height);
+        ctx.rotate((this.tiltAngle + this.rotation) * Math.PI / 180);
+        ctx.drawImage(this.img, -this.width / 2, -this.height / 2, this.width, this.height);
         ctx.restore();
     }
 }

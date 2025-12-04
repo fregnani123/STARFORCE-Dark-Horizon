@@ -9,8 +9,8 @@ const MAX_DELTA_TIME_MS = 100; // Máx delta para travar lag
 // ----------------------------------------------------
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const CANVAS_WIDTH = 500;
-const CANVAS_HEIGHT = 800;
+const CANVAS_WIDTH = 600;
+const CANVAS_HEIGHT = 900;
 
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
@@ -22,12 +22,13 @@ let gameBackground;
 let lastTime = 0;
 let score = 0;
 
+let isPaused = false;
 // Super Laser
 let superLaserAvailable = true;
 let requiredScoreForNextLaser = 0;
 let superLaserUsed = false;
 let superLaserCharge = 0;
-const SUPER_LASER_REQUIREMENT = 1000;
+const SUPER_LASER_REQUIREMENT = 100;
 
 // Upgrade Weapon - armas
 let nextWeaponUpgradeCost = 200;
@@ -84,64 +85,51 @@ function findNearestEnemy(projectile) {
 // ----------------------------------------------------
 // HUD
 // ----------------------------------------------------
-function drawHUD() {
-    ctx.fillStyle = 'white';
-    ctx.font = '20px Arial';
-    ctx.textAlign = 'left';
 
-    const PADDING = 20;
-    const HUD_Y = CANVAS_HEIGHT - PADDING;
 
-    const BAR_X = PADDING;
-    const BAR_Y = HUD_Y - 40;
-    const BAR_MAX_WIDTH = 200;
-    const BAR_HEIGHT = 15;
+function updateHTMLHUD() {
+    if (!playerShip) return;
 
-    ctx.fillText(`Score: ${score}`, BAR_X, HUD_Y);
+    // Score
+    document.getElementById("scoreValue").textContent = score;
 
-    if (playerShip && playerShip.isAlive) {
+    // Hull Text
+    document.getElementById("hullValue").textContent =
+        `${Math.max(0, playerShip.health)} / ${playerShip.maxHealth}`;
 
-        ctx.fillStyle = 'white';
-        ctx.font = '16px Arial';
-        ctx.fillText(
-            `HULL: ${Math.max(0, playerShip.health)} / ${playerShip.maxHealth}`,
-            BAR_X,
-            BAR_Y - 5
-        );
+    // Health Bar %
+    let percent = playerShip.health / playerShip.maxHealth;
+    document.getElementById("healthBar").style.width = (150 * percent) + "px";
 
-        ctx.fillStyle = '#404040';
-        ctx.fillRect(BAR_X, BAR_Y, BAR_MAX_WIDTH, BAR_HEIGHT);
-
-        const currentHealthWidth = BAR_MAX_WIDTH * (playerShip.health / playerShip.maxHealth);
-
-        if (playerShip.health > playerShip.maxHealth * 0.5) {
-            ctx.fillStyle = '#32cd32';
-        } else if (playerShip.health > playerShip.maxHealth * 0.2) {
-            ctx.fillStyle = '#ffc107';
-        } else {
-            ctx.fillStyle = '#dc3545';
-        }
-
-        ctx.fillRect(BAR_X, BAR_Y, currentHealthWidth, BAR_HEIGHT);
-
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(BAR_X, BAR_Y, BAR_MAX_WIDTH, BAR_HEIGHT);
-
-        ctx.fillStyle = 'white';
-        ctx.font = '20px Arial';
-        ctx.fillText(`Weapon Lvl: ${playerShip.weaponLevel}`, CANVAS_WIDTH - 150, HUD_Y - 30);
+    // Cores iguais ao seu drawHUD()
+    if (percent > 0.5) {
+        healthBar.style.background = "#32cd32"; // verde
+    } else if (percent > 0.2) {
+        healthBar.style.background = "#ffc107"; // amarelo
+    } else {
+        healthBar.style.background = "#dc3545"; // vermelho
     }
 
-    ctx.textAlign = 'left';
+    // Weapon Level
+    document.getElementById("weaponValue").textContent = playerShip.weaponLevel;
 }
 
 // ----------------------------------------------------
 // GAME LOOP
 // ----------------------------------------------------
 function gameLoop(timestamp) {
+
+    
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
+
+
+    // Se estiver pausado, interrompe a execução da lógica
+    if (isPaused) {
+        // Apenas continua pedindo o próximo frame, mantendo a tela atualizada
+        requestAnimationFrame(gameLoop);
+        return; 
+    }
 
     if (deltaTime > MAX_DELTA_TIME_MS) {
         deltaTime = MAX_DELTA_TIME_MS;
@@ -160,11 +148,11 @@ function gameLoop(timestamp) {
     }
 
 
-if (currentBoss && currentBoss.isAlive) {
-    currentBoss.update(deltaTime);
-    currentBoss.fire(enemyProjectiles);
-    currentBoss.draw(ctx); // usa o draw específico do Boss
-}
+    if (currentBoss && currentBoss.isAlive) {
+        currentBoss.update(deltaTime);
+        currentBoss.fire(enemyProjectiles);
+        currentBoss.draw(ctx); // usa o draw específico do Boss
+    }
 
 
 
@@ -217,32 +205,33 @@ if (currentBoss && currentBoss.isAlive) {
             }
         }
 
-        
-// 🔥 Colisão dos tiros do player com o Boss
-if (currentBoss && currentBoss.isAlive) {
-    for (let j = playerShip.projectiles.length - 1; j >= 0; j--) {
-        const projectile = playerShip.projectiles[j];
 
-      if (checkCollision(projectile, currentBoss)) {
+        // 🔥 Colisão dos tiros do player com o Boss
+        if (currentBoss && currentBoss.isAlive) {
+            for (let j = playerShip.projectiles.length - 1; j >= 0; j--) {
+                const projectile = playerShip.projectiles[j];
 
-    const before = currentBoss.currentHealth;
+                if (checkCollision(projectile, currentBoss)) {
 
-    currentBoss.takeDamage(projectile.damage);
+                    const before = currentBoss.currentHealth;
 
-    console.log(
-        `%cBOSS HP: ${before} → ${currentBoss.currentHealth} (dano: ${projectile.damage})`,
-        'color: yellow; font-size: 16px; font-weight: bold;'
-    );
+                    currentBoss.takeDamage(projectile.damage);
 
-    projectile.isAlive = false;
-    playerShip.projectiles.splice(j, 1);
-}
+                    console.log(
+                        `%cBOSS HP: ${before} → ${currentBoss.currentHealth} (dano: ${projectile.damage})`,
+                        'color: yellow; font-size: 16px; font-weight: bold;'
+                    );
 
-    }
-}
+                    projectile.isAlive = false;
+                    playerShip.projectiles.splice(j, 1);
+                }
+
+            }
+        }
 
         // Inimigos
         for (let i = enemies.length - 1; i >= 0; i--) {
+
             const enemy = enemies[i];
 
             if (!playerShip.superLaserActive && enemy.y > 0 && enemy.y < CANVAS_HEIGHT) {
@@ -251,6 +240,7 @@ if (currentBoss && currentBoss.isAlive) {
 
             enemy.update(deltaTime);
 
+            // Colisão de projéteis normais
             for (let j = playerShip.projectiles.length - 1; j >= 0; j--) {
                 const projectile = playerShip.projectiles[j];
 
@@ -260,15 +250,21 @@ if (currentBoss && currentBoss.isAlive) {
                     playerShip.projectiles.splice(j, 1);
 
                     if (!enemy.isAlive) {
-                        score += 100;
+                        // CORREÇÃO 1: Usa o valor de pontuação do inimigo
+                        score += enemy.scoreValue;
+
+                        // CORREÇÃO 2: Usa o valor do inimigo para carregar o Super Laser
                         superLaserCharge = Math.min(
-                            superLaserCharge + 100,
+                            superLaserCharge + enemy.scoreValue, // Ajustado para ser dinâmico
                             SUPER_LASER_REQUIREMENT
                         );
+                        // NOTA: Se você quiser evitar pontuação dupla de outros tiros
+                        // no mesmo frame, adicione 'break;' aqui.
                     }
                 }
             }
 
+            // Remoção e Desenho de Inimigos
             if (!enemy.isAlive || enemy.y > CANVAS_HEIGHT + enemy.height) {
                 enemies.splice(i, 1);
             } else {
@@ -276,28 +272,34 @@ if (currentBoss && currentBoss.isAlive) {
             }
         }
 
+
         // Super laser
         if (playerShip.superLaserActive) {
+            // 1. Aplica Dano e Pontua
             for (let i = enemies.length - 1; i >= 0; i--) {
                 const enemy = enemies[i];
 
                 if (enemy.isAlive) {
                     const wasAlive = enemy.isAlive;
+                    // O dano é aplicado em cada frame que o laser estiver ativo
                     enemy.takeDamage(playerShip.superLaserDamage);
 
                     if (wasAlive && !enemy.isAlive) {
-                        score += 100;
+                        // CORREÇÃO 3: Usa o valor de pontuação do inimigo
+                        score += enemy.scoreValue;
                     }
                 }
             }
 
+            // 2. Remove todos os inimigos que foram destruídos
             enemies.splice(
                 0,
                 enemies.length,
                 ...enemies.filter(e => e.isAlive)
             );
-        }
 
+        }
+        
         // Projetéis inimigos
         if (!playerShip.superLaserActive) {
             for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
@@ -343,7 +345,8 @@ if (currentBoss && currentBoss.isAlive) {
         playerShip.draw(ctx);
     }
 
-    drawHUD();
+updateHTMLHUD();
+
 
     if (typeof updateUpgradeButton === 'function') {
         updateUpgradeButton();

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Shooter JS</title>
+
+    <link rel="stylesheet" href="../assets/css/game.css">
+    <link rel="stylesheet" href="../assets/css/btn.css">
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="main-wrapper">
+        <div id="loadingOverlay" class="hidden">
+            <div class="spinner"></div>
+            <p>Loading Game...</p>
+        </div>
+
+        <div id="startScreen" class="tela-inicio">
+            <button id="continuar"  class="botao-menu">CONTINUAR</button>
+            <button id="startButton"  class="botao-menu">NOVO JOGO</button>
+            <button id="configButton"  class="botao-menu">CONFIGURAÇÕES</button>
+            <button id="exit"  class="botao-menu">SAIR</button>
+        </div>
+
+        <div id="gameContainer">
+            <canvas id="gameCanvas"></canvas>
+
+            <div id="pauseOverlay" class="hidden">
+                <h2>PAUSADO</h2>
+
+                <div id="pause-Menu">
+                    <button class="pause-menu-button" onclick="togglePause()">CONTINUAR</button>
+                    <button class="pause-menu-button">CONFIGURAÇÕES</button>
+                    <button class="pause-menu-button">SAIR DA MISSÃO</button>
+            
+                </div>
+
+                <p class="p-pause">Pressione P ou ESC para continuar rapidamente.</p>
+            </div>
+
+            <div id="bossHealthBarContainer">
+                <div id="bossHealthBar"></div>
+            </div>
+        </div>
+
+        <div id="hudPanel">
+
+            <div class="info-and-health">
+                <div style="width: 100%; display: flex; justify-content: space-between;">
+                    <button id="upgradeButton" class="overlay-button">UPGRADE (500)</button>
+                    <button id="superLaserButton" class="overlay-button" onclick="trySuperLaser()">
+                        <span class="laser-label">BURST</span>
+                        <span id="laserCost" class="laser-percent">0%</span>
+                    </button>
+                </div>
+
+                <div
+                    style="width: 100%; display: flex; justify-content: space-between; padding-top: .5rem; padding-bottom: .5rem;">
+                    <div class="hudRow">
+                        <div>
+                            <span class="hudLabel">Weapon Lvl:</span>
+                            <span id="weaponValue">1</span>
+                        </div>
+                    </div>
+                    <div class="hudRow">
+                        <div>
+                            <span class="hudLabel">Score:</span>
+                            <span id="scoreValue">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="width: 100%; display: flex; justify-content: space-between;">
+                    <div class="hudRow">
+                        <!-- ESTRUTURA CORRIGIDA: Contêiner pai para a barra de vida -->
+                        <div id="healthBarContainer">
+                            <!-- A barra verde de preenchimento -->
+                            <div id="healthBar" style="width: 80%;"></div>
+                            <!-- O texto centralizado e sobreposto -->
+                            <div id="healthBarText">Hull: <span id="hullValue">1720/2000</span></div>
+                        </div>
+                    </div>
+
+                    <button id="pauseButton">PAUSE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+<!-- Scripts -->
+<script src="../script/GameObject.js"></script>
+<script src="../script/Projectile.js"></script>
+<script src="../script/Background.js"></script>
+<script src="../script/Player.js"></script>
+<script src="../script/Enemy.js"></script>
+<script src="../script/start_game.js"></script>
+<script src="../script/pickup.js"></script>
+<script src="../script/Spawn.js"></script>
+<script src="../script/btnUpdate.js"></script>
+<script src="../script/Boss.js"></script>
+<script src="../script/spawnBoss.js"></script>
+<script src="../script/spawnItem.js"></script>
+<script src="../script/controle.js"></script>
+<script src="../script/game.js"></script>
+
+
+</html>

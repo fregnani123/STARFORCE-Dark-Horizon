@@ -40,19 +40,20 @@ class Player extends GameObject {
         this.introDuration = 2000;
         this.introTimer = 0;
         this.inIntro = true;
-       this.initialScale = 2.5;
-this.targetScale = 1.0;
-this.initialX = (CANVAS_WIDTH / 2) - (this.width * this.initialScale / 2);
-this.initialY = -this.height * this.initialScale;
+        this.initialScale = 2.5;
+        this.targetScale = 1.0;
+        // Assume-se que CANVAS_WIDTH está definido globalmente
+        this.initialX = (CANVAS_WIDTH / 2) - (this.width * this.initialScale / 2);
+        this.initialY = -this.height * this.initialScale;
 
         this.x = this.initialX;
         this.y = this.initialY;
 
         // Plasma e 3D
-        this.plasmaColor = 'rgba(0, 191, 255, 0.7)';
+        this.plasmaColor = 'rgba(255, 119, 0, 0.76)';
         this.plasmaLength = 45;
-        this.plasmaWidth = 20;
-        this.plasmaOffset = -15;
+        this.plasmaWidth = 10;
+        this.plasmaOffset = -15; // Offset para a chama sair da traseira (parte de baixo)
         this.plasmaOscillation = 5;
         this.plasmaSpeed = 0.02;
 
@@ -86,7 +87,8 @@ this.initialY = -this.height * this.initialScale;
     activateSuperLaser() {
         if (this.superLaserActive) return 0;
 
-        if (score >= this.superLaserCost) {
+        // Assume-se que 'score' está definido globalmente
+        if (score >= this.superLaserCost) { 
             this.superLaserActive = true;
             this.superLaserTimer = 0;
 
@@ -139,7 +141,8 @@ this.initialY = -this.height * this.initialScale;
     }
 
     update(deltaTime) {
-        const REST_Y = CANVAS_HEIGHT * 0.8;
+        // Assume-se que CANVAS_HEIGHT está definido globalmente
+        const REST_Y = CANVAS_HEIGHT * 0.8; 
 
         // Intro
         if (this.inIntro) {
@@ -214,6 +217,7 @@ this.initialY = -this.height * this.initialScale;
             this.x += dragSideMovement;
         }
 
+        // Assume-se que CANVAS_WIDTH está definido globalmente
         const TOP_LIMIT = CANVAS_HEIGHT * 0.4;
         const BOTTOM_LIMIT = REST_Y;
         this.x = Math.max(0, Math.min(this.x, CANVAS_WIDTH - this.width));
@@ -226,83 +230,96 @@ this.initialY = -this.height * this.initialScale;
         }
     }
 
-  draw(ctx) {
-    if (!this.img.complete || !this.isAlive) return;
+    draw(ctx) {
+        if (!this.img.complete || !this.isAlive) return;
 
-    const centerX = this.x + this.width / 2;
-    const centerY = this.y + this.height / 2;
+        const centerX = this.x + this.width / 2;
+        const centerY = this.y + this.height / 2;
 
-    // --- Super Laser Épico: múltiplas ondas concêntricas ---
-    if (this.superLaserActive) {
-        const progress = this.superLaserTimer / this.superLaserDuration;
-        const alphaBase = 1.0 - progress;
-        const maxRadius = Math.sqrt(CANVAS_WIDTH ** 2 + CANVAS_HEIGHT ** 2);
+        // --- Super Laser Épico: múltiplas ondas concêntricas ---
+        if (this.superLaserActive) {
+            const progress = this.superLaserTimer / this.superLaserDuration;
+            const alphaBase = 1.0 - progress;
+            // Assume-se que CANVAS_WIDTH e CANVAS_HEIGHT estão definidos globalmente
+            const maxRadius = Math.sqrt(CANVAS_WIDTH ** 2 + CANVAS_HEIGHT ** 2); 
+
+            ctx.save();
+            for (let i = 0; i < 3; i++) { // 3 ondas sobrepostas
+                const waveProgress = Math.min(1, (progress + i * 0.1)); // cada onda inicia com atraso
+                const radius = maxRadius * waveProgress;
+                const alpha = alphaBase * (1 - i * 0.3); // ondas secundárias mais transparentes
+
+                const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+                gradient.addColorStop(0, `rgba(0, 191, 255, ${alpha})`); // azul intenso
+                gradient.addColorStop(0.4, `rgba(0, 255, 255, ${alpha * 0.7})`); // ciano
+                gradient.addColorStop(0.7, `rgba(255, 255, 0, ${alpha * 0.5})`); // amarelo
+                gradient.addColorStop(1, `rgba(255, 255, 0, 0)`); // borda transparente
+
+                ctx.fillStyle = gradient;
+
+                // Alongamento dinâmico baseado na rotação da nave
+                const stretchX = 1 + Math.abs(this.wingRotationX) * (1.5 + i * 0.5);
+                const stretchY = 1 + Math.abs(this.wingRotationY) * (0.5 + i * 0.2);
+
+                ctx.translate(centerX, centerY);
+                ctx.scale(stretchX, stretchY);
+                ctx.translate(-centerX, -centerY);
+
+                // Assume-se que CANVAS_WIDTH e CANVAS_HEIGHT estão definidos globalmente
+                ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT); 
+            }
+            ctx.restore();
+        }
 
         ctx.save();
-        for (let i = 0; i < 3; i++) { // 3 ondas sobrepostas
-            const waveProgress = Math.min(1, (progress + i * 0.1)); // cada onda inicia com atraso
-            const radius = maxRadius * waveProgress;
-            const alpha = alphaBase * (1 - i * 0.3); // ondas secundárias mais transparentes
 
-            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-            gradient.addColorStop(0, `rgba(0, 191, 255, ${alpha})`); // azul intenso
-            gradient.addColorStop(0.4, `rgba(0, 255, 255, ${alpha * 0.7})`); // ciano
-            gradient.addColorStop(0.7, `rgba(255, 255, 0, ${alpha * 0.5})`); // amarelo
-            gradient.addColorStop(1, `rgba(255, 255, 0, 0)`); // borda transparente
-
-            ctx.fillStyle = gradient;
-
-            // Alongamento dinâmico baseado na rotação da nave
-            const stretchX = 1 + Math.abs(this.wingRotationX) * (1.5 + i * 0.5);
-            const stretchY = 1 + Math.abs(this.wingRotationY) * (0.5 + i * 0.2);
-
-            ctx.translate(centerX, centerY);
-            ctx.scale(stretchX, stretchY);
-            ctx.translate(-centerX, -centerY);
-
-            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        // --- Escala base + pulso ---
+        let scale = this.inIntro ? this.currentScale : 1.0;
+        if (this.superLaserPulsing) {
+            const pulseProgress = Math.min(1, this.superLaserPulseTimer / this.superLaserPulseDuration);
+            const eased = easeOutQuad(pulseProgress);
+            scale = 1 + (this.superLaserScaleAmount - 1) * (1 - eased);
         }
+
+        ctx.translate(centerX, centerY);
+        const pitchScaleY = 1 - (Math.abs(this.wingRotationY) * this.perspectiveScaleY);
+        ctx.scale(scale, pitchScaleY * scale);
+
+        const skewAmountX = this.wingRotationX * this.perspectiveSkewX;
+        const rollAngleInRadians = this.wingRotationX * this.perspectiveRotateZ * (Math.PI / 180);
+        ctx.rotate(rollAngleInRadians);
+        ctx.transform(1, 0, skewAmountX, 1, 0, 0);
+
+        // --- Plasma traseiro da nave (Propulsor) ---
+        if (!this.inIntro && this.isAlive && !this.superLaserActive) {
+            const plasmaLength = this.plasmaLength + Math.sin(Date.now() * this.plasmaSpeed) * this.plasmaOscillation;
+            const plasmaWidth = this.plasmaWidth + Math.cos(Date.now() * this.plasmaSpeed * 0.5) * (this.plasmaOscillation / 2);
+            
+            // O gradiente começa na base (topo da nave, Y positivo) e se estende para baixo (Y positivo)
+            // Coordenadas relativas ao centro (0,0)
+            const gradientStart = this.height / 2 + this.plasmaOffset; 
+            const gradientEnd = this.height / 2 + this.plasmaOffset + plasmaLength;
+            
+            const gradient = ctx.createLinearGradient(0, gradientStart, 0, gradientEnd);
+            
+            gradient.addColorStop(0, this.plasmaColor);
+            gradient.addColorStop(1, 'rgba(0, 191, 255, 0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.globalAlpha = 0.8;
+            
+            // Desenha o retângulo do plasma
+            // X: centralizado (-plasmaWidth / 2)
+            // Y: ponto de emissão (this.height / 2 + this.plasmaOffset)
+            ctx.fillRect(-plasmaWidth / 2, gradientStart, plasmaWidth, plasmaLength);
+            
+            ctx.globalAlpha = 1.0;
+        }
+
+        // --- Desenha a nave ---
+        ctx.globalAlpha = 1.0;
+        ctx.drawImage(this.img, -this.width / 2, -this.height / 2, this.width, this.height);
+
         ctx.restore();
     }
-
-    ctx.save();
-
-    // --- Escala base + pulso ---
-    let scale = this.inIntro ? this.currentScale : 1.0;
-    if (this.superLaserPulsing) {
-        const pulseProgress = Math.min(1, this.superLaserPulseTimer / this.superLaserPulseDuration);
-        const eased = easeOutQuad(pulseProgress);
-        scale = 1 + (this.superLaserScaleAmount - 1) * (1 - eased);
-    }
-
-    ctx.translate(centerX, centerY);
-    const pitchScaleY = 1 - (Math.abs(this.wingRotationY) * this.perspectiveScaleY);
-    ctx.scale(scale, pitchScaleY * scale);
-
-    const skewAmountX = this.wingRotationX * this.perspectiveSkewX;
-    const rollAngleInRadians = this.wingRotationX * this.perspectiveRotateZ * (Math.PI / 180);
-    ctx.rotate(rollAngleInRadians);
-    ctx.transform(1, 0, skewAmountX, 1, 0, 0);
-
-    // --- Plasma traseiro da nave ---
-    if (!this.inIntro && this.isAlive && !this.superLaserActive) {
-        const plasmaLength = this.plasmaLength + Math.sin(Date.now() * this.plasmaSpeed) * this.plasmaOscillation;
-        const plasmaWidth = this.plasmaWidth + Math.cos(Date.now() * this.plasmaSpeed * 0.5) * (this.plasmaOscillation / 2);
-        const gradient = ctx.createLinearGradient(0, this.height / 2 + this.plasmaOffset, 0, this.height / 2 + this.plasmaOffset + plasmaLength);
-        gradient.addColorStop(0, this.plasmaColor);
-        gradient.addColorStop(1, 'rgba(0, 191, 255, 0)');
-        ctx.fillStyle = gradient;
-        ctx.globalAlpha = 0.8;
-        ctx.fillRect(-plasmaWidth / 2, this.height / 2 + this.plasmaOffset, plasmaWidth, plasmaLength);
-        ctx.globalAlpha = 1.0;
-    }
-
-    // --- Desenha a nave ---
-    ctx.globalAlpha = 1.0;
-    ctx.drawImage(this.img, -this.width / 2, -this.height / 2, this.width, this.height);
-
-    ctx.restore();
-}
-
-
 }
