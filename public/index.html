@@ -7,24 +7,41 @@
     <title>Super Shooter JS</title>
 
     <link rel="stylesheet" href="../assets/css/game.css">
-    <link rel="stylesheet" href="../assets/css/btn.css">
+    <link rel="stylesheet" href="../assets/css/btn-HUD.css">
 
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
+
+<div id="loadingOverlay">
+    <div class="spinner"></div>
+    <p>Loading Game...</p>
+</div>
+
+
+    <video id="bgVideo" muted>
+        <source src="../assets/video/videoPainel.mp4" type="video/mp4">
+    </video>
+
     <div id="main-wrapper">
-        <div id="loadingOverlay" class="hidden">
-            <div class="spinner"></div>
-            <p>Loading Game...</p>
-        </div>
+    
 
         <div id="startScreen" class="tela-inicio">
-            <button id="continuar"  class="botao-menu">CONTINUAR</button>
-            <button id="startButton"  class="botao-menu">NOVO JOGO</button>
-            <button id="configButton"  class="botao-menu">CONFIGURAÇÕES</button>
-            <button id="exit"  class="botao-menu">SAIR</button>
+
+            <div class="menu-posicionamento">
+                <img src="../assets/img/cenario-start/ring-12779.gif" alt="" class="gif-centralizado">
+                <button id="continuar" class="botao-menu">CONTINUAR</button>
+                <button id="startButton" class="botao-menu">NOVO JOGO</button>
+                <button id="configButton" class="botao-menu">CONFIGURAÇÕES</button>
+                <button id="exit" class="botao-menu">SAIR</button>
+            </div>
+            <video autoplay muted id="video-fundo">
+                <source src="../assets/video/videoStart.mp4" type="video/mp4">
+                Seu navegador não suporta a tag de vídeo.
+            </video>
+
         </div>
 
         <div id="gameContainer">
@@ -37,7 +54,6 @@
                     <button class="pause-menu-button" onclick="togglePause()">CONTINUAR</button>
                     <button class="pause-menu-button">CONFIGURAÇÕES</button>
                     <button class="pause-menu-button">SAIR DA MISSÃO</button>
-            
                 </div>
 
                 <p class="p-pause">Pressione P ou ESC para continuar rapidamente.</p>
@@ -52,10 +68,13 @@
 
             <div class="info-and-health">
                 <div style="width: 100%; display: flex; justify-content: space-between;">
-                    <button id="upgradeButton" class="overlay-button">UPGRADE (500)</button>
-                    <button id="superLaserButton" class="overlay-button" onclick="trySuperLaser()">
-                        <span class="laser-label">BURST</span>
+                    <button id="superLaserButton" onclick="trySuperLaser()">
+                        <span class="laser-label"></span>
                         <span id="laserCost" class="laser-percent">0%</span>
+                    </button>
+
+                    <button id="upgradeButton">
+                        <span class="upgrade-label"></span>
                     </button>
                 </div>
 
@@ -63,14 +82,14 @@
                     style="width: 100%; display: flex; justify-content: space-between; padding-top: .5rem; padding-bottom: .5rem;">
                     <div class="hudRow">
                         <div>
-                            <span class="hudLabel">Weapon Lvl:</span>
-                            <span id="weaponValue">1</span>
+                            <span class="hudLabel">Score:</span>
+                            <span id="scoreValue">0%</span>
                         </div>
                     </div>
                     <div class="hudRow">
-                        <div>
-                            <span class="hudLabel">Score:</span>
-                            <span id="scoreValue">0</span>
+                        <div class="hudLabel-div">
+                            <span class="hudLabel">Weapon Lvl:</span>
+                            <span id="weaponValue">0%</span>
                         </div>
                     </div>
                 </div>
@@ -82,7 +101,7 @@
                             <!-- A barra verde de preenchimento -->
                             <div id="healthBar" style="width: 80%;"></div>
                             <!-- O texto centralizado e sobreposto -->
-                            <div id="healthBarText">Hull: <span id="hullValue">1720/2000</span></div>
+                            <div id="healthBarText" style="display: flex;">Hull:<span id="hullLife">0</span>/<span id="hullValue">0</span></div>
                         </div>
                     </div>
 
@@ -92,13 +111,27 @@
         </div>
     </div>
 
+
+    <audio id="musicaFundo" autoplay loop>
+        <source src="../assets/audio//tela-inicio.mp3" type="audio/mpeg">
+        Seu navegador não suporta a tag de áudio.
+    </audio>
+    <audio id="bgMusic" src="../assets/audio/epic-trailer-music-349631.mp3" preload="auto" loop></audio> 
+ 
+     <audio id="shootSound" src="../assets/audio/tiroNave.mp3" preload="auto"></audio>
+ 
+    <audio id="superLaserSound" src="../assets/audio/laser.mp3" preload="auto"></audio>
+
 </body>
 
 <!-- Scripts -->
+ 
+ 
 <script src="../script/GameObject.js"></script>
 <script src="../script/Projectile.js"></script>
 <script src="../script/Background.js"></script>
 <script src="../script/Player.js"></script>
+<script src="../script/particle.js"></script>
 <script src="../script/Enemy.js"></script>
 <script src="../script/start_game.js"></script>
 <script src="../script/pickup.js"></script>
@@ -108,6 +141,7 @@
 <script src="../script/spawnBoss.js"></script>
 <script src="../script/spawnItem.js"></script>
 <script src="../script/controle.js"></script>
+<script src="../script/gameVideo.js"></script>
 <script src="../script/game.js"></script>
 
 

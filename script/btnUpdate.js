@@ -7,7 +7,7 @@ function updateUpgradeButton() {
 
 // 1. Verifica se o nível máximo foi atingido
 if (playerShip.weaponLevel >= playerShip.maxWeaponLevel) {
-    button.textContent = "MAX WEAPON";
+    button.textContent = "MAX";
     button.disabled = true;
 
     // Ativa o neon corretamente 🎇
@@ -16,21 +16,6 @@ if (playerShip.weaponLevel >= playerShip.maxWeaponLevel) {
     return;
 }
 
-
-    // 2. Atualiza o custo
-    button.textContent = `UPGRADE (${nextWeaponUpgradeCost})`;
-    button.disabled = false; // Habilita por padrão
-
-    // 3. Altera a cor e o estado
-    if (score >= nextWeaponUpgradeCost) {
-        button.style.backgroundColor = ' rgba(40, 167, 70, 0.57)'; // Pode fazer upgrade
-        button.style.color = 'white';
-        button.style.border = '2px solid white';
-    } else {
-        button.style.backgroundColor = '#3030308c'; // Não pode fazer upgrade
-        button.style.color = 'white';
-        button.style.border = '2px solid #f2ff00ff';
-    }
 }
 // ------------------------------------------------------------------
 
@@ -105,7 +90,8 @@ function updateSuperLaserButton() {
     const costSpan = document.getElementById("laserCost");
 
     const percent = Math.floor((superLaserCharge / SUPER_LASER_REQUIREMENT) * 100);
-    costSpan.textContent = percent + "%";
+  // 2. USO DO OPERADOR TERNÁRIO para definir o texto do costSpan
+    costSpan.textContent = percent >= 100 ? "MAX" : percent + "%";
 
     // Ativa o efeito neon quando estiver pronto
     if (percent >= 100) {

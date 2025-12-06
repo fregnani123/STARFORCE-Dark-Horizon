@@ -1,522 +1,250 @@
-      /* ====================================================================== */
-      /* 1. ESTILOS GLOBAIS / LAYOUT BASE */
-      /* ====================================================================== */
-
-      @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
-      body {
-          margin: 0;
-          padding: 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-
-          /* ATENÇÃO: A URL de fundo pode falhar no Electron se o caminho não for absoluto ou relativo ao index.html */
-          background-image: url('../img/cenario-start/img-body.png');
-          background-size: cover;
-          background-repeat: no-repeat;
-          background-position: center center;
-
-          color: white;
-          font-family: Arial, sans-serif;
-          font-size: 24px;
-
-          transition: opacity 0.5s ease-out;
-          overflow: hidden;
-          height: 100vh;
-          width: 100vw;
-      }
-
-      .botao-menu {
-          padding: 10px 8px;
-          font-family: 'Orbitron';
-          font-size: 14px;
-          font-weight: 700;
-          width: 180px;
-          margin: 5px;
-
-          /* 🤫 NOVO ESTILO DISCRETO 🤫 */
-          /* Fundo quase totalmente transparente para valorizar o fundo */
-          background: rgba(0, 50, 80, 0.1);
-          color: #ffffff;
-          /* Borda muito mais discreta (quase cinza) e fina */
-          border: 1px solid rgba(255, 255, 255, 0.4);
-          border-radius: 5px;
-          cursor: pointer;
-          transition: 0.2s;
-          /* Removemos o box-shadow padrão para ser mais discreto */
-          box-shadow: none;
-      }
-
-      .botao-menu:hover {
-          /* Um pouco mais de cor no hover, mas ainda sutil */
-          background: rgba(0, 50, 80, 0.5);
-          /* Brilho ciano suave no hover para feedback visual */
-          box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-          transform: scale(1.03);
-          /* Diminui o scale para ser menos agressivo */
-      }
-
-      #gameContainer {
-          position: relative;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          width: 100%;
-          height: 100%;
-          max-width: 1000px;
-      }
-
-      #gameCanvas {
-          width: 100%;
-          height: 100vh;
-          object-fit: contain;
-          display: block;
-
-          background: black;
-          image-rendering: pixelated;
-          image-rendering: crisp-edges;
-      }
-
-      .hidden {
-          opacity: 0;
-          pointer-events: none;
-          display: none;
-      }
-
-      /* ====================================================================== */
-      /* 2. HUD (FORA DO CANVAS) - CONFIGURAÇÃO BASE (DESKTOP) */
-      /* ====================================================================== */
-
-      #hudPanel {
-          position: fixed;
-          bottom: 20px;
-          left: 50%;
-          transform: translateX(-50%);
-
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          color: white;
-          width: 800px;
-          background-color: rgba(255, 255, 255, 0);
-          z-index: 95;
-          pointer-events: none;
-      }
-
-      /* Container de Botões (Upgrade, SuperLaser) */
-      #hudPanel>div:first-child {
-          width: 100%;
-          display: flex;
-          justify-content: space-between;
-          pointer-events: auto;
-      }
-
-      /* Container de Informações e Barra de Vida */
-      .info-and-health {
-          display: flex;
-          flex-direction: column;
-      }
-
-      .hudRow {
-          display: flex;
-          gap: 5px;
-          font-size: 18px;
-      }
-
-      .hudLabel {
-          width: auto !important;
-          /* Remove largura fixa */
-          padding-left: 0 !important;
-      }
-
-      /* NOVO: CSS CORRETO PARA CENTRALIZAÇÃO DO HULL DENTRO DA BARRA DE VIDA */
-      #healthBarContainer {
-          /* Novo wrapper para a barra de vida */
-          width: 150px;
-          height: 18px;
-          border: 2px solid white;
-          border-radius: 4px;
-          background: #333;
-          overflow: hidden;
-          position: relative;
-          /* CRUCIAL: Âncora para o texto interno */
-      }
-
-      #healthBar {
-          height: 100%;
-          width: 100%;
-          /* Será ajustado via JS */
-          background: #32cd32;
-          transition: width 0.15s;
-      }
-
-      /* O texto 'Hull' agora é #healthBarText */
-      #healthBarText {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-
-          font-size: 14px;
-          font-weight: bold;
-          font-family: 'Orbitron', sans-serif;
-          color: white;
-          text-shadow: 0 0 3px black, 0 0 5px rgba(0, 0, 0, 0.7);
-          white-space: nowrap;
-          z-index: 2;
-          pointer-events: none;
-      }
-
-
-      /* ====================================================================== */
-      /* 3. BARRA DE VIDA DO BOSS */
-      /* ====================================================================== */
-
-      #bossHealthBarContainer {
-          position: fixed;
-          top: 10px;
-          left: 50%;
-          transform: translateX(-50%);
-
-          width: 60vw;
-          max-width: 320px;
-          height: 18px;
-
-          background: rgba(255, 255, 255, 0.15);
-          border: 2px solid #fff;
-          border-radius: 12px;
-
-          z-index: 999999;
-          display: none;
-      }
-
-      #bossHealthBar {
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(to bottom, #ff4b4b, #b30000);
-          border-radius: 10px;
-          transition: width 0.20s linear;
-      }
-
-      /* ====================================================================== */
-      /* 4. BOTÕES NEON (UPGRADE / SUPER LASER / PAUSE) */
-      /* ====================================================================== */
-
-      .p-pause {
-          font-size: 1rem;
-      }
-
-      .overlay-button {
-          z-index: 10;
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          font-weight: bold;
-          font-size: 8px;
-          color: white;
-          background-color: rgba(40, 167, 70, 0.45);
-          border: 2px solid white;
-          cursor: pointer;
-          transition: 0.2s;
-          pointer-events: auto;
-      }
-
-      .overlay-button:active {
-          transform: scale(0.95);
-      }
-
-      .weapon-max {
-          background: radial-gradient(circle,
-                  rgba(255, 170, 50, 0.9) 0%,
-                  rgba(255, 120, 0, 0.85) 40%,
-                  rgba(255, 90, 0, 0.75) 70%,
-                  rgba(255, 150, 0, 0.3) 100%);
-          color: #fff;
-          font-weight: 900;
-          border: 2px solid #ffe9a3;
-          animation: weaponMaxFire 1.4s infinite alternate ease-in-out;
-      }
-
-      /* === Super Laser Button === */
-      #superLaserButton {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 2px;
-          background-color: rgba(71, 71, 71, 0.35);
-          color: white;
-          font-family: 'Orbitron', sans-serif;
-      }
-
-      #superLaserButton.ready {
-          background: #ffe600;
-          color: black;
-          box-shadow: 0 0 15px #ffe600;
-          animation: pulseNeon 1.2s infinite alternate;
-      }
-
-      #superLaserButton .laser-label {
-          font-size: 8px;
-          font-weight: bold;
-      }
-
-      #superLaserButton .laser-percent {
-          font-size: 7px;
-          opacity: 0.8;
-      }
-
-      /* === Pause Button (Desktop position) === */
-      #pauseButton {
-          position: fixed;
-          bottom: 0px;
-          right: 0px;
-          width: 100px;
-          height: 20px;
-          background: rgba(0, 150, 255, 0.1);
-          color: #00FFFF;
-          border: 2px solid #00FFFF;
-          border-radius: 5px;
-          font-family: 'Orbitron', sans-serif;
-          font-size: 10px;
-          font-weight: 700;
-          cursor: pointer;
-          z-index: 95;
-          pointer-events: auto;
-      }
-
-      #pauseButton:hover {
-          background: rgba(0, 255, 255, 0.25);
-          color: white;
-      }
-
-      /* ====================================================================== */
-      /* 5. TELA DE PAUSA */
-      /* ====================================================================== */
-
-      #pauseOverlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          background-color: rgba(0, 0, 0, 0.9);
-          z-index: 90;
-          color: #fff;
-          font-family: 'Press Start 2P', monospace;
-          text-align: center;
-          transition: opacity 0.3s ease-in-out;
-      }
-
-      #pauseOverlay h2 {
-          font-size: 24px;
-          color: #00ffff;
-          text-shadow: 0 0 10px #00ffff;
-      }
-
-      .pause-menu-button {
-          padding: 12px 10px;
-          font-family: 'Orbitron';
-          font-size: 14px;
-          font-weight: 700;
-          width: 98%;
-          margin: 5px;
-          background: rgba(0, 150, 255, 0.1);
-          color: #00FFFF;
-          border: 2px solid #00FFFF;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: 0.2s;
-      }
-
-      .pause-menu-button:hover {
-          background: rgba(0, 255, 255, 0.25);
-          color: white;
-      }
-
-      /* ====================================================================== */
-      /* 6. TELA DE INÍCIO */
-      /* ====================================================================== */
-
-      /* O container principal (tela-inicio) é apenas o fundo, mas mantém a centralização geral */
-      .tela-inicio {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100vw;
-          height: 100vh;
-
-          background-image: url('../img/cenario-start/poster-pc.png');
-          background-size: cover;
-          background-position: center;
-          color: white;
-          font-family: Arial, sans-serif;
-          z-index: 99900;
-
-          /* Centraliza o conteúdo dentro dele */
-          display: flex;
-          justify-content: center;
-          align-items: center;
-      }
-
-      /* 🚀 NOVO: Posicionamento do container dos botões (startScreen) 🚀 */
-      #startScreen {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          /* Centraliza a coluna verticalmente */
-          align-items: flex-start;
-          /* Move a coluna para a Esquerda */
-
-          position: absolute;
-          top: 50%;
-          left: 0;
-          /* Coloca o ponto de referência no canto esquerdo */
-
-          /* Centraliza verticalmente (metade da altura) */
-          transform: translateY(-50%);
-
-          /* Afasta da borda esquerda */
-          padding-left: 100px;
-
-          /* Garante que o menu ocupe toda a altura para que a centralização funcione */
-          height: 100vh;
-      }
-        #continuar{
-            margin-top: 10% !important;
-        }
-      /* ====================================================================== */
-      /* 7. OVERLAY DE LOADING */
-      /* ====================================================================== */
-
-      #loadingOverlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(0, 0, 0, 0.95);
-          z-index: 1000;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-      }
-
-      .spinner {
-          border: 4px solid rgba(255, 255, 255, 0.3);
-          border-top: 4px solid #fff;
-          border-radius: 50%;
-          width: 50px;
-          height: 50px;
-          animation: spin 1s linear infinite;
-      }
-
-      /* ====================================================================== */
-      /* 8. MEDIA QUERIES - CORREÇÃO FINAL PARA MOBILE */
-      /* ====================================================================== */
-
-      @media (max-width: 768px) {
-
-          /* 1. Canvas */
-          #gameCanvas {
-              object-fit: contain;
-          }
-
-          /* 2. NEUTRALIZAÇÃO DO HUD PAI */
-          #hudPanel {
-              position: static;
-              width: auto;
-              transform: none;
-              bottom: 0;
-              left: auto;
-              display: block;
-              padding: 0;
-              gap: 0;
-          }
-
-          /* 3. REPOSICIONAMENTO DOS ELEMENTOS CHAVE COM POSITION: FIXED */
-
-          /* A. Informações e Barra de Vida (Canto Inferior Esquerdo) */
-          .info-and-health {
-              position: fixed;
-              bottom: 15px;
-              left: 10px;
-
-              display: flex;
-              flex-direction: column;
-              align-items: flex-start;
-              gap: 3px;
-
-              padding: 8px 12px;
-              background-color: rgba(0, 0, 0, 0);
-              border-radius: 8px;
-
-          }
-
-          .hudRow {
-              font-size: 13px;
-              justify-content: flex-start;
-          }
-
-          #healthBarContainer {
-              width: 100px;
-              height: 10px;
-              margin-top: 5px;
-          }
-
-          /* Ajuste do texto de Hull no Mobile */
-          #healthBarText {
-              font-size: 9px;
-              /* Reduz o tamanho da fonte para o mobile */
-          }
-
-
-          /* B. Botões Upgrade/Burst (Canto Inferior Direito) */
-          #hudPanel>div:first-child {
-              position: fixed;
-              bottom: 15px;
-              right: 10px;
-
-              display: flex;
-              flex-direction: column;
-              justify-content: flex-end;
-              align-items: flex-end;
-              gap: 8px;
-
-              width: auto;
-              z-index: 100;
-          }
-
-          .overlay-button {
-              width: 55px;
-              height: 55px;
-              font-size: 8px;
-          }
-
-          /* C. Botão PAUSE (Canto Superior Direito) */
-          #pauseButton {
-              position: fixed;
-              bottom: 0px;
-              right: 10px;
-              bottom: auto;
-              width: 70px;
-              height: 30px;
-              font-size: 8px;
-              z-index: 100;
-          }
-
-          /* D. Ajuste da Barra de Vida do Boss (Topo) */
-          #bossHealthBarContainer {
-              width: 90vw;
-              max-width: 400px;
-              top: 5px;
-          }
-      }
+/* ====================================================================== */
+/* 1. ESTILOS GLOBAIS / LAYOUT BASE */
+/* ====================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    transition: opacity 0.5s ease-out;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+#bgVideo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -9999;
+    pointer-events: none;
+    filter: brightness(0.65);
+}
+
+#gameContainer {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    max-width: 1000px;
+}
+
+#gameCanvas {
+    width: 100%;
+    height: 100vh;
+    object-fit: contain;
+    display: block;
+    background: rgb(255, 255, 255);
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    border: 2px solid rgba(255, 246, 126, 0.985);
+}
+
+.hidden {
+    opacity: 0;
+    pointer-events: none;
+    display: none;
+}
+
+/* ====================================================================== */
+/* 5. TELA DE PAUSA */
+/* ====================================================================== */
+
+#pauseOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 90;
+    color: #fff;
+    font-family: 'Press Start 2P', monospace;
+    text-align: center;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#pauseOverlay h2 {
+    font-size: 24px;
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff;
+}
+
+/* ====================================================================== */
+/* 6. TELA DE INÍCIO */
+/* ====================================================================== */
+
+.tela-inicio {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    color: white;
+    font-family: Arial, sans-serif;
+    z-index: 99900;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+#video-fundo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+}
+
+#startScreen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    padding-left: 100px;
+    height: 100vh;
+}
+
+#continuar {
+    margin-top: 10% !important;
+}
+
+.gif-centralizado {
+    position: absolute;
+    width: 60%;
+    left: 5%;
+    transform: translateX(-50%);
+    bottom: 0;
+    z-index: -1;
+}
+
+/* ====================================================================== */
+/* NOVO: ESTILOS PARA O EFEITO DE FUMAÇA ANIMADA */
+/* ====================================================================== */
+
+.menu-posicionamento {
+    position: absolute;
+    width: 100%;
+    height: 100vh;
+    left: 0;
+    background: rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: 200px;
+    z-index: 10;
+    background-size: 300% 300%;
+}
+
+/* ====================================================================== */
+/* 7. OVERLAY DE LOADING */
+/* ====================================================================== */
+
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #000 0%, #050505 90%);
+    z-index: 100000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.spinner {
+    border: 6px solid rgba(255, 255, 255, 0.2);
+    border-top: 6px solid #00ffff;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 60px #00ffff;
+}
+
+#loadingOverlay::before {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    top: -50%;
+    left: -50%;
+    animation: moveStars 10s linear infinite;
+}
+
+#loadingOverlay p {
+    margin-top: 30px;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    color: #DCE1DF;
+    text-shadow: 0 0 3px #DCE1DF, 0 0 6px #DCE1DF;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes moveStars {
+    0% { transform: translate(0,0); }
+    100% { transform: translate(-50px, 50px); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ====================================================================== */
+/* 8. MEDIA QUERIES - CORREÇÃO FINAL PARA MOBILE */
+/* ====================================================================== */
+
+@media (max-width: 768px) {
+
+    #gameCanvas {
+        object-fit: contain;
+    }
+
+    #bossHealthBarContainer {
+        width: 90vw;
+        max-width: 400px;
+        top: 5px;
+    }
+
+}

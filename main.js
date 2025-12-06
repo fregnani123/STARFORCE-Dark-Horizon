@@ -1,23 +1,23 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
 let mainWindow;
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        fullscreen: true,       // ⬅ FULLSCREEN REAL (remove taskbar)
-        frame: false,           // sem barra de janela
-        autoHideMenuBar: true,  // menu só aparece ao ALT
+        fullscreen: true,
+        frame: false,
+        autoHideMenuBar: true,
         icon: path.join(__dirname, "assets", "img", "icon.png"),
         webPreferences: {
+            preload: path.join(__dirname, 'preload.js'), // obrigatório
             nodeIntegration: false,
-            contextIsolation: true
+            contextIsolation: true,
+            autoplayPolicy: 'no-user-gesture-required'
         }
     });
 
     mainWindow.loadFile(path.join(__dirname, 'public', 'index.html'));
-
-    // Garante fullscreen habilitado no sistema
     mainWindow.setFullScreenable(true);
 }
 
@@ -27,6 +27,11 @@ app.whenReady().then(() => {
     app.on("activate", () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
+});
+
+// IPC para fechar o app
+ipcMain.on('close-app', () => {
+    app.quit();
 });
 
 app.on("window-all-closed", () => {

@@ -1,4 +1,3 @@
-// Arquivo: script/GameObject.js
 class GameObject {
     constructor(x, y, width, height, imagePath) {
         this.x = x;
@@ -7,24 +6,33 @@ class GameObject {
         this.height = height;
         this.isAlive = true; 
         
-        // 🚨 MELHORIA 1: Inicialização da Rotação
-        // Inicializa a rotação para evitar 'undefined' no método draw,
-        // garantindo que ela seja tratada como zero por padrão.
+        // Inicialização da Rotação
         this.rotation = 0; 
-        // Nota: Se você não quiser que a rotação seja um recurso padrão,
-        // remova esta linha e use 'if (this.rotation !== undefined)' no draw
-        // (mas inicializar com 0 é geralmente mais seguro).
 
-        this.img = new Image();
-        this.img.src = imagePath;
-        this.isReady = false; 
-        
-        this.img.onload = () => {
-            this.isReady = true;
-        };
+        // 🚨 CORREÇÃO CRÍTICA: Impedir o carregamento de imagem se imagePath for null (como em Particle)
+        if (imagePath) {
+            this.img = new Image();
+            this.img.src = imagePath;
+            this.isReady = false; 
+            
+            this.img.onload = () => {
+                this.isReady = true;
+            };
+            this.img.onerror = () => {
+                console.error(`Falha ao carregar imagem: ${imagePath}`);
+                // Em caso de falha, definimos como pronto e removemos a imagem para evitar erros no draw
+                this.isReady = true; 
+                this.img = null;
+            };
+        } else {
+            // Se não houver imagePath (ex: Partículas), definimos a imagem como nula
+            // e o objeto como 'pronto' para ser desenhado por seus métodos específicos (como Particle.draw)
+            this.img = null;
+            this.isReady = true; 
+        }
     }
 
-    // 🚨 MELHORIA 2: Método de Colisão (Bounding Box)
+    // 🚨 Método de Colisão (Bounding Box)
     // Verifica se este objeto colidiu com outro objeto (objB)
     checkCollision(objB) {
         // Colisão AABB (Axis-Aligned Bounding Box)
@@ -37,7 +45,13 @@ class GameObject {
     }
 
     draw(ctx) {
+        // Se isReady for false (imagem carregando) OU se não houver imagem E o objeto for desenhado por aqui
         if (!this.isReady) return;
+
+        // Se this.img for nulo (como é para Partículas),
+        // o draw padrão não fará nada, confiando que a classe filha (Particle, etc.)
+        // implementará seu próprio desenho.
+        if (!this.img) return; 
 
         // Se a rotação for diferente de 0, desenha com rotação
         if (this.rotation !== 0) { 
@@ -48,7 +62,7 @@ class GameObject {
             const cy = this.y + this.height / 2;
             ctx.translate(cx, cy);
 
-            // aplicar a rotação
+            // aplicar a rotação (conversão de graus para radianos)
             ctx.rotate(this.rotation * Math.PI / 180);
 
             // desenhar centralizado

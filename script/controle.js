@@ -105,7 +105,7 @@ window.addEventListener('keydown', (e) => {
     if (keyName && keys[keyName] !== undefined) keys[keyName] = true;
 
     if (e.key === 'q' || e.key === 'Q') trySuperLaser();
-    if (e.key === 'g' || e.key === 'G') {
+    if (e.key === 'e' || e.key === 'E') {
         if (typeof tryUpgradeWeapon === 'function') tryUpgradeWeapon();
     }
 });

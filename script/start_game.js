@@ -1,9 +1,48 @@
-// Arquivo: script/start.js (CORRIGIDO PARA TEMPO MÍNIMO DE ANIMAÇÃO)
+document.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById('loadingOverlay');
+    const startScreen = document.getElementById('startScreen');
+    const menuMusic = document.getElementById('musicaFundo');
+
+    // Tempo mínimo de loading (1-2 segundos para efeito visual)
+    const MIN_LOADING_TIME_MS = 1500;
+
+    // Pré-carregamento opcional de imagens do menu
+    const menuImages = [
+        "../assets/img/cenario-start/ring-12779.gif",
+        "../assets/img/cenarios/cenario.jpg"
+        // adicione outras imagens do menu
+    ];
+
+    const preloadPromises = menuImages.map(path => new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = path;
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(path);
+    }));
+
+    // Espera o carregamento + tempo mínimo
+    Promise.all([
+        Promise.all(preloadPromises),
+        new Promise(res => setTimeout(res, MIN_LOADING_TIME_MS))
+    ]).then(() => {
+        // Esconde overlay
+        if (overlay) overlay.classList.add('hidden');
+
+        // Mostra a tela inicial
+        if (startScreen) startScreen.classList.remove('hidden');
+
+        // Toca música do menu
+        if (menuMusic) menuMusic.play().catch(() => {});
+    }).catch(err => {
+        console.warn("Erro ao pré-carregar menu:", err);
+        if (overlay) overlay.classList.add('hidden');
+        if (startScreen) startScreen.classList.remove('hidden');
+    });
+});
 
 // ----------------------------------------------------------------------
 // Variáveis Globais (Assumidas - Devem ser definidas em um escopo global)
 // ----------------------------------------------------------------------
-
 
 // --- LISTA DE RECURSOS PARA PRÉ-CARREGAMENTO ---
 const IMAGES_TO_LOAD = [
@@ -32,6 +71,8 @@ function preloadImages(imagePaths) {
 }
 
 
+
+
 // --- Variável de Controle de Áudio ---
 let isMusicPlaying = false; 
 
@@ -53,28 +94,46 @@ function tryPlayMusic() {
 }
 
 
+
+
+// VARIÁVEL GLOBAL (ou no topo do escopo) para acessar o vídeo
+const backgroundVideo = document.getElementById('bgVideo'); 
+// Certifique-se de que a constante MIN_LOADING_TIME_MS e a função preloadImages estejam definidas.
+
 // --- FUNÇÃO PRINCIPAL: INICIAR O JOGO APÓS PRÉ-CARREGAMENTO ---
 function startGame() {
-    const startScreenDiv = document.getElementById('startScreen');
-    const loadingOverlay = document.getElementById('loadingOverlay');
+    const startScreenDiv = document.getElementById('startScreen');
+    const loadingOverlay = document.getElementById('loadingOverlay');
 
-    // 1. Esconde a tela inicial
-    if (startScreenDiv) startScreenDiv.classList.add('hidden');
+    // ⭐ NOVO: PAUSA A MÚSICA DA TELA INICIAL
+    const menuMusic = document.getElementById('musicaFundo');
+    if (menuMusic) {
+        menuMusic.pause();
+        menuMusic.currentTime = 0; // Volta ao início (opcional)
+        console.log("Música do menu pausada.");
+    }
+    // ------------------------------------------
 
-    // 2. MOSTRA O LOADING IMEDIATAMENTE e força a renderização para Electron
-    if (loadingOverlay) {
+    // 1. Esconde a tela inicial
+    if (startScreenDiv) startScreenDiv.classList.add('hidden');
+
+    // 2. MOSTRA O LOADING IMEDIATAMENTE e força a renderização para Electron
+    if (loadingOverlay) {
         loadingOverlay.classList.remove('hidden');
         // Mantém a correção para forçar o render no Electron
         void loadingOverlay.offsetWidth; 
     }
 
-    // MÚSICA: Inicia a música de fundo
-    const bgMusic = document.getElementById('bgMusic');
-    if (bgMusic) {
-        bgMusic.volume = 0.35;
-        bgMusic.play().catch(e => console.log("Música iniciada."));
-        isMusicPlaying = true;
-    }
+    // MÚSICA: Inicia a música de fundo (Esta é a MÚSICA DA FASE)
+    const bgMusic = document.getElementById('bgMusic');
+    if (bgMusic) {
+        bgMusic.volume = 0.35;
+        // ⭐ ATENÇÃO AQUI: Se a música não está tocando, o problema está
+        // na chamada .play(). Mas, como o clique do botão já ocorreu,
+        // o navegador deve permitir a execução.
+        bgMusic.play().catch(e => console.error("Música da fase não iniciada (bgMusic):", e));
+        isMusicPlaying = true;
+    }
 
     // 3. 🚨 NOVO: Cria a promessa de tempo mínimo
     const minTimePromise = new Promise(resolve => {
@@ -93,6 +152,11 @@ function startGame() {
             // ESCONDE O LOADING após o carregamento e tempo mínimo
             if (loadingOverlay) loadingOverlay.classList.add('hidden');
             
+            // 🚨 NOVO CÓDIGO AQUI: Inicia a reprodução do vídeo
+            if (backgroundVideo) {
+                backgroundVideo.play().catch(e => console.error("Erro ao iniciar o vídeo de fundo:", e));
+            }
+            
             // Inicia o jogo
             initGame();
 
@@ -102,9 +166,11 @@ function startGame() {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const track = audioCtx.createMediaElementSource(shootSoundElement);
                 const gainNode = audioCtx.createGain();
-                gainNode.gain.value = 0.07; 
+                gainNode.gain.value = 0.02; 
                 track.connect(gainNode).connect(audioCtx.destination);
 
+                // O setTimeout para o som do tiro geralmente deve ser movido para dentro de initGame()
+                // para ser executado no contexto do jogo, mas mantive a estrutura original.
                 setTimeout(() => {
                     shootSoundElement.currentTime = 0;
                     shootSoundElement.play();
@@ -118,7 +184,6 @@ function startGame() {
             alert("Erro ao carregar arquivos do jogo. Verifique o console.");
         });
 }
-
 // Função para disparar o tiro
 function shoot() {
     const shootSound = document.getElementById('shootSound');
@@ -158,7 +223,7 @@ function initGame() {
         SHIP_WIDTH, 
         SHIP_HEIGHT, 
         "../assets/img/nave-player/nave-player.png",
-        2000 
+        2000  // Define a vida da nave
     );
     
     // Inicializa a variável global 'lastTime' para sincronizar o gameLoop
@@ -224,4 +289,26 @@ function togglePause() {
             console.log(isPaused ? "Jogo Pausado." : "Jogo Retomado.");
         }
     }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const exitButton = document.getElementById('exit');
+
+    exitButton.addEventListener('click', () => {
+        if (window.electronAPI && window.electronAPI.closeApp) {
+            // ❌ Só funciona se preload estiver correto
+            window.electronAPI.closeApp();
+        } else {
+            alert("Funcionalidade de sair disponível apenas no desktop.");
+        }
+    });
+});
+function playSound(src) {
+    // Cria um novo elemento de áudio
+    const sound = new Audio(src);
+    // Tenta tocar o som
+    sound.play().catch(error => {
+        // Isso é comum em navegadores que bloqueiam autoplay/primeiro som
+        console.warn("Não foi possível reproduzir o som da explosão:", error);
+    });
 }

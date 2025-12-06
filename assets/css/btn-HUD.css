@@ -1,0 +1,242 @@
+/* ====================================================================== */
+/* BOTOES DA TELA INICIAL */
+/* ====================================================================== */
+
+.botao-menu {
+    padding: 10px 8px;
+    font-family: 'Orbitron';
+    font-size: 14px;
+    font-weight: 700;
+    width: 180px;
+    margin: 5px;
+    background: rgba(0, 50, 80, 0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: none;
+}
+
+.botao-menu:hover {
+    background: rgba(0, 50, 80, 0.5);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    transform: scale(1.03);
+}
+
+/* ====================================================================== */
+/* HUD E BOTOES DO JOGO */
+/* ====================================================================== */
+
+#hudPanel {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: white;
+    width: 890px;
+    background-color: rgba(255, 255, 255, 0);
+    z-index: 95;
+    pointer-events: none;
+}
+
+#hudPanel>div:first-child {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: auto;
+}
+
+.info-and-health {
+    display: flex;
+    flex-direction: column;
+}
+
+.hudRow {
+    display: flex;
+    gap: 5px;
+    font-size: 18px;
+}
+
+.hudLabel, .hudLabel-div, #weaponValue {
+    font-family: 'Orbitron', sans-serif;
+}
+
+#healthBarContainer {
+    width: 150px;
+    height: 18px;
+    border: 2px solid white;
+    border-radius: 4px;
+    background: #333;
+    overflow: hidden;
+    position: relative;
+}
+
+#healthBar {
+    height: 100%;
+    width: 100%;
+    background: #32cd32;
+    transition: width 0.15s;
+}
+
+#healthBarText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'Orbitron', sans-serif;
+    color: white;
+    text-shadow: 0 0 3px black, 0 0 5px rgba(0,0,0,0.7);
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* BARRA DE VIDA DO BOSS */
+#bossHealthBarContainer {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60vw;
+    max-width: 320px;
+    height: 18px;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid #fff;
+    border-radius: 12px;
+    z-index: 999999;
+    display: none;
+}
+
+#bossHealthBar {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, #ff4b4b, #b30000);
+    border-radius: 10px;
+    transition: width 0.20s linear;
+}
+
+/* BOTOES NEON JOGO */
+#upgradeButton, #superLaserButton, #pauseButton {
+    pointer-events: auto;
+}
+
+#upgradeButton {
+    z-index: 10;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: white;
+    border: 2px solid white;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: 'Orbitron', sans-serif !important;
+    background-image: url('../img/cenarios/botao-armas.png') !important;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+}
+
+#superLaserButton {
+    z-index: 10;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: rgb(248,248,248);
+    border: 2px solid white;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: 'Orbitron', sans-serif !important;
+    background-image: url('../img/cenarios/botao-flash.png') !important;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+}
+
+.weapon-max {
+    background: radial-gradient(circle,
+        rgba(255,170,50,0.9) 0%,
+        rgba(255,120,0,0.85) 40%,
+        rgba(255,90,0,0.75) 70%,
+        rgba(255,150,0,0.3) 100%);
+    color: #fff;
+    font-weight: 900;
+    border: 2px solid #ffe9a3;
+    animation: weaponMaxFire 1.4s infinite alternate ease-in-out;
+}
+
+#superLaserButton.ready {
+    background-color: #ffe600;
+    color: rgb(255,255,255);
+    box-shadow: 0 0 15px #ffe600;
+    animation: pulseNeon 1.2s infinite alternate;
+}
+
+/* BOTOAO PAUSE */
+#pauseButton {
+    position: fixed;
+    bottom: 0px;
+    right: 45%;
+    width: 130px;
+    height: 20px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 95;
+    background: rgba(0,50,80,0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 5px;
+    transition: 0.2s;
+    box-shadow: none;
+}
+
+#pauseButton:hover, #superLaserButton:hover, #upgradeButton:hover {
+    transform: scale(1.03);
+}
+
+/* MEDIA QUERIES MOBILE */
+@media (max-width:768px) {
+
+    .overlay-button {
+        width: 55px;
+        height: 55px;
+        font-size: 8px;
+    }
+
+    #pauseButton {
+        width: 70px;
+        height: 30px;
+        font-size: 8px;
+        right: 10px;
+        bottom: auto;
+        z-index: 100;
+    }
+
+    #superLaserButton .laser-label {
+        font-size: 8px;
+        font-weight: bold;
+    }
+
+    #superLaserButton .laser-percent {
+        font-size: 7px;
+        opacity: 0.8;
+    }
+}
