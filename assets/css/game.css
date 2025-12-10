@@ -31,8 +31,26 @@ body {
     object-fit: cover;
     z-index: -9999;
     pointer-events: none;
-    filter: brightness(0.65);
 }
+
+.video-dark-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+
+    background: linear-gradient(
+        to right,
+        rgba(0,0,0,0.32),   /* lado esquerdo mais escuro */
+        rgba(0,0,0,0.12) 30%,  /* transição suave */
+        rgba(0,0,0,0.00) 100%  /* lado direito claro */
+    );
+
+    z-index: 99999;
+    pointer-events: none;
+}
+
+
 
 #gameContainer {
     position: relative;
@@ -41,7 +59,7 @@ body {
     align-items: center;
     width: 100%;
     height: 100%;
-    max-width: 1000px;
+  
 }
 
 #gameCanvas {
@@ -88,7 +106,9 @@ body {
     color: #00ffff;
     text-shadow: 0 0 10px #00ffff;
 }
-
+.p-pause{
+    font-size: 1rem !important;
+}
 /* ====================================================================== */
 /* 6. TELA DE INÍCIO */
 /* ====================================================================== */
@@ -132,9 +152,9 @@ body {
     height: 100vh;
 }
 
-#continuar {
+/* #continuar {
     margin-top: 10% !important;
-}
+} */
 
 .gif-centralizado {
     position: absolute;
@@ -162,73 +182,6 @@ body {
     padding-left: 200px;
     z-index: 10;
     background-size: 300% 300%;
-}
-
-/* ====================================================================== */
-/* 7. OVERLAY DE LOADING */
-/* ====================================================================== */
-
-#loadingOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at center, #000 0%, #050505 90%);
-    z-index: 100000;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    color: white;
-    font-family: 'Orbitron', sans-serif;
-}
-
-.spinner {
-    border: 6px solid rgba(255, 255, 255, 0.2);
-    border-top: 6px solid #00ffff;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    animation: spin 1s linear infinite;
-    box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 60px #00ffff;
-}
-
-#loadingOverlay::before {
-    content: "";
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
-    background-size: 20px 20px;
-    top: -50%;
-    left: -50%;
-    animation: moveStars 10s linear infinite;
-}
-
-#loadingOverlay p {
-    margin-top: 30px;
-    font-size: 1.8rem;
-    letter-spacing: 2px;
-    color: #DCE1DF;
-    text-shadow: 0 0 3px #DCE1DF, 0 0 6px #DCE1DF;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes moveStars {
-    0% { transform: translate(0,0); }
-    100% { transform: translate(-50px, 50px); }
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
 }
 
 /* ====================================================================== */

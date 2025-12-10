@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>  
+    <meta charset="utf-8" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../assets/css/overlay.css">
+    <link rel="stylesheet" href="../assets/css/levelGame.css">
+        <title>Tabuleiro Vertical de Progresso</title>
+</head>
+
+<body>
+
+    <video autoplay loop muted id="video-background">
+        <source src="../assets/video/backgraund_level.mp4" type="video/mp4">
+        Seu navegador não suporta o elemento de vídeo.
+    </video>
+
+    <div class="wrap">
+        <div id="loadingOverlay">
+            <div class="spinner"></div>
+            <p>Loading Game...</p>
+        </div>
+        <div class="header">
+            <div>
+                <div class="title">Progresso do Jogador</div>
+                <div class="subtitle">Tabuleiro vertical — evolução de fases</div>
+            </div>
+            <div class="controls">
+                <button class="btn" id="menuBtnFases">Menu</button>
+                <button class="btn" id="resetBtn">Reset</button>
+                <button class="btn" id="nextBtn">Avançar</button>
+            </div>
+        </div>
+        <div class="board-card">
+            <div class="board" id="board">
+                <div class="track"></div>
+                <div class="fill" id="fill"></div>
+
+                <div class="nodes" id="nodes">
+                </div>
+
+                <div class="player" id="player" title="Você">
+                    <img src="../assets/img/nave-player/nave-player.png" alt="avatar">
+                </div>
+            </div>
+        </div>
+        <div class="info">
+            <div class="chip">Nível: <strong id="lvl">1</strong></div>
+            <div class="chip">XP: <strong id="xp">0/100</strong></div>
+            <div class="chip">Checkpoints: <strong id="cp">0</strong></div>
+        </div>
+    </div>
+       
+     
+    <script src="../script/start_game.js"></script>
+    <script src="../script/gameLevel/levelGame.js"></script>
+    <script src="../script/controle.js"></script>
+
+</body>
+
+</html>

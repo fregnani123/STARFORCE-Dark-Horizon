@@ -1,4 +1,4 @@
-// Arquivo: script/Background.js (FINAL COM ESCALA DE VISUALIZAÇÃO)
+// Arquivo: script/Background.js (FINAL COM ATMOSPHERIC BLUR)
 class Background {
     constructor(imagePath, speed, canvasWidth, canvasHeight) {
         this.img = new Image();
@@ -6,29 +6,23 @@ class Background {
         this.speed = speed;
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
-        
-        // NOVO: Fator de escala para visualização. 
-        // Use 1.0 para tamanho real, 0.5 para 50% do tamanho.
-        // Vou usar 0.8 como exemplo, mas você pode ajustar!
-        this.visualScale = 0.8; 
-        
-        this.y1 = 0; 
+
+        this.visualScale = 0.8;
+
+        this.y1 = 0;
         this.isReady = false;
-        this.isScrolling = true; 
+        this.isScrolling = true;
 
         this.img.onload = () => {
             this.isReady = true;
-            
-            // Altura real da imagem, escalonada
-            this.scaledHeight = this.img.height * this.visualScale;
-            
-            // Altura real da imagem (largura do canvas / largura original) * altura original)
-            // Calculamos o fator de escala que faremos.
+
+            // fator para manter proporção
             const ratio = this.canvasWidth / this.img.width;
+
+            // altura escalonada
             this.scaledHeight = this.img.height * ratio * this.visualScale;
-            
-            // Move o topo da imagem para que o rodapé (scaledHeight) comece no topo do canvas.
-            // Para rolar todo o conteúdo da imagem escalonada.
+
+            // iniciar de baixo para cima
             this.y1 = this.canvasHeight - this.scaledHeight;
         };
     }
@@ -36,27 +30,31 @@ class Background {
     update(deltaTime) {
         if (!this.isReady || !this.isScrolling) return;
 
-        const movement = this.speed * deltaTime / 5000; // controla a velocidade do mapa da rolagem do cenário
-        
+        const movement = this.speed * deltaTime / 5000;
         this.y1 += movement;
-        
-        // Condição de Parada (Stopping Condition): 
-        // Para quando o topo da imagem escalonada (y1) atinge o topo do canvas (0).
+
         if (this.y1 >= 0) {
-            this.y1 = 0; // Fixa a imagem no lugar
-            this.isScrolling = false; // Para o movimento
+            this.y1 = 0;
+            this.isScrolling = false;
         }
     }
 
     draw(ctx) {
-        if (this.isReady) {
-            // Desenha a imagem forçando a largura do canvas, mas usando a altura ESCALONADA.
-            ctx.drawImage(this.img, 
-                0, 
-                this.y1, 
-                this.canvasWidth,       // Força a largura de 400px para preencher o canvas
-                this.scaledHeight       // Usa a altura calculada e escalonada
-            );
-        }
+        if (!this.isReady) return;
+
+        // 🌫️ ADICIONA DESFOQUE ATMOSFÉRICO
+        ctx.filter = "blur(1.5px) brightness(0.95)";
+
+        // desenha com blur
+        ctx.drawImage(
+            this.img,
+            0,
+            this.y1,
+            this.canvasWidth,
+            this.scaledHeight
+        );
+
+        // 🔄 RESETA FILTRO para não afetar sprites do jogo
+        ctx.filter = "none";
     }
 }

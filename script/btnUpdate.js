@@ -54,6 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // ------------------------------------------------------------------
 // 🔥 FUNÇÃO PARA ATIVAR SUPER LASER 
 // ------------------------------------------------------------------
+
+const superLaserButto=document.getElementById('superLaserButton');
+superLaserButto.addEventListener('click',trySuperLaser)
 function trySuperLaser() {
     // Bloqueia se não tem player, estiver em intro ou já ativo
     if (!playerShip || playerShip.inIntro || playerShip.superLaserActive) return;

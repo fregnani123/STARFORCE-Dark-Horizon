@@ -5,35 +5,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Shooter JS</title>
-
+    <link rel="stylesheet" href="../assets/css/overlay.css">
     <link rel="stylesheet" href="../assets/css/game.css">
     <link rel="stylesheet" href="../assets/css/btn-HUD.css">
-
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/levelGame.css">
 </head>
 
 <body>
-
-<div id="loadingOverlay">
-    <div class="spinner"></div>
-    <p>Loading Game...</p>
-</div>
-
-
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Loading Game...</p>
+    </div>
     <video id="bgVideo" muted>
-        <source src="../assets/video/videoPainel.mp4" type="video/mp4">
+        <source src="../assets/video/fixo4k.mp4" type="video/mp4">
     </video>
-
+    <div class="video-dark-overlay"></div>
     <div id="main-wrapper">
-    
-
         <div id="startScreen" class="tela-inicio">
 
             <div class="menu-posicionamento">
                 <img src="../assets/img/cenario-start/ring-12779.gif" alt="" class="gif-centralizado">
-                <button id="continuar" class="botao-menu">CONTINUAR</button>
-                <button id="startButton" class="botao-menu">NOVO JOGO</button>
+                <button id="startButton" class="botao-menu">CONTINUAR</button>
+                <button id="continuar" class="botao-menu">NOVO JOGO</button>
                 <button id="configButton" class="botao-menu">CONFIGURAÇÕES</button>
                 <button id="exit" class="botao-menu">SAIR</button>
             </div>
@@ -41,34 +36,28 @@
                 <source src="../assets/video/videoStart.mp4" type="video/mp4">
                 Seu navegador não suporta a tag de vídeo.
             </video>
-
         </div>
-
         <div id="gameContainer">
             <canvas id="gameCanvas"></canvas>
-
             <div id="pauseOverlay" class="hidden">
                 <h2>PAUSADO</h2>
-
                 <div id="pause-Menu">
-                    <button class="pause-menu-button" onclick="togglePause()">CONTINUAR</button>
+                    <button class="pause-menu-button">CONTINUAR</button>
                     <button class="pause-menu-button">CONFIGURAÇÕES</button>
                     <button class="pause-menu-button">SAIR DA MISSÃO</button>
                 </div>
 
                 <p class="p-pause">Pressione P ou ESC para continuar rapidamente.</p>
             </div>
-
             <div id="bossHealthBarContainer">
                 <div id="bossHealthBar"></div>
             </div>
         </div>
-
         <div id="hudPanel">
 
             <div class="info-and-health">
                 <div style="width: 100%; display: flex; justify-content: space-between;">
-                    <button id="superLaserButton" onclick="trySuperLaser()">
+                    <button id="superLaserButton">
                         <span class="laser-label"></span>
                         <span id="laserCost" class="laser-percent">0%</span>
                     </button>
@@ -77,7 +66,6 @@
                         <span class="upgrade-label"></span>
                     </button>
                 </div>
-
                 <div
                     style="width: 100%; display: flex; justify-content: space-between; padding-top: .5rem; padding-bottom: .5rem;">
                     <div class="hudRow">
@@ -93,7 +81,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div style="width: 100%; display: flex; justify-content: space-between;">
                     <div class="hudRow">
                         <!-- ESTRUTURA CORRIGIDA: Contêiner pai para a barra de vida -->
@@ -101,33 +88,33 @@
                             <!-- A barra verde de preenchimento -->
                             <div id="healthBar" style="width: 80%;"></div>
                             <!-- O texto centralizado e sobreposto -->
-                            <div id="healthBarText" style="display: flex;">Hull:<span id="hullLife">0</span>/<span id="hullValue">0</span></div>
+                            <div id="healthBarText" style="display: flex;">Hull:<span id="hullLife">0</span>/<span
+                                    id="hullValue">0</span></div>
                         </div>
                     </div>
-
                     <button id="pauseButton">PAUSE</button>
                 </div>
             </div>
         </div>
     </div>
-
-
     <audio id="musicaFundo" autoplay loop>
         <source src="../assets/audio//tela-inicio.mp3" type="audio/mpeg">
         Seu navegador não suporta a tag de áudio.
     </audio>
-    <audio id="bgMusic" src="../assets/audio/epic-trailer-music-349631.mp3" preload="auto" loop></audio> 
- 
-     <audio id="shootSound" src="../assets/audio/tiroNave.mp3" preload="auto"></audio>
- 
+    <audio id="bgMusic" src="../assets/audio/epic-trailer-music-349631.mp3" preload="auto" loop></audio>
+
+    <audio id="shootSound" src="../assets/audio/tiroNave.mp3" preload="auto"></audio>
+
     <audio id="superLaserSound" src="../assets/audio/laser.mp3" preload="auto"></audio>
 
 </body>
 
 <!-- Scripts -->
- 
- 
+
+
 <script src="../script/GameObject.js"></script>
+<script src="../script/utils.js"></script>
+<script src="../script/globals.js"></script>
 <script src="../script/Projectile.js"></script>
 <script src="../script/Background.js"></script>
 <script src="../script/Player.js"></script>
@@ -142,7 +129,8 @@
 <script src="../script/spawnItem.js"></script>
 <script src="../script/controle.js"></script>
 <script src="../script/gameVideo.js"></script>
-<script src="../script/game.js"></script>
+<script src="../script/gameLoop.js"></script>
+<script src="../script/FimDoGame.js"></script>
 
 
 </html>

@@ -11,8 +11,9 @@ function spawnRandomEnemy(currentScore = 0) {
         // NIVEL 1 - Ambos (Propulsor + Halo) <-- CORRIGIDO
         // ----------------------------------------------------------
         {
-            imagePath: "../assets/img/Enemy/inimigo4.png",
-            width:70, height: 110,
+            imagePath: "../assets/img/Enemy/inimigo3.png",
+            width:110,
+            height: 80,
             maxHealth: 50,
             speed: 100,
             fireRate: 1500,
@@ -38,7 +39,7 @@ function spawnRandomEnemy(currentScore = 0) {
         {
             imagePath: "../assets/img/Enemy/inimigo1.png",
             width: 100, height: 60,
-            maxHealth: 40,
+            maxHealth: 70,
             speed: 120,
             fireRate: 1400,
             damage: 15,
@@ -48,7 +49,7 @@ function spawnRandomEnemy(currentScore = 0) {
             projectileImgTres: null,
 
             minScore: 0,
-            scoreValue: 50,
+            scoreValue: 80,
             weaponLevel: 2,
             isRotating: false,
             isPropulsor: true,  // <-- CORRIGIDO: Deve ter o Propulsor
@@ -61,7 +62,7 @@ function spawnRandomEnemy(currentScore = 0) {
         {
             imagePath: "../assets/img/Enemy/inimigo1.png",
             width: 130, height: 90,
-            maxHealth: 90,
+            maxHealth: 100,
             speed: 130,
             fireRate: 1300,
             damage: 20,
@@ -72,7 +73,7 @@ function spawnRandomEnemy(currentScore = 0) {
             projectileImgTres:  "../assets/img/projectile/tiro-laranja.png",
 
             minScore: 300,
-            scoreValue: 100,
+            scoreValue: 120,
             weaponLevel: 3,
             isRotating: false,
             isPropulsor: true,
@@ -80,26 +81,29 @@ function spawnRandomEnemy(currentScore = 0) {
         },
 
       
-        {
-            imagePath: "../assets/img/Enemy/inimigo4.png",
-            width: 100, height: 50,
-            maxHealth: 150,
-            speed: 110,
-            fireRate: 1100,
-            damage: 25,
-            projectileSpeed: 300,
+{
+    imagePath: "../assets/img/Enemy/inimigo4.png",
+    width: 90, 
+    height: 90,
+    maxHealth: 150,
+    speed: 110,
+    fireRate: 1100,
+    damage: 25,
+    projectileSpeed: 300,
 
-            projectileImgUM: "../assets/img/projectile/tiro-espinho-roxo.png",
-            projectileImgDois:"../assets/img/projectile/tiro-espinho-roxo.png",
-            projectileImgTres: "../assets/img/projectile/tiro-espinho-roxo.png",
+    projectileImgUM: "../assets/img/projectile/tiro-espinho-roxo.png",
+    projectileImgDois:"../assets/img/projectile/tiro-espinho-roxo.png",
+    projectileImgTres: "../assets/img/projectile/tiro-espinho-roxo.png",
 
-            minScore: 500,
-            scoreValue: 100,
-            weaponLevel: 4,
-            isRotating: false,
-            isPropulsor: false,
-            isPlasmaHalo: true
-        }
+    minScore: 500,
+    scoreValue: 100,
+    weaponLevel: 4,
+    isRotating: false,
+    isPropulsor: false,
+    isPlasmaHalo: true,
+    enableTilt: false // <- sem inclinação
+}
+
 
     ];
 
@@ -114,8 +118,8 @@ function spawnRandomEnemy(currentScore = 0) {
     const typeCopy = JSON.parse(JSON.stringify(randomType));
 
     // --- Escalonar dificuldade ---
-    typeCopy.speed += Math.floor(currentScore / 200);
-    typeCopy.maxHealth += Math.floor(currentScore / 120);
+    typeCopy.speed += Math.floor(currentScore / 250);
+    typeCopy.maxHealth += Math.floor(currentScore / 150);
 
     // --- Lista de projéteis usada pelo inimigo ---
     const projectileList = [
@@ -128,25 +132,27 @@ function spawnRandomEnemy(currentScore = 0) {
     const spawnX = Math.random() * (CANVAS_WIDTH - typeCopy.width);
     const spawnY = -typeCopy.height;
 
-    // --- Criar inimigo ---
-    const newEnemy = new Enemy(
-        spawnX, spawnY,
-        typeCopy.width, typeCopy.height,
-        typeCopy.imagePath,
-        typeCopy.maxHealth,
-        typeCopy.speed,
-        typeCopy.fireRate,
-        typeCopy.damage,
-        typeCopy.projectileSpeed,
-        projectileList,
-        typeCopy.weaponLevel,
-        typeCopy.scoreValue,
-        typeCopy.isRotating,
-        typeCopy.isPropulsor,  // Argumento 10: isPropulsor
-        typeCopy.isPlasmaHalo  // 💡 Argumento 11: isPlasmaHalo
-    );
+// --- Criar inimigo ---
+const newEnemy = new Enemy(
+    spawnX, spawnY,
+    typeCopy.width, typeCopy.height,
+    typeCopy.imagePath,
+    typeCopy.maxHealth,
+    typeCopy.speed,
+    typeCopy.fireRate,
+    typeCopy.damage,
+    typeCopy.projectileSpeed,
+    projectileList,
+    typeCopy.weaponLevel,
+    typeCopy.scoreValue,
+    typeCopy.isRotating,
+    typeCopy.isPropulsor,      // Argumento 10: isPropulsor
+    typeCopy.isPlasmaHalo,     // Argumento 11: isPlasmaHalo
+    typeCopy.enableTilt !== false // Argumento 12: enableTilt (true por padrão)
+);
 
-    enemies.push(newEnemy);
+enemies.push(newEnemy);
+
 }
 
 

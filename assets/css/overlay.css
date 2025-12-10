@@ -1,0 +1,68 @@
+/* ====================================================================== */
+/* 7. OVERLAY DE LOADING */
+/* ====================================================================== */
+
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #000 0%, #050505 90%);
+    z-index: 100000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.spinner {
+    border: 6px solid rgba(255, 255, 255, 0.2);
+    border-top: 6px solid #00ffff;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 60px #00ffff;
+}
+
+#loadingOverlay::before {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    top: -50%;
+    left: -50%;
+    animation: moveStars 10s linear infinite;
+}
+
+#loadingOverlay p {
+    margin-top: 30px;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    color: #DCE1DF;
+    text-shadow: 0 0 3px #DCE1DF, 0 0 6px #DCE1DF;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes moveStars {
+    0% { transform: translate(0,0); }
+    100% { transform: translate(-50px, 50px); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}.hidden {
+    display: none !important;
+}

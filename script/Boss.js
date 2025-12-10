@@ -161,32 +161,32 @@ class Boss extends GameObject {
         this.auraRotation += this.auraRotationSpeed * (deltaTime / 16.67);
 
         // ------------------ FASES PELO HP ------------------
-        if (hpPercent < 0.70 && this.phase === 1) {
-            this.phase = 2;
-            this.weaponCooldown = 700;
-            this.rotationSpeed = 1.5;
-        }
+ // ------------------ FASES PELO HP ------------------
+if (hpPercent < 0.70 && this.phase === 1) {
+    this.phase = 2;
+    this.weaponCooldown = 700;
+    this.rotationSpeed = 0;   // NÃO GIRA AINDA
+}
 
-        if (hpPercent < 0.40 && this.phase === 2) {
-            this.phase = 3;
-            this.weaponCooldown = 500;
-            this.rotationSpeed = 3.5;
-        }
+if (hpPercent < 0.40 && this.phase === 2) {
+    this.phase = 3;
+    this.weaponCooldown = 500;
+    this.rotationSpeed = 0;   // AINDA NÃO GIRA
+}
 
-        if (hpPercent < 0.15 && this.phase === 3) {
-            this.phase = 4;
-            this.weaponCooldown = 350;
-            this.rotationSpeed = 7.0;
-        }
+if (hpPercent < 0.15 && this.phase === 3) {
+    this.phase = 4;
+    this.weaponCooldown = 350;
+
+    // AGORA SIM → COMEÇA A GIRAR
+    this.rotationSpeed = 7.0;
+}
+
 
         this.fireTimer += deltaTime;
     }
 
-    // -------------------------------------------------------
-    // DAMAGE SYSTEM (MANTIDO)
-    // -------------------------------------------------------
-   // O arquivo de som deve ser carregado e a função playSound deve ser globalmente acessível.
-// Exemplo: playSound('../assets/audio/explosion.wav');
+ 
 
 // -------------------------------------------------------
 // DAMAGE SYSTEM (AJUSTADO PARA SOM)
@@ -251,27 +251,45 @@ takeDamage(dmg, particlesArray) {
         }
     }
 
-    shootSingle(arr) {
-        const cx = this.x + this.width / 2;
-        const cy = this.y + this.height - 10;
-        const offset = 105 * this.currentScale;
-        arr.push(new Projectile(cx - offset, cy, 35, 35, "../assets/img/projectile/tiro-roxo.png", 350, 25, "enemy", 0));
-        arr.push(new Projectile(cx + offset, cy, 35, 35, "../assets/img/projectile/tiro-roxo.png", 350, 25, "enemy", 0));
+shootSingle(arr) {
+    // --------------------------------------
+    // Disparo normal (mantido do seu código)
+    // --------------------------------------
+    const cx = this.x + this.width / 2;
+    const cy = this.y + this.height * 0.7;
+    const offset = 105 * this.currentScale;
+
+    arr.push(new Projectile(cx - offset, cy, 25, 40, "../assets/img/projectile/laser-vermelho.png", 900, 25, "enemy", 0));
+    arr.push(new Projectile(cx + offset, cy, 25, 40, "../assets/img/projectile/laser-vermelho.png", 900, 25, "enemy", 0));
+
+    // --------------------------------------
+    // Disparo 360 ocasional
+    // --------------------------------------
+    if (!this.single360Counter) this.single360Counter = 0;
+    this.single360Counter++;
+
+    // 1 tiro 360 a cada 4 tiros single
+    const intervalo360 = 4;
+
+    if (this.single360Counter >= intervalo360) {
+        this.single360Counter = 0;
+        this.shoot360(arr); // chama seu método já existente
     }
+}
 
     shootTriple(arr) {
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height;
-        arr.push(new Projectile(cx, cy - 80, 35, 35, "../assets/img/projectile/tiro-roxo.png", 360, 25, "enemy", 0));
-        arr.push(new Projectile(cx - 50, cy, 35, 35, "../assets/img/projectile/tiro-roxo.png", 360, 25, "enemy", -0.15));
-        arr.push(new Projectile(cx + 50, cy, 35, 35, "../assets/img/projectile/tiro-roxo.png", 360, 25, "enemy", 0.15));
+        arr.push(new Projectile(cx, cy - 80, 25, 40,"../assets/img/projectile/tiro-laranja.png", 900, 25, "enemy", 0));
+        arr.push(new Projectile(cx - 50, cy, 28, 40, "../assets/img/projectile/tiro-laranja.png",900, 25, "enemy", -0.15));
+        arr.push(new Projectile(cx + 50, cy, 25, 40, "../assets/img/projectile/tiro-laranja.png",900, 25, "enemy", 0.15));
     }
 
     shootSpray(arr) {
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height;
         for (let i = -3; i <= 3; i++) {
-            arr.push(new Projectile(cx, cy, 28, 28, "../assets/img/projectile/tiro-azul-baixo.png", 400, 20, "enemy", i * 0.1));
+            arr.push(new Projectile(cx, cy, 28, 28,"../assets/img/projectile/tiro-laranja.png", 400, 20, "enemy", i * 0.1));
         }
     }
 

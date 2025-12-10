@@ -65,14 +65,31 @@ draw(ctx) {
     ctx.restore(); 
 }
     
-    // Método para aplicar o efeito ao jogador (assumindo que player tem maxHealth)
-    applyEffect(player) {
-        if (this.effect.type === 'health') {
-             // Garante que a vida não exceda o máximo
-            player.health = Math.min(player.maxHealth, player.health + this.effect.value); 
-        }
-        this.isAlive = false; // Item é consumido após o uso
-        console.log(`Vida recuperada: ${this.effect.value}. Vida atual: ${player.health}`);
+   // Método para aplicar o efeito ao jogador (assumindo que player tem maxHealth)
+applyEffect(player) {
+
+    switch (this.effect.type) {
+
+        case 'health':
+            player.health = Math.min(player.maxHealth, player.health + this.effect.value);
+            console.log(`Vida recuperada: +${this.effect.value} → ${player.health}`);
+            break;
+
+        case 'star':
+            // Se você quiser armazenar as estrelas globalmente:
+            if (typeof window.playerStars === "undefined") window.playerStars = 0;
+
+            window.playerStars += this.effect.value;
+
+            console.log(`⭐ Estrela coletada: +${this.effect.value} → Total: ${window.playerStars}`);
+            break;
+
+        default:
+            console.warn("Pickup efeito desconhecido:", this.effect.type);
+            break;
     }
+
+    this.isAlive = false; // é consumido sempre
 }
-// ----------------------------------------------------
+
+}
