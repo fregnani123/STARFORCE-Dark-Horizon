@@ -1,4 +1,7 @@
-:root {
+/* ====================================================================== */
+/* ========================== VARIÁVEIS GLOBAIS ========================= */
+/* ====================================================================== */
+:root { 
     /* Cores base */
     --bg: #0f1724;
     --bg-gradient-end: #071024;
@@ -6,7 +9,7 @@
     --card-bg-end: rgba(255, 255, 255, 0.02);
     --accent: #34d399; 
     --accent-2: #60a5fa; 
-    --current-node-color:  rgba(51, 51, 51, 0.325); 
+    --current-node-color: rgba(51, 51, 51, 0.325); 
     --muted: #ffffff;
     --player-bg: #ffffff00;
     --node-border: rgba(255, 255, 255, 0.04);
@@ -21,9 +24,8 @@
     --track-fill-start: var(--accent-2); 
     --track-fill-end: var(--accent); 
 
+    /* Botões */
     --btn-border: rgba(255, 255, 255, 0.06);
-   
-  
 
     /* Tamanhos e espaçamentos */
     --node-size: 60px;
@@ -32,19 +34,17 @@
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
 }
 
-/* Garante que padding e border sejam incluídos no width/height total, facilitando o layout */
+/* ====================================================================== */
+/* ========================== RESET E BOX-SIZING ======================== */
+/* ====================================================================== */
 *, *::before, *::after {
     box-sizing: border-box;
 }
 
-/* --- ESTILOS GLOBAIS E ESTRUTURA --- */
-
-html,
-body {
+html, body {
     margin: 0;
     padding: 0;
     color: #e6eef8;
-    /* CHAVE: Garante 100% de cobertura e impede rolagem */
     height: 100%; 
     width: 100%;
     overflow: hidden; 
@@ -55,7 +55,9 @@ body {
     z-index: 1;
 }
 
-/* --- VÍDEO DE FUNDO --- */
+/* ====================================================================== */
+/* ========================== VÍDEO DE FUNDO ============================ */
+/* ====================================================================== */
 #video-background {
     position: fixed;
     top: 0;
@@ -66,44 +68,38 @@ body {
     object-fit: cover;
 }
 
-/* --- WRAP (Container Principal) --- */
-
+/* ====================================================================== */
+/* ========================== WRAP PRINCIPAL ============================ */
+/* ====================================================================== */
 .wrap {
-    margin-top: -2rem !important;
     width: 100%; 
-    /* REVERTEMOS: Voltamos a 100vh e tiramos a força. 
-       As correções no html/body devem ter resolvido o problema de base. */
     height: 105vh; 
     display: flex; 
     flex-direction: column; 
     align-items: center;
     justify-content: center; 
-    
-    /* FOSCO (VIDRO EMBAÇADO) PARA TODO O CONTEÚDO */
     background: rgba(0, 0, 0, 0); 
     backdrop-filter: blur(10px); 
     position: relative; 
     z-index: 2;
-    /* REVERTEMOS: Removemos a margem negativa que causava o corte no mobile */
-    margin-top: 0; 
-    /* Adicionamos uma margem inferior para compensar o topo/rodapé do celular */
+    margin-top: -2rem; 
     padding-bottom: 1px; 
 }
 
-/* --- HEADER (Título e Controles) --- */
-
+/* ====================================================================== */
+/* ========================== HEADER E TÍTULOS ========================= */
+/* ====================================================================== */
 .header {
     width: 100%; 
-    
     display: flex;
     align-items: center;
-   justify-content: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0;
     margin-bottom: 20px;
     padding: 15px 20px;
     border-radius: 8px;
-    margin-top: 0; 
-   gap: 1rem;
-     background: radial-gradient(
+    background: radial-gradient(
         circle,
         rgba(255, 165, 69, 0.64) 0%,
         rgba(255, 165, 69, 0.4) 50%,
@@ -121,8 +117,9 @@ body {
     font-size: 13px;
 }
 
-/* --- BOARD CARD (Card Principal com o Tabuleiro) --- */
-
+/* ====================================================================== */
+/* ========================== BOARD CARD ================================ */
+/* ====================================================================== */
 .board-card {
     display: flex;
     flex-direction: column;
@@ -131,8 +128,9 @@ body {
     max-width: 500px;
 }
 
-/* --- BOARD VERTICAL (Mapa de Fases) --- */
-
+/* ====================================================================== */
+/* ========================== BOARD (MAPA DE FASES) ==================== */
+/* ====================================================================== */
 .board {
     position: relative;
     width: 100%;
@@ -161,7 +159,6 @@ body {
     bottom: 0;
     width: 6px;
     border-radius: 6px;
-    /* background: var(--track-unfilled); */
     transform: translateX(-50%);
 }
 
@@ -173,11 +170,13 @@ body {
     width: 6px;
     height: 0%; 
     border-radius: 6px;
-    background: linear-gradient(   180deg,
-    rgba(255,255,255,0.60) 0%,
-    rgba(255,255,255,0.30) 35%,
-    rgba(255,255,255,0.12) 70%,
-    rgba(255,255,255,0.00) 100%);
+    background: linear-gradient(
+        180deg,
+        rgba(255,255,255,0.60) 0%,
+        rgba(255,255,255,0.30) 35%,
+        rgba(255,255,255,0.12) 70%,
+        rgba(255,255,255,0.00) 100%
+    );
     transform: translateX(-50%);
     transition: height 700ms cubic-bezier(.2, .9, .3, 1);
 }
@@ -195,8 +194,9 @@ body {
     height: 100%;
 }
 
- 
-/* --- NODE Base --- */
+/* ====================================================================== */
+/* ========================== NODE ===================================== */
+/* ====================================================================== */
 .node {
     position: relative;
     width: var(--node-size);
@@ -206,26 +206,17 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    /* 1. MANTÉM FUNDO TRANSPARENTE E ZERA AS REGRAS DE BACKGROUND AQUI */
     background: transparent; 
     background-size: cover; 
     background-position: center;
     background-repeat: no-repeat;
-    
-    /* 🚀 CHAVE: REMOVE A ROTAÇÃO DAQUI */
-    /* animation: spin 30s linear infinite; <--- REMOVER! */
-    
     border: 2px solid var(--node-border);
     box-shadow: 0 6px 18px var(--node-shadow);
-    cursor: pointer;
+    cursor: pointer !important;
     transition: transform 200ms, box-shadow 200ms; 
-    
-    /* Z-index é crucial para o texto ficar por cima do ::before */
     z-index: 1; 
 }
 
-/* 🚀 NOVO: Pseudo-elemento para GIRAR APENAS A IMAGEM */
 .node::before {
     content: "";
     position: absolute;
@@ -234,28 +225,20 @@ body {
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    
-    /* 2. HERDA A IMAGEM DEFINIDA NO JS (background-image) e a posiciona */
     background: inherit; 
     background-size: cover; 
     background-position: center;
     background-repeat: no-repeat;
-    
-    /* 3. APLICA A ROTAÇÃO APENAS AO PSEUDO-ELEMENTO */
     animation: spin 30s linear infinite;
-    
-    /* Garante que o pseudo-elemento fique atrás do texto e bordas */
     z-index: -1; 
 }
-/* O bloco :hover permanece inalterado */
+
 .node:hover:not(.locked) {
-    transform: translateY(-4px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
 /* Node Concluído */
 .node.completed {
-    
     border: none;
     box-shadow: 0 8px 26px var(--node-completed-shadow);
 }
@@ -279,40 +262,13 @@ body {
 
 /* Node Atual */
 .node.current {
-    
     outline: 3px solid var(--node-current-outline);
     transform: scale(1.1);
     border: none;
     box-shadow: 0 0 15px var(--current-node-color);
 }
 
-/* Animação de Pulso (para o nó atual) */
-@keyframes pulse-effect {
-    /* 0% (Início): Pulso sutil e escuro, próximo ao background do card/wrap */
-    0% {
-        /* rgba(0, 0, 0, 0.4) - Sombra escura e suave */
-        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4);
-    }
-    
-    /* 70% (Pico): Pulso alcança o tamanho máximo e a cor vermelha/laranja do nó atual, com alta visibilidade */
-    70% {
- 
-        box-shadow: 0 0 0 16px rgba(255, 60, 60, 0.0);  
-      
-        outline: 2px solid rgba(255, 174, 60, 0.7); 
-    }
-    
-    100% {
- 
-        outline: 0px solid rgba(255, 60, 60, 0); 
-    }
-}
-@keyframes spin {
-    to {
-        transform: rotate(360deg); /* Gira 360 graus */
-    }
-}
-
+/* Animação de Pulso */
 .node.current.pulse {
     animation: pulse-effect 1.8s infinite;
 }
@@ -331,9 +287,33 @@ body {
     font-size: 12px;
     color: var(--label-color);
     white-space: nowrap;
+    padding: 1rem;
+    display: flex;
+    text-align: top;
+    justify-content: top;
+    align-items: center;
+    transition: background 200ms;
 }
 
-/* --- PLAYER (Avatar) --- */
+.node .label:hover {
+    background-color: rgba(255, 255, 255, 0.46);
+}
+
+/* ====================================================================== */
+/* ========================== ANIMAÇÕES ================================= */
+/* ====================================================================== */
+@keyframes pulse-effect {
+    0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4); }
+    70% { 
+        box-shadow: 0 0 0 16px rgba(255, 60, 60, 0.0);  
+        outline: 2px solid rgba(255, 174, 60, 0.7); 
+    }
+    100% { outline: 0px solid rgba(255, 60, 60, 0); }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
 
 @keyframes float {
     0% { transform: translate(-50%, 50%) translateY(0px); }
@@ -341,6 +321,9 @@ body {
     100% { transform: translate(-50%, 50%) translateY(0px); }
 }
 
+/* ====================================================================== */
+/* ========================== PLAYER ==================================== */
+/* ====================================================================== */
 .player {
     position: absolute;
     left: 50%;
@@ -366,8 +349,9 @@ body {
     object-fit: contain;
 }
 
-/* --- INFO PANEL & CONTROLS --- */
-
+/* ====================================================================== */
+/* ========================== INFO & CONTROLS =========================== */
+/* ====================================================================== */
 .info {
     margin-top: 25px;
     width: 100%;
@@ -385,7 +369,6 @@ body {
 }
 
 .chip {
-   
     padding: 8px 12px;
     border-radius: 999px;
     font-size: 13px;
@@ -411,8 +394,10 @@ body {
 .btn:hover {
     background: rgba(255, 255, 255, 0.05);
 }
- 
-/* --- RESPONSIVIDADE (Mobile) --- */
+
+/* ====================================================================== */
+/* ========================== RESPONSIVIDADE ============================ */
+/* ====================================================================== */
 @media(max-width:700px) {
     :root {
         --node-size: 48px;
@@ -420,39 +405,15 @@ body {
     }
     
     .wrap {
-        /* Usamos min-height: 100vh e tiramos o height: auto que estava em versões anteriores, 
-           junto com o padding extra para cobrir a área móvel. */
         min-height: 100vh;
         padding: 20px 0;
-        padding-bottom: 25px; /* Mais padding inferior para compensar barras móveis */
+        padding-bottom: 25px;
     }
 
-     
-    
-    .title {
-        font-size: 18px;
-    }
-    
-    .board-card {
-        max-width: 95%;
-        padding: 20px 15px;
-    }
-
-    .board {
-        max-height: 70vh;
-    }
-    
-    .player {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .info {
-        justify-content: space-around;
-        gap: 8px;
-    }
-    
-    .chip {
-        width: auto; 
-    }
+    .title { font-size: 18px; }
+    .board-card { max-width: 95%; padding: 20px 15px; }
+    .board { max-height: 70vh; }
+    .player { width: 40px; height: 40px; }
+    .info { justify-content: space-around; gap: 8px; }
+    .chip { width: auto; }
 }

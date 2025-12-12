@@ -6,21 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/css/overlay.css">
     <link rel="stylesheet" href="../assets/css/levelGame.css">
+    <link rel="stylesheet" href="../assets/css/btn-HUD.css">
+
+
         <title>Tabuleiro Vertical de Progresso</title>
 </head>
 
 <body>
-
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Loading Game...</p>
+    </div>
     <video autoplay loop muted id="video-background">
         <source src="../assets/video/backgraund_level.mp4" type="video/mp4">
         Seu navegador não suporta o elemento de vídeo.
     </video>
 
     <div class="wrap">
-        <div id="loadingOverlay">
-            <div class="spinner"></div>
-            <p>Loading Game...</p>
-        </div>
+
         <div class="header">
             <div>
                 <div class="title">Progresso do Jogador</div>
@@ -41,7 +44,7 @@
                 </div>
 
                 <div class="player" id="player" title="Você">
-                    <img src="../assets/img/nave-player/nave-player.png" alt="avatar">
+                    <img src="../assets/img/nave-player/nave-level.png" alt="avatar">
                 </div>
             </div>
         </div>
@@ -51,12 +54,105 @@
             <div class="chip">Checkpoints: <strong id="cp">0</strong></div>
         </div>
     </div>
-       
-     
-    <script src="../script/start_game.js"></script>
-    <script src="../script/gameLevel/levelGame.js"></script>
-    <script src="../script/controle.js"></script>
 
+<!-- Esta parte para baixo onde e a dive que carrega o canva e as animaçoes controle etc -->
+    <div id="main-wrapper">
+        <video id="bgVideo" muted>
+            <source src="../assets/video/fixo4k.mp4" type="video/mp4">
+        </video>
+        <div id="gameContainer">
+            <div id="gameContainer">
+                <canvas id="gameCanvas"></canvas>
+
+                <div id="canvasOverlay">
+                    <div class="canvas-loading-spinner"></div>
+                    <p class="canvas-overlay-message">Loading Game...</p>
+                </div>
+
+            </div>
+            <div id="pauseOverlay" class="hidden">
+                <h2>PAUSADO</h2>
+                <div id="pause-Menu">
+                    <button class="pause-menu-button">CONTINUAR</button>
+                    <button class="pause-menu-button">CONFIGURAÇÕES</button>
+                    <button class="pause-menu-button">SAIR DA MISSÃO</button>
+                </div>
+                <p class="p-pause">Pressione P ou ESC para continuar rapidamente.</p>
+            </div>
+            <div id="bossHealthBarContainer">
+                <div id="bossHealthBar"></div>
+            </div>
+
+            <div id="hudPanel">
+
+                <div class="info-and-health">
+                    <div class="div-laser">
+                        <button id="superLaserButton">
+                            <span class="laser-label"></span>
+                            <span id="laserCost" class="laser-percent">0%</span>
+                        </button>
+
+                        <button id="upgradeButton">
+                            <span class="upgrade-label">0%</span>
+                        </button>
+                    </div>
+                    <div class="div-score">
+                        <div class="hudRow">
+                            <div>
+                                <span class="hudLabel">Score:</span>
+                                <span id="scoreValue">0%</span>
+                            </div>
+                        </div>
+                        <div class="hudRow">
+                            <div class="hudLabel-div">
+                                <span class="hudLabel">Weapon Lvl:</span>
+                                <span id="weaponValue">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="div-life">
+                        <div class="hudRow">
+
+                            <div id="healthBarContainer">
+                                <!-- A barra verde de preenchimento -->
+                                <div id="healthBar" style="width: 80%;"></div>
+                                <!-- O texto centralizado e sobreposto -->
+                                <div id="healthBarText" style="display: flex;">Hull:<span id="hullLife">0</span>/<span
+                                        id="hullValue">0</span></div>
+                            </div>
+                        </div>
+                        <button id="pauseButton">PAUSE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
+<script src="../script/carregando.js"></script>
+<script src="../script/GameObject.js"></script>
+<script src="../script/audio_game.js"></script>
+<script src="../script/utils.js"></script>
+<script src="../script/globals.js"></script>
+<script src="../script/Projectile.js"></script>
+<script src="../script/Background.js"></script>
+<script src="../script/Player.js"></script>
+<script src="../script/particle.js"></script>
+<script src="../script/Enemy.js"></script>
+
+<script src="../script/pickup.js"></script>
+<script src="../script/Spawn.js"></script>
+<script src="../script/btnUpdate.js"></script>
+<script src="../script/Boss.js"></script>
+<script src="../script/spawnBoss.js"></script>
+<script src="../script/spawnItem.js"></script>
+
+<script src="../script/gameVideo.js"></script>
+<script src="../script/gameLoop.js"></script>
+<script src="../script/FimDoGame.js"></script>
+<script src="../script/controle.js"></script>
+<script src="../script/start_game/start_game.js"></script>
+<script src="../script/gameLevel/level_designer.js"></script>
+
+
 
 </html>

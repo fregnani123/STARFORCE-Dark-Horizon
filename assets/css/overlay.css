@@ -1,5 +1,5 @@
 /* ====================================================================== */
-/* 7. OVERLAY DE LOADING */
+/* 7. OVERLAY DE LOADING (TEMA AZUL) */
 /* ====================================================================== */
 
 #loadingOverlay {
@@ -8,8 +8,9 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at center, #000 0%, #050505 90%);
-    z-index: 100000;
+    /* Mantive o gradiente radial escuro para simular o espaço */
+    background: radial-gradient(circle at center, #000 0%, #050505 90%); 
+    z-index: 99999999999 !important;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -20,13 +21,18 @@
 }
 
 .spinner {
-    border: 6px solid rgba(255, 255, 255, 0.2);
-    border-top: 6px solid #00ffff;
+    border: 6px solid rgba(135, 206, 250, 0.2); /* Borda de fundo mais clara e transparente */
+    border-top: 6px solid #36A2EB; /* COR PRINCIPAL: Azul Intenso */
     border-radius: 50%;
     width: 60px;
     height: 60px;
     animation: spin 1s linear infinite;
-    box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 60px #00ffff;
+    
+    /* BRILHO DO RAIO AZUL (box-shadow adaptado do seu botão) */
+    box-shadow: 
+        0 0 5px rgba(54, 162, 235, 0.8),    /* Brilho interno mais suave (Glow) */
+        0 0 20px rgba(54, 162, 235, 0.9),   /* Brilho externo mais forte (Raio) */
+        0 0 40px rgba(135, 206, 250, 0.5);  /* Brilho maior e mais espalhado */
 }
 
 #loadingOverlay::before {
@@ -34,7 +40,8 @@
     position: absolute;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+    /* ESTRELAS DE FUNDO COM BRILHO AZUL SUTIL */
+    background: radial-gradient(circle, rgba(135, 206, 250, 0.3) 1px, transparent 1px); 
     background-size: 20px 20px;
     top: -50%;
     left: -50%;
@@ -45,8 +52,11 @@
     margin-top: 30px;
     font-size: 1.8rem;
     letter-spacing: 2px;
-    color: #DCE1DF;
-    text-shadow: 0 0 3px #DCE1DF, 0 0 6px #DCE1DF;
+    color: #87CEFA; /* COR DO TEXTO: Azul Claro */
+    /* BRILHO DO TEXTO (Mantendo o efeito de néon azul) */
+    text-shadow: 
+        0 0 3px #87CEFA, 
+        0 0 10px rgba(54, 162, 235, 0.8); /* Usando o azul intenso para o brilho forte */
     animation: pulse 1.5s infinite;
 }
 
@@ -63,6 +73,8 @@
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
-}.hidden {
+}
+
+.hidden {
     display: none !important;
 }

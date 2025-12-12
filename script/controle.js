@@ -99,6 +99,7 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'e' || e.key === 'E') {
         if (typeof tryUpgradeWeapon === 'function') tryUpgradeWeapon();
     }
+ 
 });
 
 window.addEventListener('keyup', (e) => {
@@ -235,16 +236,6 @@ function updateHTMLHUD() {
 }
 
 
-// INÍCIO DO JOGO + BOTÃO DE PAUSA
-document.addEventListener('DOMContentLoaded', () => {
-    const startButton = document.getElementById('startButton');
-    if (startButton) startButton.addEventListener('click', startGame);
-
-    const btnPause = document.getElementById('pauseButton');
-    if (btnPause) btnPause.addEventListener('click', togglePause);
-});
-
-
 // PAUSAR / RETOMAR O JOGO
 function togglePause() {
     if (playerShip && !playerShip.inIntro) { 
@@ -268,24 +259,5 @@ function togglePause() {
 }
 
 
-// SAIR DO JOGO (Desktop)
-window.addEventListener('DOMContentLoaded', () => {
-    const exitButton = document.getElementById('exit');
 
-    exitButton.addEventListener('click', () => {
-        if (window.electronAPI && window.electronAPI.closeApp) {
-            window.electronAPI.closeApp();
-        } else {
-            alert("Funcionalidade disponível apenas no desktop.");
-        }
-    });
-});
-
-
-const continuarGame = document.getElementById("continuar");
-
-continuarGame.addEventListener('click', () => {
-    // Substitua 'mapaFases.html' pelo nome exato do arquivo HTML de destino.
-    window.location.href = '../public/game_level.html';
-});
 

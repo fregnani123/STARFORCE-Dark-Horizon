@@ -1,4 +1,5 @@
 // GAME LOOP TRANSFERIDO PARA UM ARQUIVO PROPRIO gameLoop.js
+// VARIÁVEL DE CONTROLE GLOBAL: Rastreia se o vídeo de abertura já foi exibido.
 
 function gameLoop(timestamp) {
 
@@ -15,19 +16,19 @@ function gameLoop(timestamp) {
     }
 
     updateSuperLaserButton();
- 
-// Fundo do jogo — PARALLAX correto
-if (gameBackgrounds && gameBackgrounds.length > 0) {
 
-    for (const bg of gameBackgrounds) {
-        bg.update(deltaTime);
-        bg.draw(ctx);
+    // Fundo do jogo — PARALLAX correto
+    if (gameBackgrounds && gameBackgrounds.length > 0) {
+
+        for (const bg of gameBackgrounds) {
+            bg.update(deltaTime);
+            bg.draw(ctx);
+        }
+
+    } else {
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     }
-
-} else {
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-}
 
     // Boss
     if (currentBoss && currentBoss.isAlive) {
@@ -152,21 +153,6 @@ if (gameBackgrounds && gameBackgrounds.length > 0) {
                 }
             }
 
-            // ---------------------------------------------
-            // SOM DE EXPLOSÃO DE NAVE
-            // ---------------------------------------------
-            function playExplosionSound() {
-                const sound = new Audio("../assets/audio/explosion-inimigo.mp3"); // nova instância
-                sound.volume = 1;
-                sound.play().catch(() => { }); // evita erro se bloqueado pelo navegador
-            }
-
-
-            // Desbloqueia som de explosão no primeiro clique do jogador
-            document.addEventListener("click", () => {
-                playExplosionSound(); // toca uma vez para desbloquear
-            }, { once: true });
-
             // remove ou desenha
             if (!enemy.isAlive || enemy.y > CANVAS_HEIGHT + enemy.height) {
                 enemies.splice(i, 1);
@@ -187,17 +173,6 @@ if (gameBackgrounds && gameBackgrounds.length > 0) {
         // PICKUPS (ÚNICO BLOCO REAL)
         // ---------------------------------------------
 
-        // Função para tocar som da moeda
-        function playCoinSound() {
-            const sound = new Audio("../assets/audio/moeda.mp3"); // nova instância sempre
-            sound.volume = 1;
-            sound.play().catch(() => { }); // evita erro se som bloqueado
-        }
-
-        // Desbloqueia som no primeiro clique do jogador
-        document.addEventListener("click", () => {
-            playCoinSound(); // toca uma vez para desbloquear
-        }, { once: true });
 
         // Loop das pickups
         for (let i = pickups.length - 1; i >= 0; i--) {
@@ -301,5 +276,6 @@ if (gameBackgrounds && gameBackgrounds.length > 0) {
         updateUpgradeButton();
     }
 
+   
     requestAnimationFrame(gameLoop);
 }

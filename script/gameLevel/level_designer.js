@@ -88,6 +88,7 @@ function buildNodes(n){
         // --- Define a imagem de fundo via JavaScript ---
         if (NODE_IMAGES[arrayIndex]) {
             node.style.backgroundImage = `url('${NODE_IMAGES[arrayIndex]}')`;
+            
         }
         
         // Ação de click é apenas para ir para o nó (se permitido)
@@ -135,7 +136,7 @@ function updateUI() {
     fillEl.style.height = `${fillHeight}px`;
 
     // --- 4. Posiciona o PLAYER ---
-    const playerCenterY = INFO_PANEL_PADDING_BOTTOM + (allNodes[0].offsetHeight / 1.3);
+    const playerCenterY = INFO_PANEL_PADDING_BOTTOM + (allNodes[0].offsetHeight / 4);
     const playerBottom = playerCenterY + ((current - 1) * nodeSpacing);
     playerEl.style.bottom = `${playerBottom}px`;
 
@@ -203,6 +204,9 @@ let startY;
 let scrollTopPos;
 
 const handleDown = (e) => {
+    const target = (e.touches ? e.touches[0].target : e.target);
+    if (target && target.closest && target.closest('.node')) return;
+
     isDown = true;
     const pageY = e.touches ? e.touches[0].pageY : e.pageY;
     startY = pageY - boardEl.offsetTop;
@@ -239,12 +243,10 @@ boardEl.addEventListener('touchmove', handleMove);
 // Cursor inicial
 boardEl.style.cursor = 'grab';
 
-
-
-
-const menuBtnFases = document.getElementById("menuBtnFases");
+const menuBtnFases = document.getElementById('menuBtnFases');
 
 menuBtnFases.addEventListener('click', () => {
-    // Substitua 'mapaFases.html' pelo nome exato do arquivo HTML de destino.
-    window.location.href = 'index.html';
+    window.location.href = 'index.html'; // Redireciona para index.html
 });
+
+

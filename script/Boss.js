@@ -223,10 +223,11 @@ takeDamage(dmg, particlesArray) {
             bossDefeated = true;
             
             // 🔥 CHAMA O SOM DA EXPLOSÃO AQUI!
-            // Assumindo que a função se chama playSound() e que o arquivo está no caminho especificado.
-            if (typeof playSound === 'function') {
-                playSound('../assets/audio/explosaoBoss.mp3'); // Ajuste o caminho do arquivo de som
-            }
+         
+if (typeof playBGM === 'function') {
+    // Apenas passe o valor '1' para o segundo parâmetro (volume)
+    playBGM('../assets/audio/explosaoBoss.mp3', 1);
+}
             
             if (typeof this.generateParticles === 'function' && particlesArray) {
                 this.generateParticles(particlesArray);

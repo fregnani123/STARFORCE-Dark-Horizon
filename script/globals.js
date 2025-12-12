@@ -1,3 +1,14 @@
+// ... outras variáveis globais ...
+
+// =========================================================================
+// VARIÁVEL PERSISTENTE POR SESSÃO (USANDO sessionStorage)
+// O estado será resetado toda vez que o jogo for fechado e reaberto.
+// =========================================================================
+let hasPlayedLogoVideo = sessionStorage.getItem('logoVideoPlayed') === 'true'; 
+
+// ...
+
+
 // CONSTANTES PRINCIPAIS
 const MAX_DELTA_TIME_MS = 100; // Máx delta para travar lag
 

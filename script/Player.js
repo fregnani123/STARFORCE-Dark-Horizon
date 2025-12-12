@@ -20,11 +20,12 @@ class Player extends GameObject {
         this.maxHealth = maxHealth;
         this.health = maxHealth;
         this.isAlive = true;
+        
         this.updateHullDisplay();
 
         // ... (Propriedades de Arma e Laser mantidas) ...
-        this.weaponLevel = 1;
-        this.maxWeaponLevel = 3;
+        this.weaponLevel = 4;
+        this.maxWeaponLevel = 4;
         this.superLaserActive = false;
         this.superLaserDuration = 500;
         this.superLaserTimer = 0;
@@ -132,20 +133,29 @@ class Player extends GameObject {
     }
 
 
-    fire() {
+  fire() {
+    
     if (this.fireTimer < this.fireRate || !this.isAlive || this.inIntro || this.superLaserActive || this.isExiting) return;
 
     const newProjectiles = [];
+    
+    // --- NÍVEL DE ARMA 1 ---
     if (this.weaponLevel === 1) {
-        newProjectiles.push(new Projectile(this.x + this.width / 2 - 10, this.y - 20, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player'));
+        newProjectiles.push(new Projectile(this.x + this.width / 2 - 10, this.y - 20, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
+    
+    // --- NÍVEL DE ARMA 2 ---
     } else if (this.weaponLevel === 2) {
-        newProjectiles.push(new Projectile(this.x + this.width * 0.25 - 10, this.y - 10, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player'));
-        newProjectiles.push(new Projectile(this.x + this.width * 0.75 - 10, this.y - 10, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player'));
+        newProjectiles.push(new Projectile(this.x + this.width * 0.25 - 10, this.y - 10, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
+        newProjectiles.push(new Projectile(this.x + this.width * 0.75 - 10, this.y - 10, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
+    
+    // --- NÍVEL DE ARMA 3 ---
     } else if (this.weaponLevel === 3) {
-        newProjectiles.push(new Projectile(this.x + this.width / 2 - 10, this.y - 20, 20, 40, "../assets/img/projectile/tiro-azul.png", 600, 15, 'player'));
-        newProjectiles.push(new Projectile(this.x + this.width * 0.15 - 10, this.y - 5, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player'));
-        newProjectiles.push(new Projectile(this.x + this.width * 0.85 - 10, this.y - 5, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player'));
+        // 3 Tiros normais
+        newProjectiles.push(new Projectile(this.x + this.width / 2 - 10, this.y - 20, 20, 40, "../assets/img/projectile/tiro-azul.png", 600, 15, 'player', 0, false, null, false));
+        newProjectiles.push(new Projectile(this.x + this.width * 0.15 - 10, this.y - 5, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
+        newProjectiles.push(new Projectile(this.x + this.width * 0.85 - 10, this.y - 5, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
         
+        // Lógica da Bomba Normal (1000ms)
         if (this.bombTimer === undefined) this.bombTimer = 0;
         const BOMB_FIRE_RATE = 1000;
         
@@ -159,17 +169,64 @@ class Player extends GameObject {
                 250, 
                 50, 
                 'player', 
-                0,    
+                0,     
                 false, 
-                null,  
-                true   
+                null,  
+                true   
+            ));
+            this.bombTimer = 0;
+        }
+    
+    // --- NÍVEL DE ARMA 4 (5 Tiros Diagonais Sutis + Bomba TELEGUIADA) ---
+    } 
+    
+    else if (this.weaponLevel === 4) { 
+        
+        // 1. Tiro Central Forte (tiro-verde.png)
+        newProjectiles.push(new Projectile(this.x + this.width / 2 - 15, this.y - 25, 30, 50, "../assets/img/projectile/tiro.png", 600, 25, 'player', 0, false, null, false)); 
+        
+        // 2. Tiros Internos (Retos)
+        newProjectiles.push(new Projectile(this.x + this.width * 0.30 - 10, this.y - 10, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false)); 
+        newProjectiles.push(new Projectile(this.x + this.width * 0.70 - 10, this.y - 10, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
+        
+        // 3. Tiros das Pontas (Levemente Diagonais)
+        const DIAGONAL_ANGLE = 0.08; // <--- Ângulo reduzido para 1 (muito sutil)
+
+        // Se o seu sistema de ângulo interpreta ângulos positivos como indo para a direita e negativos para a esquerda:
+        // Tiro da ponta esquerda (diagonal para a esquerda)
+        newProjectiles.push(new Projectile(this.x + this.width * 0.05 - 10, this.y, 20, 40, "../assets/img/projectile/tiro-azul-baixo.png", 600, 15, 'player', -DIAGONAL_ANGLE, false, null, false)); 
+        
+        // Tiro da ponta direita (diagonal para a direita)
+        newProjectiles.push(new Projectile(this.x + this.width * 0.95 - 10, this.y, 20, 40, "../assets/img/projectile/tiro-azul-baixo.png", 600, 15, 'player', DIAGONAL_ANGLE, false, null, false));
+
+       // Lógica da Bomba Normal (1000ms)
+        if (this.bombTimer === undefined) this.bombTimer = 0;
+        const BOMB_FIRE_RATE = 1000;
+        
+        if (this.bombTimer >= BOMB_FIRE_RATE) {
+            newProjectiles.push(new Projectile(
+                this.x + this.width / 15 - 15, 
+                this.y - 10, 
+                50, 
+                50, 
+                "../assets/img/projectile/bomba.png", 
+                250, 
+                50, 
+                'player', 
+                0,     
+                false, 
+                null,  
+                true   
             ));
             this.bombTimer = 0;
         }
     }
+
     this.projectiles.push(...newProjectiles);
     this.fireTimer = 0;
 }
+
+
 
     update(deltaTime) {
         const t = deltaTime / 1000;
@@ -229,7 +286,7 @@ class Player extends GameObject {
         }
 
         this.fireTimer += deltaTime;
-        if (this.weaponLevel === 3) this.bombTimer = (this.bombTimer || 0) + deltaTime;
+        if (this.weaponLevel === 3 || this.weaponLevel === 4) this.bombTimer = (this.bombTimer || 0) + deltaTime;
 
         // Lógica de Movimento Normal
         if (!this.superLaserActive) {

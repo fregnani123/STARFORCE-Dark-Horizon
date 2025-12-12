@@ -147,3 +147,4 @@ class Projectile extends GameObject {
         }
     }
 }
+
