@@ -78,8 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
             startVideo.play().catch(()=>{});
         }
         if (startScreen) startScreen.classList.remove('hidden');
-
-        try { playBGM('../assets/audio/tela-inicio.mp3', 1); } catch(e){}
     }
 });
 
@@ -204,9 +202,6 @@ function initGame() {
     }, 2000);
 }
 
-
-
-
 // ------------------------
 // Ativa nodes de missão
 // ------------------------
@@ -226,4 +221,4 @@ document.addEventListener('DOMContentLoaded', attachMissionNodes);
 window.loadMission = loadMission;
 window.startGame = startGame;
 window.initGame = initGame;
-window.MISSIONS = MISSIONS;
+// window.MISSIONS = MISSIONS;

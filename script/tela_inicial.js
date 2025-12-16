@@ -123,3 +123,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 2000); // Fim do setTimeout de 2s
 });
+
+
+
+const divIniciar = document.getElementById('div-index');
+const divLevel = document.getElementById('container_levelGame');
+const loadingScreen = document.getElementById('loading-screen');  // Adicionando o loading
+
+const btn_divIniciar = document.getElementById('continuar');
+const btn_divLevel = document.getElementById('menuBtnFases');
+
+// Função para exibir o carregamento
+function showLoadingScreen() {
+    loadingScreen.style.display = 'flex';  // Exibe a tela de loading
+    setTimeout(() => {
+        loadingScreen.style.display = 'none'; // Oculta após o tempo
+    }, 2000);  // O tempo de carregamento pode ser ajustado
+}
+
+// Ao clicar no botão "continuar"
+btn_divIniciar.addEventListener('click', () => {
+    showLoadingScreen();  // Mostra a tela de loading
+    setTimeout(() => {
+        divIniciar.style.display = 'none';  // Oculta a div inicial
+        divLevel.style.display = 'flex';     // Mostra a div do level
+    }, 2000);  // Aguarda o tempo do carregamento
+});
+
+// Ao clicar no botão "menuBtnFases"
+btn_divLevel.addEventListener('click', () => {
+    showLoadingScreen();  // Mostra a tela de loading
+    setTimeout(() => {
+        divLevel.style.display = 'none';    // Oculta a div do level
+        divIniciar.style.display = 'flex';  // Mostra a div inicial
+    }, 2000);  // Aguarda o tempo do carregamento
+});
+

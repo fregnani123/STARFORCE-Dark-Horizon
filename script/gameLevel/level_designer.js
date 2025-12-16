@@ -202,18 +202,5 @@ boardEl.addEventListener('touchmove', handleMove);
 // Cursor inicial
 boardEl.style.cursor = 'grab';
 
-const menuBtnFases = document.getElementById('menuBtnFases');
-const loadingOverlay = document.getElementById('loadingOverlay');
 
-menuBtnFases.addEventListener('click', (e) => {
-    e.preventDefault();
-
-    // mostra o overlay
-    loadingOverlay.classList.remove('hidden');
-
-    // espera 2s e some da página
-    setTimeout(() => {
-        window.location.href = 'index.html';
-    }, 2000);
-});
 

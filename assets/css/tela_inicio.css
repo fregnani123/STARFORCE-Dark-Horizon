@@ -10,7 +10,12 @@ html, body {
     background: black;
     overflow: hidden;
 }
-
+#div-index{
+    display:flex;
+}
+#container_levelGame{
+      display: none;
+}
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 /* ====================================================================== */
