@@ -56,9 +56,12 @@ const ENEMY_SPAWN_INTERVAL = 2000;
 let particles = []; // Array para gerenciar todas as partículas ativas
 
 // Variáveis globais do ímã
-let magnetActive = true;        // ou false se quiser ativar só com upgrade
-let magnetRadius = 300;
-let magnetStrength = 0.15;
+let magnetActive = true;        
+let magnetRadius = 250;
+
+// 🛑 AUMENTAR A FORÇA: De 0.15 para um valor muito mais alto, como 100 ou 200.
+// Isto deve forçar a aceleração dos pickups.
+let magnetStrength = 100; // Valor muito mais agressivo (ajuste conforme o teste)
 
 // PICKUP DE VIDA
 const pickups = [];

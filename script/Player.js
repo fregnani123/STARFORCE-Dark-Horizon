@@ -24,7 +24,7 @@ class Player extends GameObject {
         this.updateHullDisplay();
 
         // ... (Propriedades de Arma e Laser mantidas) ...
-        this.weaponLevel = 4;
+        this.weaponLevel = 1;
         this.maxWeaponLevel = 4;
         this.superLaserActive = false;
         this.superLaserDuration = 500;
