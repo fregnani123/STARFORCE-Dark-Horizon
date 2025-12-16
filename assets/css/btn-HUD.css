@@ -2,7 +2,10 @@
 /* BOTOES DA TELA INICIAL */
 /* ====================================================================== */
 
-
+#gameCanvas{
+    height: 100vh;
+    width: 650px;
+}
 
 #main-wrapper {
     display: none;
@@ -18,40 +21,14 @@
 /* 1. Posicionamento do Contêiner Pai */
 #gameContainer {
     position: relative;
-    /* Certifique-se de que o #gameContainer cubra a área desejada,
-       já que o canvas tem position: fixed em algumas versões do seu código. */
-    /* Se o canvas for position: fixed, o overlay também deve ser. */
+   
 }
-
-
-
-
 
 /* ====================================================================== */
 /* ESTILO: CANVAS OVERLAY (Baseado no tema NEON AZUL) */
 /* ====================================================================== */
 
-#canvasOverlay {
-     
-    position: absolute; 
-    width: 600px; /* LARGURA FIXA DO CANVAS */
-    height: 100vh; /* ALTURA FIXA DO CANVAS */
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
 
-    /* Estilo visual principal (Fundo e centralização) */
-    background-color: rgba(0, 0, 0, 0.9); /* Fundo quase preto */
-    color: #FFF;
-    font-family: 'Orbitron', sans-serif;
-    
-    display: flex;
-    flex-direction: column; /* Organiza o spinner e a mensagem verticalmente */
-    justify-content: center;
-    align-items: center;
-
-    z-index: 10; 
-}
 
 /* 1. Spinner (Elemento Giratório) */
 .canvas-loading-spinner {
@@ -71,61 +48,8 @@
         0 0 40px rgba(135, 206, 250, 0.5); 
 }
 
-/* 2. Mensagem/Texto de Seleção de Fase (Estilo de Néon) */
-#canvasOverlay .canvas-overlay-message {
-    margin-top: 0;
-    font-size: 1.2rem;
-    letter-spacing: 1px;
-    color: #87CEFA; /* Azul Claro */
-    
-    /* Brilho do Texto */
-    text-shadow: 
-        0 0 3px #87CEFA, 
-        0 0 10px rgba(54, 162, 235, 0.8); 
-    animation: pulse 1.5s infinite; /* Mantém o efeito de pulsação */
-}
 
 
-/* 3. Adaptação dos Keyframes (Se ainda não estiverem definidos) */
-/* Certifique-se de que estes keyframes estão no seu CSS global */
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-
-/* 3. Estilo e Dimensões do Overlay */
-#canvasOverlay {
-    position: absolute; /* Posição absoluta dentro do #gameContainer */
-    
-    /* 🎯 Defina as dimensões EXATAS do canvas (600px e 100vh) */
-    width: 600px; 
-    height: 100vh;
-    
-    /* Centraliza o overlay sobre o canvas */
-    top: 0;
-    left: 50%; /* Centraliza horizontalmente se o canvas estiver centralizado via flexbox ou margin */
-    transform: translateX(-50%); /* Ajuste fino de centralização */
-
-    /* Estilo visual */
-    background-color: rgba(0, 0, 0, 0.8); /* Fundo preto semi-transparente */
-    color: #FFF;
-    font-family: sans-serif;
-    text-align: center;
-    
-    /* Centraliza o conteúdo dentro do overlay */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-
-    z-index: 10; /* Garante que ele fique acima do canvas */
-}
 #bgVideo {
     /* Define o vídeo para preencher o contêiner pai (#main-wrapper) */
     position: absolute; 

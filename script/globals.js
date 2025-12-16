@@ -65,6 +65,6 @@ let magnetStrength = 100; // Valor muito mais agressivo (ajuste conforme o teste
 
 // PICKUP DE VIDA
 const pickups = [];
-let nextHealthPickupScore = 100;
-const HEALTH_PICKUP_VALUE = 30;
+let nextHealthPickupScore = 50;
+const HEALTH_PICKUP_VALUE = 100;
 const HEALTH_PICKUP_IMAGE = "../assets/img/pickup/concerto.png";

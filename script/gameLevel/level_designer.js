@@ -1,44 +1,3 @@
-const CONFIG = {
-    nodes: 15
-};
-
-// 1. Array com os caminhos das 15 imagens (Substitua pelos caminhos reais das suas 15 imagens)
-const NODE_IMAGES = [
-    '../assets/img/cenario-start/planeta_terra.png', 
-    '../assets/img/cenario-start/planeta_terra.png', 
-    '../assets/img/cenario-start/planeta_terra.png', 
-    '../assets/img/cenario-start/planeta_terra.png', 
-    '../assets/img/cenario-start/planeta_terra.png', 
-    '../assets/img/cenario-start/planeta_terra.png', 
-    '../assets/img/cenario-start/planeta_terra.png', 
-    '../assets/img/cenario-start/planeta_terra.png', 
-    '../assets/img/cenario-start/planeta_terra.png', 
-    '../assets/img/cenario-start/planeta_terra.png', 
-    '../assets/img/cenario-start/planeta_terra.png', 
-    '../assets/img/cenario-start/planeta_terra.png', 
-    '../assets/img/cenario-start/planeta_terra.png', 
-    '../assets/img/cenario-start/planeta_terra.png', 
-    '../assets/img/cenario-start/planeta_terra.png', 
-   
-];
-
-const NOME_FASES = [
-    'Área 51', // Índice 0
-    'Lua de Mel', 
-    'Marte Vermelho', 
-    'Júpiter Caótico', 
-    'Anéis de Saturno', 
-    'Urano Gelado', 
-    'Netuno Azul', 
-    'Cinturão de Asteroides', 
-    'Nebulosa', 
-    'Buraco Negro', 
-    'Estação Espacial', 
-    'Cometa Viajante', 
-    'Galáxia Andrômeda', 
-    'Planeta X', 
-    'Universo Infinito', // Índice 14 (Total de 15 fases)
-];
 
 // Verifica se o número de itens corresponde ao CONFIG.nodes
 if (NODE_IMAGES.length !== CONFIG.nodes) {
@@ -244,9 +203,17 @@ boardEl.addEventListener('touchmove', handleMove);
 boardEl.style.cursor = 'grab';
 
 const menuBtnFases = document.getElementById('menuBtnFases');
+const loadingOverlay = document.getElementById('loadingOverlay');
 
-menuBtnFases.addEventListener('click', () => {
-    window.location.href = 'index.html'; // Redireciona para index.html
+menuBtnFases.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    // mostra o overlay
+    loadingOverlay.classList.remove('hidden');
+
+    // espera 2s e some da página
+    setTimeout(() => {
+        window.location.href = 'index.html';
+    }, 2000);
 });
-
 

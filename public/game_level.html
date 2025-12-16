@@ -13,10 +13,10 @@
 </head>
 
 <body>
-    <div id="loadingOverlay">
-        <div class="spinner"></div>
-        <p>Loading Game...</p>
-    </div>
+       <div id="loadingOverlay">
+            <div class="spinner"></div>
+            <p>Loading Game...</p>
+        </div>
     <video autoplay loop muted id="video-background">
         <source src="../assets/video/backgraund_level.mp4" type="video/mp4">
         Seu navegador não suporta o elemento de vídeo.
@@ -63,12 +63,6 @@
         <div id="gameContainer">
             <div id="gameContainer">
                 <canvas id="gameCanvas"></canvas>
-
-                <div id="canvasOverlay">
-                    <div class="canvas-loading-spinner"></div>
-                    <p class="canvas-overlay-message">Loading Game...</p>
-                </div>
-
             </div>
             <div id="pauseOverlay" class="hidden">
                 <h2>PAUSADO</h2>
@@ -128,7 +122,7 @@
         </div>
     </div>
 </body>
-<script src="../script/carregando.js"></script>
+ 
 <script src="../script/GameObject.js"></script>
 <script src="../script/audio_game.js"></script>
 <script src="../script/utils.js"></script>
@@ -151,8 +145,7 @@
 <script src="../script/FimDoGame.js"></script>
 <script src="../script/controle.js"></script>
 <script src="../script/start_game/start_game.js"></script>
+<script src="../script/gameLevel/missao_construtor.js"></script>
 <script src="../script/gameLevel/level_designer.js"></script>
-
-
 
 </html>

@@ -13,14 +13,6 @@ const MIN_LOADING_TIME_MS = 1500;
 const DEFAULT_IMAGES = ["../assets/img/nave-player/nave-player.png"];
 let IMAGES_TO_LOAD = [...DEFAULT_IMAGES];
 
-// ------------------------
-// MISSIONS
-// ------------------------
-const MISSIONS = [
-    { id:1, name:"Missão 1",  bg: "../assets/img/cenarios/cenario-missao-1/cenario-1.png", layers: ["../assets/img/cenarios/cenario-missao-1/cenario-1.png"], music: "../assets/audio/Ultra-Lag-chosic.com_.mp3", scrollSpeed: 100, enemyConfig:{ spawnRate:1.0, difficulty:1 }},
-    { id:2, name:"Missão 2",  bg: "", layers: [], music: "", scrollSpeed: 120, enemyConfig:{ spawnRate:1.2, difficulty:2 } },
-    // ... missões 3 a 15 (igual ao seu código original)
-];
 
 // ------------------------
 // UTIL: preload de imagens
@@ -120,10 +112,16 @@ function startGame() {
     const startScreenDiv = document.getElementById("startScreen");
     const loadingOverlay = document.getElementById("loadingOverlay");
     const mainWrapper = document.getElementById("main-wrapper");
+    const canvasOverlay = document.getElementById("canvasOverlay");
 
     if (!window.CURRENT_MISSION) loadMission(1);
 
+    // ESCONDE TUDO QUE NÃO É JOGO
     if (startScreenDiv) startScreenDiv.classList.add('hidden');
+    if (canvasOverlay) canvasOverlay.style.display = "flex";
+    if (mainWrapper) mainWrapper.style.display = "none";
+
+    // MOSTRA OVERLAY E NÃO ESCONDE MAIS A TELA ANTERIOR
     if (loadingOverlay) loadingOverlay.classList.remove('hidden');
 
     Promise.all([
@@ -133,21 +131,20 @@ function startGame() {
     .then(async () => {
         await waitCanvasReady();
 
-        const canvas = document.getElementById("gameCanvas");
-        if (!canvas) return;
+        // INICIALIZA JOGO
+        initGame();
 
-        const ctx = canvas.getContext("2d");
-        ctx.fillStyle = "black";
-        ctx.fillRect(0,0,canvas.width,canvas.height);
+        // GARANTE UM FRAME DO GAME LOOP
+        await waitCanvasReady();
 
+        // AGORA SIM: ESCONDE LOADING
         if (loadingOverlay) loadingOverlay.classList.add('hidden');
 
-        if (backgroundVideo) backgroundVideo.play().catch(()=>{});
-
+        // MOSTRA JOGO
         if (mainWrapper) mainWrapper.style.display = "flex";
 
-        // inicializa o jogo
-        initGame();
+        const backgroundVideo = document.getElementById("bgVideo");
+        if (backgroundVideo) backgroundVideo.play().catch(()=>{});
     })
     .catch(err => {
         console.error(err);
@@ -200,10 +197,7 @@ function initGame() {
     lastTime = performance.now();
     requestAnimationFrame(gameLoop);
 
-    setTimeout(() => {
-        if (canvasOverlay) canvasOverlay.style.display = "none";
-        if (mainWrapper) mainWrapper.style.display = "flex";
-    }, 500);
+ 
 
     setTimeout(() => {
         try { shootSoundPlay(); } catch(e){}

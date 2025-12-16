@@ -1,78 +1,128 @@
 /* ====================================================================== */
-/* 7. OVERLAY DE LOADING (TEMA AZUL) */
+/* LOADING OVERLAY — HEXAGONAL FIRE */
 /* ====================================================================== */
 
 #loadingOverlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* Mantive o gradiente radial escuro para simular o espaço */
-    background: radial-gradient(circle at center, #000 0%, #050505 90%); 
+    inset: 0;
+    background: radial-gradient(circle at center, #120200 0%, #000 85%);
     z-index: 99999999999 !important;
+
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
     overflow: hidden;
     color: white;
     font-family: 'Orbitron', sans-serif;
 }
 
-.spinner {
-    border: 6px solid rgba(135, 206, 250, 0.2); /* Borda de fundo mais clara e transparente */
-    border-top: 6px solid #36A2EB; /* COR PRINCIPAL: Azul Intenso */
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    animation: spin 1s linear infinite;
-    
-    /* BRILHO DO RAIO AZUL (box-shadow adaptado do seu botão) */
-    box-shadow: 
-        0 0 5px rgba(54, 162, 235, 0.8),    /* Brilho interno mais suave (Glow) */
-        0 0 20px rgba(54, 162, 235, 0.9),   /* Brilho externo mais forte (Raio) */
-        0 0 40px rgba(135, 206, 250, 0.5);  /* Brilho maior e mais espalhado */
-}
-
+/* FUNDO TECNO */
 #loadingOverlay::before {
     content: "";
     position: absolute;
-    width: 200%;
-    height: 200%;
-    /* ESTRELAS DE FUNDO COM BRILHO AZUL SUTIL */
-    background: radial-gradient(circle, rgba(135, 206, 250, 0.3) 1px, transparent 1px); 
-    background-size: 20px 20px;
-    top: -50%;
-    left: -50%;
-    animation: moveStars 10s linear infinite;
+    inset: -50%;
+    background:
+        radial-gradient(circle, rgba(255,140,0,.35) 1px, transparent 1px);
+    background-size: 22px 22px;
+    animation: starsLoop 12s linear infinite;
+    opacity: .4;
 }
 
+/* ⬢ SPINNER HEXAGONAL FOGO */
+.spinner {
+    width: 90px;
+    height: 90px;
+    position: relative;
+    animation: rotateHex 1.6s linear infinite;
+}
+
+.spinner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    clip-path: polygon(
+        25% 5%,
+        75% 5%,
+        100% 50%,
+        75% 95%,
+        25% 95%,
+        0% 50%
+    );
+
+    background: linear-gradient(
+        135deg,
+        #ff4500,
+        #ff8c00,
+        #ffd700,
+        #ff4500
+    );
+    background-size: 300% 300%;
+    animation: energyFlow 1.2s ease infinite;
+
+    box-shadow:
+        0 0 8px rgba(255,69,0,.9),
+        0 0 25px rgba(255,140,0,.8),
+        0 0 55px rgba(255,215,0,.6);
+}
+
+/* HEXÁGONO INTERNO */
+.spinner::after {
+    content: "";
+    position: absolute;
+    inset: 10px;
+
+    clip-path: polygon(
+        25% 5%,
+        75% 5%,
+        100% 50%,
+        75% 95%,
+        25% 95%,
+        0% 50%
+    );
+
+    background: radial-gradient(circle, #120200 60%, transparent 70%);
+}
+
+/* TEXTO */
 #loadingOverlay p {
-    margin-top: 30px;
-    font-size: 1.8rem;
-    letter-spacing: 2px;
-    color: #87CEFA; /* COR DO TEXTO: Azul Claro */
-    /* BRILHO DO TEXTO (Mantendo o efeito de néon azul) */
-    text-shadow: 
-        0 0 3px #87CEFA, 
-        0 0 10px rgba(54, 162, 235, 0.8); /* Usando o azul intenso para o brilho forte */
-    animation: pulse 1.5s infinite;
+    margin-top: 35px;
+    font-size: 1.6rem;
+    letter-spacing: 3px;
+    color: #ffd700;
+
+    text-shadow:
+        0 0 6px rgba(255,215,0,.9),
+        0 0 18px rgba(255,140,0,.9);
+
+    animation: textPulse 1.4s ease-in-out infinite;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
+/* ========================= */
+/* ANIMAÇÕES */
+/* ========================= */
+
+@keyframes rotateHex {
+    0%   { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-@keyframes moveStars {
-    0% { transform: translate(0,0); }
-    100% { transform: translate(-50px, 50px); }
+@keyframes energyFlow {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+@keyframes starsLoop {
+    0%   { transform: translate(0,0); }
+    100% { transform: translate(-80px, 80px); }
+}
+
+@keyframes textPulse {
+    0%,100% { opacity: 1; }
+    50%     { opacity: .45; }
 }
 
 .hidden {

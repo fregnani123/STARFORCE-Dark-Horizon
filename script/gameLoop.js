@@ -88,7 +88,7 @@ function gameLoop(timestamp) {
                 if (typeof spawnHealthPickup === "function") {
                     spawnHealthPickup();
                 }
-                nextHealthPickupScore += 100;
+                nextHealthPickupScore += 50;
             }
         }
 

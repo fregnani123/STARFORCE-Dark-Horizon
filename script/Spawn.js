@@ -41,13 +41,45 @@ function spawnRandomEnemy(player, currentScore = 0) {
             scoreValue: 25, 
             weaponLevel: 4, 
             canStopToAttack: false,
-            isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: true,
+            isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: false,
             
             // 🛑 TAMANHO DO PROJÉTIL TIPO 2
             projWidth: 35, 
             projHeight: 35,
         },
+    
+    {
+            imagePath: "../assets/img/Enemy/inimigo4.png", width: 110, height: 80, maxHealth: 50, speed: 250, fireRate: 1500, damage: 20, projectileSpeed: 250,
+            projectileImgUM: "../assets/img/projectile/tiro-espinho-roxo.png", 
+            projectileImgDois:"../assets/img/projectile/tiro-espinho-roxo.png", 
+            projectileImgTres: null,
+            minScore: 0,
+            scoreValue: 25, 
+            weaponLevel: 4, 
+            canStopToAttack: true,
+            isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: true,
+            
+            // 🛑 TAMANHO DO PROJÉTIL TIPO 1
+             projWidth: 35, 
+            projHeight: 35,
+        },
 
+             // TIPO 1: PARA E ATACA (weaponLevel: 3, Halo, Tilt)
+        {
+            imagePath: "../assets/img/Enemy/inimigo3.png", width: 110, height: 80, maxHealth: 50, speed: 350, fireRate: 1500, damage: 20, projectileSpeed: 600,
+            projectileImgUM: "../assets/img/projectile/tiro-verde.png", 
+            projectileImgDois:"../assets/img/projectile/tiro-verde.png", 
+            projectileImgTres: null,
+            minScore: 0,
+            scoreValue: 25, 
+            weaponLevel: 1, 
+             canStopToAttack: false,
+            isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: true,
+            
+            // 🛑 TAMANHO DO PROJÉTIL TIPO 1
+            projWidth: 20, 
+            projHeight: 35,
+        },
     ];
 
     // --- Filtrar e Escalar ---
