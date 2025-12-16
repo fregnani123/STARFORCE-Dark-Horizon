@@ -2,39 +2,8 @@
 /* BOTOES DA TELA INICIAL */
 /* ====================================================================== */
 
-.botao-menu {
-    padding: 10px 8px;
-    font-family: 'Orbitron';
-    font-size: 14px;
-    font-weight: 700;
-    width: 180px;
-    margin: 5px;
-    background: rgba(0, 50, 80, 0.1);
-    color: #ffffff;
-    border: 1px solid rgb(255, 255, 255);
-    border-radius: 5px;
-    cursor: pointer;
-    transition: 0.2s;
-    box-shadow: none;
-}
- 
-.botao-menu:hover {
-    /* 1. Efeito de Fundo (Para o botão brilhar por dentro) */
-    background: rgba(54, 162, 235, 0.2); /* Fundo com mais tom azulado transparente */
-    
-    /* 2. Efeito de Brilho (O "Raio" em volta do botão) */
-    box-shadow: 
-        0 0 5px rgba(54, 162, 235, 0.8),   /* Brilho interno mais suave (Glow) */
-        0 0 20px rgba(54, 162, 235, 0.9),  /* Brilho externo mais forte (Raio) */
-        0 0 40px rgba(135, 206, 250, 0.5); /* Brilho maior e mais espalhado */
-    
-    /* 3. Escala (Movimento sutil para feedback) */
-    transform: scale(1.05); /* Aumenta um pouco mais que 1.03 para ser notável */
-    
-    /* 4. Cor do Texto (Opcional: faz o texto ficar mais claro no hover) */
-    color: #FFFFFF;
-    text-shadow: 0 0 5px #FFFFFF;
-}
+
+
 #main-wrapper {
     display: none;
     position: absolute; /* Posição absoluta para cobrir a tela */

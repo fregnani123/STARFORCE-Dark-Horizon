@@ -80,6 +80,66 @@ html, body {
     align-items: center;
     overflow: hidden;
 }
+.botao-menu {
+    padding: 10px 8px;
+    font-family: 'Orbitron';
+    font-size: 14px;
+    font-weight: 700;
+    width: 180px;
+    margin: -5px;
+
+    /* 🔥 ANIMAÇÃO ATIVA NO BOTÃO */
+    background: linear-gradient(
+        120deg,
+        #ff440000,
+        #ff8c0084,
+        #ffd900c2,
+        #ff4400da
+    );
+    background-size: 300% 300%;
+    color: #ffffff;
+
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 5px;
+
+    cursor: pointer;
+
+}
+
+/* 🔥 HOVER FOGO */
+.botao-menu:hover {
+
+    /* Gradiente de fogo animado */
+    background: linear-gradient(
+        120deg,
+        #ff4500,
+        #ff8c00,
+        #ffd700,
+        #ff4500
+    );
+    background-size: 300% 300%;
+    animation: fogo 1.5s ease infinite;
+
+    /* Glow quente */
+    box-shadow:
+        0 0 6px rgba(255, 69, 0, 0.9),
+        0 0 18px rgba(255, 140, 0, 0.8),
+        0 0 40px rgba(255, 215, 0, 0.6);
+
+    transform: scale(1.06);
+
+    color: #ffffff;
+    text-shadow:
+        0 0 4px #fff,
+        0 0 8px #ffae00;
+}
+
+/* 🔥 Animação do fogo */
+@keyframes fogo {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
 
 #video-fundo {
     position: absolute;
@@ -125,4 +185,69 @@ html, body {
     transform: translateY(-50%);
     padding-left: 100px;
     height: 100vh;
+}
+
+@media (max-width: 768px) {
+    .menu-posicionamento {
+        /* RESET DE POSIÇÃO */
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        top: auto !important;
+        bottom: auto !important;
+        margin: 0 auto !important;
+        float: none !important;
+        transform: none !important;
+
+        /* CENTRALIZAÇÃO */
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+}
+/* 📱 MOBILE — BOTÕES ABSOLUTOS NO CENTRO DA TELA */
+@media (max-width: 768px) {
+.gif-centralizado{
+   width: 110%;
+   bottom: -10px;
+}
+    .botao-menu {
+        position: absolute !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 220px;
+    }
+
+    #startButton  { top: 40%; }
+    #continuar    { top: 48%; }
+    #configButton { top: 56%; }
+    #exit         { top: 64%; }
+
+    /* ❌ SEM MOVIMENTO NO HOVER */
+    .botao-menu,
+    .botao-menu:hover {
+        transform: translateX(-50%) !important;
+    }
+
+
+/* 🔥 HOVER SÓ DE COR */
+.botao-menu:hover {
+    background: linear-gradient(120deg, #ff4500, #ff8c00, #ffd700, #ff4500);
+    background-size: 300% 300%;
+    animation: fogo 1.5s ease infinite;
+    box-shadow:
+        0 0 6px rgba(255,69,0,.9),
+        0 0 18px rgba(255,140,0,.8),
+        0 0 40px rgba(255,215,0,.6);
+    color: #fff;
+}
+
+@keyframes fogo {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 }
