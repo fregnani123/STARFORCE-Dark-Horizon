@@ -1,4 +1,11 @@
-class Projectile extends GameObject {
+// ======================================================
+// IMPORTS OBRIGATÓRIOS
+// ======================================================
+import { GameObject } from './GameObject.js'; // 1. Herança (GameObject)
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from './globals.js'; // 2. Limites da tela (Globals)
+
+
+export class Projectile extends GameObject {
     constructor(
         x, y,
         width, height,
@@ -12,6 +19,7 @@ class Projectile extends GameObject {
         // Argumento para guiamento
         isGuided = false 
     ) {
+        // Chamada do construtor da classe pai (GameObject)
         super(x, y, width, height, imagePath);
 
         this.speed = speed;
@@ -23,21 +31,20 @@ class Projectile extends GameObject {
         this.isGuided = isGuided;
         this.target = null;
         
-        // *** NOVO: Ângulo de rotação própria (Spin) em Radianos ***
+        // Propriedades de rotação
         this.spinAngle = 0; 
-        
-        // callback para explosão (nível 4)
         this.onExplode = onExplode;
 
-        // ângulo do tiro (Radianos) - Usado para direção do movimento
+        // ângulo do tiro (Radianos)
         if (useAbsoluteAngle) {
             this.angle = angle;
         } else {
+            // Usa Math.PI, que é nativo do JavaScript e não precisa de import
             const baseAngle = owner === "player" ? -Math.PI / 2 : Math.PI / 2;
             this.angle = baseAngle + angle;
         }
 
-        // explosivo
+        // Propriedades de explosão
         this.isExplosive = false;
         this.explodeAfter = 0;
         this.timer = 0;
@@ -47,6 +54,7 @@ class Projectile extends GameObject {
         
         // Lógica de Guiamento (Seeking Behavior)
         if (this.isGuided && this.target && this.target.isAlive) {
+            // ... (Lógica de guiamento original, que usa Math.atan2, Math.PI) ...
             
             const projCenterX = this.x + this.width / 2;
             const projCenterY = this.y + this.height / 2;
@@ -68,16 +76,15 @@ class Projectile extends GameObject {
             this.angle += angleDifference * TURN_RATE;
         }
 
-        // *** CORREÇÃO: Rotação Própria (Spin) - SÓ É CALCULADA SE FOR GUIADO ***
+        // Rotação Própria (Spin) - A rotação em radianos é necessária para o desenho
         if (this.isGuided) {
-            const SPIN_RATE = 0.15; // Velocidade de giro (Ajuste conforme necessário)
+            const SPIN_RATE = 0.15;
             this.spinAngle += SPIN_RATE;
             
             if (this.spinAngle > Math.PI * 2) {
                 this.spinAngle -= Math.PI * 2;
             }
         }
-        // ************************************
 
         // explosivo → conta tempo
         if (this.isExplosive) {
@@ -92,13 +99,15 @@ class Projectile extends GameObject {
         const vx = Math.cos(this.angle) * this.speed;
         const vy = Math.sin(this.angle) * this.speed;
 
-        this.x += vx * (deltaTime / 1000);
-        this.y += vy * (deltaTime / 1000);
+        // Otimizado: Multiplicar a velocidade pelo delta time fracionário
+        const deltaFraction = deltaTime / 1000;
 
-        // *** ATUALIZAÇÃO FINAL DA ROTAÇÃO PARA GameObject (Aplicada a TODOS) ***
+        this.x += vx * deltaFraction;
+        this.y += vy * deltaFraction;
+
+        // ATUALIZAÇÃO FINAL DA ROTAÇÃO PARA GameObject
         let totalAngleRadians = this.angle;
         
-        // Aplica o giro próprio e o ajuste de compensação visual SOMENTE se for guiado.
         if (this.isGuided) {
             totalAngleRadians += Math.PI / 2 + this.spinAngle;
         } else {
@@ -106,15 +115,14 @@ class Projectile extends GameObject {
         }
 
         this.rotation = totalAngleRadians * (180 / Math.PI);
-        // ***************************************************
 
-        // 🚀 CORRIGIDO: remover só quando REALMENTE sair da tela usando limites dinâmicos
+        // 🚀 CORRIGIDO: Remoção fora da tela usando CONSTANTES IMPORTADAS
         const margin = 50;
         if (
             this.x < -margin ||
-            this.x > CANVAS_WIDTH + margin || 
+            this.x > CANVAS_WIDTH + margin || // <-- USANDO CANVAS_WIDTH IMPORTADO
             this.y < -margin ||
-            this.y > CANVAS_HEIGHT + margin
+            this.y > CANVAS_HEIGHT + margin // <-- USANDO CANVAS_HEIGHT IMPORTADO
         ) {
             this.isAlive = false;
         }
@@ -132,7 +140,9 @@ class Projectile extends GameObject {
         for (let i = 0; i < total; i++) {
             const ang = step * i;
 
-            this.onExplode(new Projectile(
+            // RECRIANDO INSTÂNCIA DE PROJECTILE: Note que a classe Projectile é usada aqui
+            // Sem o export na definição da classe, isso não funcionaria em um módulo.
+            this.onExplode(new Projectile( 
                 this.x,
                 this.y,
                 this.width,
@@ -147,4 +157,3 @@ class Projectile extends GameObject {
         }
     }
 }
-

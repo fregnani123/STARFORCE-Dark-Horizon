@@ -1,12 +1,13 @@
-// ------------------------
-// MISSIONS
-// ------------------------
+// ======================================================
+// CONFIGURAÇÕES GLOBAIS DE NÍVEL (EXPORTADAS)
+// ======================================================
 
-const CONFIG = {
+export const CONFIG = {
     nodes: 15
 };
-// 1. Array com os caminhos das 15 imagens (Substitua pelos caminhos reais das suas 15 imagens)
-const NODE_IMAGES = [
+
+// Array com os caminhos das 15 imagens dos nodes
+export const NODE_IMAGES = [
     '../assets/img/cenario-start/planeta_terra.png', 
     '../assets/img/cenario-start/planeta_terra.png', 
     '../assets/img/cenario-start/planeta_terra.png', 
@@ -22,10 +23,10 @@ const NODE_IMAGES = [
     '../assets/img/cenario-start/planeta_terra.png', 
     '../assets/img/cenario-start/planeta_terra.png', 
     '../assets/img/cenario-start/planeta_terra.png', 
-   
 ];
 
-const NOME_FASES = [
+// Nomes das fases
+export const NOME_FASES = [
     'Invação', 
     'Área 51', 
     'Marte Vermelho', 
@@ -40,15 +41,20 @@ const NOME_FASES = [
     'Cometa Viajante', 
     'Galáxia Andrômeda', 
     'Planeta X', 
-    'Universo Infinito', // Índice 14 (Total de 15 fases)
+    'Universo Infinito', 
 ];
 
 
-const MISSIONS = [
+// ======================================================
+// DEFINIÇÃO DAS MISSÕES (EXPORTADA)
+// ======================================================
+
+export const MISSIONS = [
+    // NOTA: Os caminhos de imagem e áudio foram mantidos, assumindo que são corretos.
 
     { id: 1, name: NOME_FASES[0], bg: "../assets/img/cenarios/cenario-missao-1/cenario-1.png", layers: ["../assets/img/cenarios/cenario-missao-1/cenario-1.png"], music: "../assets/audio/Ultra-Lag-chosic.com_.mp3", scrollSpeed: 100, enemyConfig: { spawnRate: 1.0, difficulty: 1 } },
 
-    { id: 2, name: NOME_FASES[1], bg: "../assets/img/cenarios/cenario-missao-1/cenario-1.png", layers: ["../assets/img/cenarios/cenario-missao-1/cenario-1.png"], music: "../assets/audio/Ultra-Lag-chosic.com_.mp3", scrollSpeed: 100, enemyConfig: { spawnRate: 1.0, difficulty: 1 } },
+    { id: 2, name: NOME_FASES[1], bg: "../../assets/img/cenarios/cenario-missao-1/2 (2).png", layers: ["../../assets/img/cenarios/cenario-missao-1/2 (2).png"], music: "../assets/audio/Ultra-Lag-chosic.com_.mp3", scrollSpeed: 100, enemyConfig: { spawnRate: 1.0, difficulty: 1 } },
 
     { id: 3, name: NOME_FASES[2], bg: "../assets/img/cenarios/cenario-missao-1/cenario-1.png", layers: ["../assets/img/cenarios/cenario-missao-1/cenario-1.png"], music: "../assets/audio/Ultra-Lag-chosic.com_.mp3", scrollSpeed: 100, enemyConfig: { spawnRate: 1.0, difficulty: 1 } },
 
@@ -72,10 +78,8 @@ const MISSIONS = [
 
     { id: 13, name: NOME_FASES[12], bg: "../assets/img/cenarios/cenario-missao-1/cenario-1.png", layers: ["../assets/img/cenarios/cenario-missao-1/cenario-1.png"], music: "../assets/audio/Ultra-Lag-chosic.com_.mp3", scrollSpeed: 100, enemyConfig: { spawnRate: 1.0, difficulty: 1 } },
 
-    { id: 14, name:  NOME_FASES[13] ,bg: "../assets/img/cenarios/cenario-missao-1/cenario-1.png", layers: ["../assets/img/cenarios/cenario-missao-1/cenario-1.png"], music: "../assets/audio/Ultra-Lag-chosic.com_.mp3", scrollSpeed: 100, enemyConfig: { spawnRate: 1.0, difficulty: 1 } },
+    { id: 14, name: NOME_FASES[13], bg: "../assets/img/cenarios/cenario-missao-1/cenario-1.png", layers: ["../assets/img/cenarios/cenario-missao-1/cenario-1.png"], music: "../assets/audio/Ultra-Lag-chosic.com_.mp3", scrollSpeed: 100, enemyConfig: { spawnRate: 1.0, difficulty: 1 } },
 
     { id: 15, name: NOME_FASES[14], bg: "../assets/img/cenarios/cenario-missao-1/cenario-1.png", layers: ["../assets/img/cenarios/cenario-missao-1/cenario-1.png"], music: "../assets/audio/Ultra-Lag-chosic.com_.mp3", scrollSpeed: 100, enemyConfig: { spawnRate: 1.0, difficulty: 1 } },
 
-
 ];
-

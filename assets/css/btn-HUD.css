@@ -15,7 +15,7 @@
     left: 0;
     width: 100%;
     height: 100vh;
-    z-index: 9999999999999 !important; /* Z-index muito alto */
+    z-index: 99999999999999 !important; /* Z-index muito alto */
     background-color: transparent; /* Mude para transparent para ver o vídeo */
 }
 /* 1. Posicionamento do Contêiner Pai */

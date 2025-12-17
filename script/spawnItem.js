@@ -1,14 +1,28 @@
+// ======================================================
+// IMPORTS OBRIGATÓRIOS
+// ======================================================
+import { Pickup } from './pickup.js'; // Importa a classe Pickup
+import { 
+    CANVAS_WIDTH,
+    HEALTH_PICKUP_IMAGE, 
+    HEALTH_PICKUP_VALUE,
+    pickups, // Array global de pickups (exportado como const ou let em globals.js)
+    // Assumindo que Enemy não é necessário aqui, mas é passado como argumento.
+} from './globals.js'; 
+
+
 // ----------------------------------------------------
-// ✨ NOVO: FUNÇÃO PARA SPAWN DO ITEM DE VIDA
+// ✨ FUNÇÃO PARA SPAWN DO ITEM DE VIDA (EXPORTADA)
 // ----------------------------------------------------
-function spawnHealthPickup() {
+export function spawnHealthPickup() {
     // Spawn em uma posição X aleatória no topo
     const width = 40;
     const height = 40;
-    const spawnX = Math.random() * (CANVAS_WIDTH - width);
-    const spawnY = -height; // Começa acima da tela
+    // Usa CANVAS_WIDTH importado
+    const spawnX = Math.random() * (CANVAS_WIDTH - width); 
+    const spawnY = -height; 
 
-    // Cria e adiciona o item ao array
+    // Cria e adiciona o item ao array (Usando Pickup, HEALTH_PICKUP_IMAGE, HEALTH_PICKUP_VALUE importados)
     pickups.push(new Pickup(
         spawnX, spawnY,
         width, height,
@@ -18,17 +32,19 @@ function spawnHealthPickup() {
 
     console.log("Item de Vida Spawnado!");
 }
-// ----------------------------------------------------
 
-function spawnStarPickups(enemy) {
-    // Evita que o mesmo inimigo gere estrelas múltiplas vezes
+
+// ----------------------------------------------------
+// ✨ FUNÇÃO PARA SPAWN DAS ESTRELAS (EXPORTADA)
+// ----------------------------------------------------
+export function spawnStarPickups(enemy) {
+    // Evita que o mesmo inimigo gere estrelas múltiplas vezes (propriedade interna da instância)
     if (enemy._starDropped) return;
     enemy._starDropped = true;
 
-    const maxStars = 3; // Máximo de estrelas por inimigo
+    const maxStars = 3; 
     const starsToSpawn = Math.floor(Math.random() * maxStars) + 1;
 
-    // Distância horizontal entre estrelas
     const spacing = 45;
 
     // Posição inicial (centro do inimigo)
@@ -61,13 +77,13 @@ function spawnStarPickups(enemy) {
             value = 3;
             size = 36;
         }
-        // Senão → 55% amarela
 
         // Calcula posição horizontal espaçada
         const x = startX - ((starsToSpawn - 1) * spacing) / 2 + i * spacing;
         const y = startY;
 
-        pickups.push(new Pickup(
+        // Adiciona ao array 'pickups' importado
+        pickups.push(new Pickup( 
             x,
             y,
             size,

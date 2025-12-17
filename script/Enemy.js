@@ -1,8 +1,16 @@
+// ======================================================
+// IMPORTS OBRIGATÓRIOS
+// ======================================================
+import { GameObject } from './GameObject.js'; 
+import { Projectile } from './Projectile.js'; // Para criar projéteis inimigos
+import { Particle } from './particle.js';     // Para gerar partículas na explosão
+import { CANVAS_HEIGHT } from './globals.js'; // Para checar os limites da tela
+
 // ==============================================================================
 //  Enemy.js — VERSÃO FINAL COM TAMANHO DE PROJÉTIL DINÂMICO
 // ==============================================================================
 
-class Enemy extends GameObject {
+export class Enemy extends GameObject {
 
     constructor(
         x, y, width, height, imagePath,

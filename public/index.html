@@ -161,69 +161,7 @@
   </div>
 
 </body>
-<script>
-
-
-  // ------------------------------
-  // SAIR DO JOGO (Desktop)
-  // ------------------------------
-  window.addEventListener('DOMContentLoaded', () => {
-    const exitButton = document.getElementById('exit');
-
-    if (exitButton) {
-      exitButton.addEventListener('click', () => {
-        if (window.electronAPI && window.electronAPI.closeApp) {
-          window.electronAPI.closeApp();
-        } else {
-          alert("Funcionalidade disponível apenas no desktop.");
-        }
-      });
-    }
-  });
-
-
-  // SAIR DO JOGO (Desktop)
-  window.addEventListener('DOMContentLoaded', () => {
-    const exitButton = document.getElementById('exit');
-
-    exitButton.addEventListener('click', () => {
-      if (window.electronAPI && window.electronAPI.closeApp) {
-        window.electronAPI.closeApp();
-      } else {
-        alert("Funcionalidade disponível apenas no desktop.");
-      }
-    });
-  });
-</script>
-
-<script src="../script/tela_inicial.js"></script>
-<script src="../script/audio_game.js"></script>
-
-<script src="../script/GameObject.js"></script>
-<script src="../script/audio_game.js"></script>
-<script src="../script/utils.js"></script>
-<script src="../script/globals.js"></script>
-<script src="../script/Projectile.js"></script>
-<script src="../script/Background.js"></script>
-<script src="../script/Player.js"></script>
-<script src="../script/particle.js"></script>
-<script src="../script/Enemy.js"></script>
-
-<script src="../script/pickup.js"></script>
-<script src="../script/Spawn.js"></script>
-<script src="../script/btnUpdate.js"></script>
-<script src="../script/Boss.js"></script>
-<script src="../script/spawnBoss.js"></script>
-<script src="../script/spawnItem.js"></script>
-
-<script src="../script/gameVideo.js"></script>
-<script src="../script/gameLoop.js"></script>
-<script src="../script/FimDoGame.js"></script>
-<script src="../script/controle.js"></script>
-<script src="../script/start_game/start_game.js"></script>
-<script src="../script/gameLevel/missao_construtor.js"></script>
-<script src="../script/gameLevel/level_designer.js"></script>
-
+ <script type="module" src="../script/init.js"></script>
 </html>
 
 </html>

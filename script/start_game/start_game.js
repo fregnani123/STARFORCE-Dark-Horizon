@@ -1,224 +1,204 @@
-// ========================
-// game-main.js
-// ========================
+// ======================================================
+// IMPORTS OBRIGATÓRIOS (Orquestração de Inicialização)
+// ======================================================
+// Classes de Objetos
+import { Background } from '../Background.js';
+import { Player } from '../Player.js'; 
 
-// ------------------------
-// CONFIG INICIAL
-// ------------------------
+// Funções de Outros Módulos
+import { playBGM, startShootSoundLoop } from '../audio_game.js'; 
+import { gameLoop } from '../gameLoop.js'; 
+import { initLogoVideoLogic } from '../utils/tela_logo_video.js'; 
+import { mostrarTelaInicial } from '../tela_inicial_module.js'; 
+import { setupInputListeners } from '../controle.js'; 
+
+// Variáveis de Estado/Configuração (do globals.js)
+import { 
+    playerShip, 
+    lastTime, 
+    CANVAS_WIDTH, 
+    CANVAS_HEIGHT,
+    setLastTime, 
+    // 🛑 CORREÇÃO CRÍTICA: Adiciona o Setter para o Player 🛑
+    setPlayerShip, 
+    gameBackgrounds 
+} from '../globals.js'; 
+
+// Variável que contém a definição das missões 
+import { MISSIONS } from '../gameLevel/missao_construtor.js'; 
+
+
+// ======================================================
+// CONFIGURAÇÃO INICIAL
+// ======================================================
+// Variáveis internas ao módulo
+let CURRENT_MISSION = null;
 let BG_IMAGE_PATH = "";
 let MULTI_BACKGROUND_IMAGES = [];
-const MIN_LOADING_TIME_MS = 1500;
 
-// imagens padrão essenciais
+const MIN_LOADING_TIME_MS = 1500;
 const DEFAULT_IMAGES = ["../assets/img/nave-player/nave-player.png"];
 let IMAGES_TO_LOAD = [...DEFAULT_IMAGES];
 
+// Variáveis de Scroll e Inimigos (Usadas na Missão)
+let SCROLL_SPEED = 100;
+let ENEMY_SETTINGS = {};
+
 
 // ------------------------
-// UTIL: preload de imagens
+// UTIL: preload de imagens 
 // ------------------------
-function preloadImages(paths) {
-    return Promise.all(paths.map(path => new Promise((resolve) => {
-        if (!path) return resolve();
-        const img = new Image();
-        img.src = path;
-        img.onload = resolve;
-        img.onerror = () => { console.warn("Falha ao carregar:", path); resolve(); };
-    })));
+export function preloadImages(paths) {
+    return Promise.all(paths.map(path => new Promise((resolve) => {
+        if (!path) return resolve();
+        const img = new Image();
+        img.src = path;
+        img.onload = resolve;
+        img.onerror = () => { console.warn("Falha ao carregar:", path); resolve(); };
+    })));
 }
 
+// UTIL: Espera por 2 frames para garantir que o canvas esteja pronto
 function waitCanvasReady() {
-    return new Promise(resolve => {
-        requestAnimationFrame(() => requestAnimationFrame(resolve));
-    });
+    return new Promise(resolve => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+    });
+}
+
+
+// ------------------------
+// Carrega missão (EXPORTADA)
+// ------------------------
+export function loadMission(id) {
+    const mission = MISSIONS.find(m => m.id === Number(id));
+    if (!mission) return console.error("Missão inválida:", id);
+
+    CURRENT_MISSION = mission;
+    BG_IMAGE_PATH = mission.bg;
+    MULTI_BACKGROUND_IMAGES = [...mission.layers];
+
+    IMAGES_TO_LOAD.length = 0;
+    IMAGES_TO_LOAD.push(...DEFAULT_IMAGES, ...MULTI_BACKGROUND_IMAGES);
+
+    SCROLL_SPEED = mission.scrollSpeed;
+    ENEMY_SETTINGS = mission.enemyConfig;
+
+    if (mission.music) {
+        try { 
+            playBGM(mission.music, 1); 
+        } catch(e){
+            console.warn("Erro ao tocar música da missão:", e);
+        }
+    }
 }
 
 // ------------------------
-// Fluxo overlay -> logo -> tela inicial
+// startGame (EXPORTADA)
 // ------------------------
-document.addEventListener('DOMContentLoaded', () => {
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const logoVideo = document.getElementById('logoVideo');
-    const startVideo = document.getElementById('startVideo');
-    const startScreen = document.getElementById('startScreen');
+export function startGame() {
+    const startScreenDiv = document.getElementById("div-index"); 
+    const levelGameDiv = document.getElementById("container_levelGame"); 
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const mainWrapper = document.getElementById("main-wrapper"); 
 
-    if (startScreen) startScreen.classList.add('hidden');
-    if (startVideo) startVideo.classList.add('hidden');
-    if (logoVideo) logoVideo.classList.add('hidden');
+    if (!CURRENT_MISSION) loadMission(1);
 
-    const LOADING_MS = 2000;
-    const LOGO_FALLBACK_MS = 8000;
+    // ESCONDE TELAS E MOSTRA LOADING
+    if (startScreenDiv) startScreenDiv.style.display = 'none';
+    if (levelGameDiv) levelGameDiv.style.display = 'none';
+    
+    if (loadingOverlay) loadingOverlay.classList.remove('hidden');
 
-    setTimeout(() => {
-        if (loadingOverlay) loadingOverlay.classList.add('hidden');
+    Promise.all([
+        preloadImages(IMAGES_TO_LOAD), 
+        new Promise(res => setTimeout(res, MIN_LOADING_TIME_MS))
+    ])
+    .then(async () => {
+        await waitCanvasReady();
 
-        if (logoVideo) {
-            logoVideo.classList.remove('hidden');
-            setTimeout(() => {
-                logoVideo.muted = false;
-                logoVideo.play().catch(() => hideLogoAndShowStart());
-            }, 200);
+        // 1. INICIALIZA OBJETOS DO JOGO
+        initGame(); 
 
-            logoVideo._timeout = setTimeout(() => hideLogoAndShowStart(), LOGO_FALLBACK_MS);
+        await waitCanvasReady();
 
-            logoVideo.addEventListener('ended', () => {
-                clearTimeout(logoVideo._timeout);
-                hideLogoAndShowStart();
-            }, { once: true });
-        } else {
-            hideLogoAndShowStart();
-        }
-    }, LOADING_MS);
+        // 3. ESCONDE LOADING
+        if (loadingOverlay) loadingOverlay.classList.add('hidden');
 
-    function hideLogoAndShowStart() {
-        if (logoVideo) logoVideo.pause();
-        if (logoVideo) logoVideo.classList.add('hidden');
-        if (startVideo) {
-            startVideo.classList.remove('hidden');
-            startVideo.play().catch(()=>{});
-        }
-        if (startScreen) startScreen.classList.remove('hidden');
-    }
-});
+        // 4. MOSTRA JOGO (Mantendo a lógica contraintuitiva que você corrigiu)
+        if (mainWrapper) {
+            levelGameDiv.style.display='flex'; // Mantido conforme sua solicitação
+            mainWrapper.style.display = "flex";
+        }
 
-// ------------------------
-// Carrega missão
-// ------------------------
-function loadMission(id) {
-    const mission = MISSIONS.find(m => m.id === Number(id));
-    if (!mission) return console.error("Missão inválida:", id);
-
-    window.CURRENT_MISSION = mission;
-    BG_IMAGE_PATH = mission.bg;
-    MULTI_BACKGROUND_IMAGES = [...mission.layers];
-
-    IMAGES_TO_LOAD.length = 0;
-    IMAGES_TO_LOAD.push(...DEFAULT_IMAGES, ...MULTI_BACKGROUND_IMAGES);
-
-    window.SCROLL_SPEED = mission.scrollSpeed;
-    window.ENEMY_SETTINGS = mission.enemyConfig;
-
-    if (mission.music) try { playBGM(mission.music, 1); } catch(e){}
+        // 5. Inicia o vídeo de fundo do jogo 
+        const backgroundVideo = document.getElementById("bgVideo");
+        if (backgroundVideo) backgroundVideo.play().catch(()=>{});
+        
+        // 6. Começa o som de tiro do player 
+        startShootSoundLoop(); 
+    })
+    .catch(err => {
+        console.error("Falha ao iniciar o jogo:", err);
+        if (loadingOverlay) loadingOverlay.classList.add('hidden');
+    });
 }
 
 // ------------------------
-// startGame
+// initGame (EXPORTADA)
 // ------------------------
-const backgroundVideo = document.getElementById("bgVideo");
+export function initGame() {
+    const mainWrapper = document.getElementById("main-wrapper");
 
-function startGame() {
-    const startScreenDiv = document.getElementById("startScreen");
-    const loadingOverlay = document.getElementById("loadingOverlay");
-    const mainWrapper = document.getElementById("main-wrapper");
-    const canvasOverlay = document.getElementById("canvasOverlay");
+    const SHIP_WIDTH = 70;
+    const SHIP_HEIGHT = 80;
+    const mission = CURRENT_MISSION || {};
+    const scrollSpeed = SCROLL_SPEED; 
 
-    if (!window.CURRENT_MISSION) loadMission(1);
+    // limpa elementos antigos 
+    gameBackgrounds.length = 0; 
 
-    // ESCONDE TUDO QUE NÃO É JOGO
-    if (startScreenDiv) startScreenDiv.classList.add('hidden');
-    if (canvasOverlay) canvasOverlay.style.display = "flex";
-    if (mainWrapper) mainWrapper.style.display = "none";
+    // background
+    try {
+        gameBackgrounds.push(
+            new Background(
+                MULTI_BACKGROUND_IMAGES,
+                scrollSpeed
+            )
+        );
+    } catch(e) { console.warn("Erro Background:", e); }
 
-    // MOSTRA OVERLAY E NÃO ESCONDE MAIS A TELA ANTERIOR
-    if (loadingOverlay) loadingOverlay.classList.remove('hidden');
+try {
+        // CORREÇÃO DE POSIÇÃO (Para garantir que a nave apareça no Canvas)
+        const newPlayer = new Player(
+            (CANVAS_WIDTH / 2) - (SHIP_WIDTH / 2), 
+            CANVAS_HEIGHT - SHIP_HEIGHT - 50, 
+            SHIP_WIDTH,
+            SHIP_HEIGHT,
+            "../assets/img/nave-player/nave-player.png",
+            2000
+        );
+        
+        // Usa o Setter (agora importado)
+        setPlayerShip(newPlayer); 
+        
+    } catch(e) { console.warn("Erro Player:", e); }
 
-    Promise.all([
-        preloadImages(IMAGES_TO_LOAD),
-        new Promise(res => setTimeout(res, MIN_LOADING_TIME_MS))
-    ])
-    .then(async () => {
-        await waitCanvasReady();
-
-        // INICIALIZA JOGO
-        initGame();
-
-        // GARANTE UM FRAME DO GAME LOOP
-        await waitCanvasReady();
-
-        // AGORA SIM: ESCONDE LOADING
-        if (loadingOverlay) loadingOverlay.classList.add('hidden');
-
-        // MOSTRA JOGO
-        if (mainWrapper) mainWrapper.style.display = "flex";
-
-        const backgroundVideo = document.getElementById("bgVideo");
-        if (backgroundVideo) backgroundVideo.play().catch(()=>{});
-    })
-    .catch(err => {
-        console.error(err);
-        if (loadingOverlay) loadingOverlay.classList.add('hidden');
-    });
+    // Usa o Setter
+    setLastTime(performance.now());
+    
+    requestAnimationFrame(gameLoop);
 }
 
-// ------------------------
-// initGame
-// ------------------------
-window.gameBackgrounds = [];
-
-function initGame() {
-    const mainWrapper = document.getElementById("main-wrapper");
-    if (mainWrapper) mainWrapper.style.display = "none";
-    const canvasOverlay = document.getElementById("canvasOverlay");
-
-    const SHIP_WIDTH = 70;
-    const SHIP_HEIGHT = 80;
-    const mission = window.CURRENT_MISSION || {};
-    const scrollSpeed = mission.scrollSpeed || (window.SCROLL_SPEED || 100);
-
-    // limpa elementos antigos
-    window.gameBackgrounds = [];
-
-    // background
-    try {
-        window.gameBackgrounds.push(
-            new Background(
-                MULTI_BACKGROUND_IMAGES,
-                scrollSpeed,
-                CANVAS_WIDTH,
-                CANVAS_HEIGHT
-            )
-        );
-    } catch(e) { console.warn("Erro Background:", e); }
-
-    // player
-    try {
-        
-        playerShip = new Player(
-            0, 0,
-            SHIP_WIDTH,
-            SHIP_HEIGHT,
-            "../assets/img/nave-player/nave-player.png",
-            2000
-        );
-    } catch(e) { console.warn("Erro Player:", e); }
-
-    lastTime = performance.now();
-    requestAnimationFrame(gameLoop);
-
- 
-
-    setTimeout(() => {
-        try { shootSoundPlay(); } catch(e){}
-    }, 2000);
+/**
+ * Anexa listeners aos nodes da missão.
+ */
+export function attachMissionNodes() {
+    const nodes = document.querySelectorAll('.node');
+    nodes.forEach(n => {
+        const id = n.dataset.mission || n.dataset.index || n.dataset.id;
+        n.addEventListener('click', () => {
+            loadMission(Number(id)); 
+            startGame(); 
+        });
+    });
 }
-
-// ------------------------
-// Ativa nodes de missão
-// ------------------------
-function attachMissionNodes() {
-    const nodes = document.querySelectorAll('.node');
-    nodes.forEach(n => {
-        const id = n.dataset.mission || n.dataset.index || n.dataset.id;
-        n.addEventListener('click', () => {
-            loadMission(Number(id));
-            startGame();
-        });
-    });
-}
-document.addEventListener('DOMContentLoaded', attachMissionNodes);
-
-// Helpers debug
-window.loadMission = loadMission;
-window.startGame = startGame;
-window.initGame = initGame;
-// window.MISSIONS = MISSIONS;

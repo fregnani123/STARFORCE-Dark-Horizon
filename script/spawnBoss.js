@@ -1,31 +1,50 @@
-// 🎯 Score necessário para chamar o boss
-const BOSS_SCORE_TRIGGER =500;  // altere se quiser
-let bossDefeated = false;
+// ======================================================
+// IMPORTS OBRIGATÓRIOS
+// ======================================================
+import { Boss } from './Boss.js'; // Importa a classe Boss
+import { 
+    CANVAS_WIDTH,
+    bossDefeated,   
+    currentBoss,    
+    // 🛑 CORREÇÃO 1: Adicionar o setter setBossDefeated e corrigir o caminho de import
+    setCurrentBoss,
+    setBossDefeated
+} from './globals.js'; // 🛑 CORREÇÃO 2: Caminho correto para globals.js
 
-let currentBoss = null;
 
-function spawnBoss() {
-    if (bossDefeated) return; // já foi morto → não cria mais
-    if (currentBoss && currentBoss.isAlive) return; // já existe vivo
+/**
+ * Função para criar a instância do Boss e mostrar a barra de vida.
+ */
+export function spawnBoss() {
+    // 1. Verifica estado
+    if (bossDefeated) return; 
+    if (currentBoss && currentBoss.isAlive) return; 
 
-    currentBoss = new Boss(
-        CANVAS_WIDTH / 2 - 150,
-        -300,
-        250, // Largura
-        200, // Altura (AGORA IGUAL À LARGURA)
-        "../assets/img/boss/boss.png",
-    17000
-    );
+    // 2. Cria a nova instância do Boss
+    const newBossInstance = new Boss(
+        CANVAS_WIDTH / 2 - 150, // Posição de spawn (usa CANVAS_WIDTH importado)
+        -300,
+        250, 
+        200, 
+        "../assets/img/boss/boss.png",
+        500 // Vida
+    );
 
-    // 🔥 ATIVA A BARRA DE VIDA DO BOSS
-    const barContainer = document.getElementById("bossHealthBarContainer");
-    const bar = document.getElementById("bossHealthBar");
+    // 🛑 CORREÇÃO 3: Usar o Setter para definir a instância globalmente.
+    setCurrentBoss(newBossInstance); 
+    
+    // Configuração inicial do estado do Boss
+    setBossDefeated(false); 
 
-    if (barContainer) {
-        barContainer.style.display = "block";
-    }
+    // 3. Gerenciamento do DOM (Barra de Vida)
+    const barContainer = document.getElementById("bossHealthBarContainer");
+    const bar = document.getElementById("bossHealthBar");
 
-    if (bar) {
-        bar.style.width = "100%"; // reinicia ao aparecer
-    }
+    if (barContainer) {
+        barContainer.style.display = "block";
+    }
+
+    if (bar) {
+        bar.style.width = "100%"; 
+    }
 }

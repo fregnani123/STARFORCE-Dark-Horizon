@@ -1,4 +1,4 @@
-class GameObject {
+export class GameObject {
     constructor(x, y, width, height, imagePath) {
         this.x = x;
         this.y = y;
@@ -44,43 +44,56 @@ class GameObject {
         );
     }
 
-    draw(ctx) {
-        // Se isReady for false (imagem carregando) OU se não houver imagem E o objeto for desenhado por aqui
-        if (!this.isReady) return;
+   // MODIFICAÇÃO EM ../script/GameObject.js:draw(ctx)
 
-        // Se this.img for nulo (como é para Partículas),
-        // o draw padrão não fará nada, confiando que a classe filha (Particle, etc.)
-        // implementará seu próprio desenho.
-        if (!this.img) return; 
+// Em ../script/GameObject.js
 
-        // Se a rotação for diferente de 0, desenha com rotação
-        if (this.rotation !== 0) { 
-            ctx.save();
+// ... (métodos checkCollision e construtor)
 
-            // mover pivô para o centro
-            const cx = this.x + this.width / 2;
-            const cy = this.y + this.height / 2;
-            ctx.translate(cx, cy);
-
-            // aplicar a rotação (conversão de graus para radianos)
-            ctx.rotate(this.rotation * Math.PI / 180);
-
-            // desenhar centralizado
-            ctx.drawImage(
-                this.img,
-                -this.width / 2,
-                -this.height / 2,
-                this.width,
-                this.height
-            );
-
-            ctx.restore();
-            return;
+draw(ctx) {
+    // Se a imagem não estiver pronta, mostra o fallback (corrigido para o seu código)
+    if (!this.isReady || !this.img || !this.isAlive) {
+        if (this.isAlive) { // Desenha o fallback apenas se o objeto estiver vivo
+            ctx.fillStyle = 'red';
+            ctx.fillRect(this.x, this.y, this.width, this.height);
         }
+        return; 
+    }
 
-        // Caso a rotação seja 0 (ou seja, o padrão) → desenho normal
-        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
-    }
+    // --- Lógica de desenho padrão (Imagem Carregada) ---
+
+    // Se houver rotação, usamos ctx.save/restore
+    if (this.rotation !== 0) { 
+        ctx.save();
+        
+        // 1. Calcula o centro de rotação (pivô)
+        const centerX = this.x + this.width / 2;
+        const centerY = this.y + this.height / 2;
+        
+        // 2. Move a origem do canvas para o centro do objeto
+        ctx.translate(centerX, centerY);
+        
+        // 3. ROTACIONA (CRÍTICO: Converte de graus para radianos)
+        const rotationInRadians = this.rotation * (Math.PI / 180);
+        ctx.rotate(rotationInRadians); 
+        
+        // 4. Desenha a imagem centralizada na nova origem (0, 0)
+        ctx.drawImage(
+            this.img, 
+            -this.width / 2, // Deslocamento para X: metade da largura para a esquerda
+            -this.height / 2, // Deslocamento para Y: metade da altura para cima
+            this.width, 
+            this.height
+        );
+        
+        // 5. Restaura o canvas ao estado original (sem rotação/translação)
+        ctx.restore();
+
+    } else {
+        // Caso a rotação seja 0 (desenho normal)
+        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+    }
+}
 
     // O método update é mantido vazio para ser sobrescrito pelas classes filhas
     update(deltaTime) {} 

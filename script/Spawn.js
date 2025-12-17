@@ -1,84 +1,93 @@
+// ======================================================
+// IMPORTS OBRIGATÓRIOS
+// ======================================================
+import { Enemy } from './Enemy.js';
+import {
+    CANVAS_WIDTH,
+    enemies,
+    score,
+    BOSS_SCORE_TRIGGER,
+} from './globals.js'; // Assumindo que globals está no nível superior
+import { spawnBoss } from './spawnBoss.js';
+
+
 // ==============================================================================
-// FUNÇÃO DE SPAWN (spawnRandomEnemy) — VERSÃO FINAL CORRIGIDA COM TAMANHO DO PROJÉTIL
+// FUNÇÃO DE SPAWN (spawnRandomEnemy) — EXPORTADA COMO MÓDULO
 // ==============================================================================
 
-function spawnRandomEnemy(player, currentScore = 0) {
-    // ⚠️ Se 'player' não for passado, ele não funciona.
+/**
+ * Cria um inimigo aleatório, aplicando escalabilidade e verificando trigger de Boss.
+ * @param {Player} player - A instância do jogador para mira do inimigo.
+ */
+export function spawnRandomEnemy(player) {
 
-    // Assumindo CANVAS_WIDTH, BOSS_SCORE_TRIGGER, spawnBoss definidos globalmente
+    const currentScore = score;
 
+    if (!player) {
+        console.error("Tentativa de spawn sem a instância do Player.");
+        return;
+    }
+
+    // --- Verificação do Boss Trigger ---
     if (typeof BOSS_SCORE_TRIGGER !== 'undefined' && currentScore >= BOSS_SCORE_TRIGGER) {
-        if (typeof spawnBoss === "function") {
-            spawnBoss();
-        }
+        // 🛑 CORREÇÃO: Não precisa passar o player se o Boss puder acessá-lo globalmente
+        spawnBoss();
         return;
     }
 
     const enemyTypes = [
         // TIPO 1: PARA E ATACA (weaponLevel: 3, Halo, Tilt)
         {
+            // 🛑 VERIFIQUE ESTE CAMINHO 🛑
             imagePath: "../assets/img/Enemy/inimigo3.png", width: 110, height: 80, maxHealth: 50, speed: 250, fireRate: 1500, damage: 20, projectileSpeed: 450,
-            projectileImgUM: "../assets/img/projectile/tiro-verde.png", 
-            projectileImgDois:"../assets/img/projectile/tiro-verde.png", 
+            projectileImgUM: "../assets/img/projectile/tiro-verde.png",
+            projectileImgDois: "../assets/img/projectile/tiro-verde.png",
             projectileImgTres: null,
             minScore: 0,
-            scoreValue: 25, 
-            weaponLevel: 3, 
+            scoreValue: 25,
+            weaponLevel: 3,
             canStopToAttack: true,
             isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: true,
-            
-            // 🛑 TAMANHO DO PROJÉTIL TIPO 1
-            projWidth: 20, 
-            projHeight: 35,
+            projWidth: 20, projHeight: 35,
         },
         // TIPO 2: PASSA DIRETO (weaponLevel: 4, Tiro 360)
         {
             imagePath: "../assets/img/Enemy/inimigo4.png", width: 90, height: 90, maxHealth: 50, speed: 200, fireRate: 1500, damage: 20, projectileSpeed: 250,
-            projectileImgUM: "../assets/img/projectile/tiro-espinho-amarelo.png", 
-            projectileImgDois: "../assets/img/projectile/espinho-verde.png", 
+            projectileImgUM: "../assets/img/projectile/tiro-espinho-amarelo.png",
+            projectileImgDois: "../assets/img/projectile/espinho-verde.png",
             projectileImgTres: null,
             minScore: 0,
-            scoreValue: 25, 
-            weaponLevel: 4, 
+            scoreValue: 25,
+            weaponLevel: 4,
             canStopToAttack: false,
             isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: false,
-            
-            // 🛑 TAMANHO DO PROJÉTIL TIPO 2
-            projWidth: 35, 
-            projHeight: 35,
+            projWidth: 35, projHeight: 35,
         },
-    
-    {
+        // TIPO 3: Para e Ataca (Level 4, Tiro Roxo)
+        {
             imagePath: "../assets/img/Enemy/inimigo4.png", width: 110, height: 80, maxHealth: 50, speed: 250, fireRate: 1500, damage: 20, projectileSpeed: 250,
-            projectileImgUM: "../assets/img/projectile/tiro-espinho-roxo.png", 
-            projectileImgDois:"../assets/img/projectile/tiro-espinho-roxo.png", 
+            projectileImgUM: "../assets/img/projectile/tiro-espinho-roxo.png",
+            projectileImgDois: "../assets/img/projectile/tiro-espinho-roxo.png",
             projectileImgTres: null,
             minScore: 0,
-            scoreValue: 25, 
-            weaponLevel: 4, 
+            scoreValue: 25,
+            weaponLevel: 4,
             canStopToAttack: true,
             isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: true,
-            
-            // 🛑 TAMANHO DO PROJÉTIL TIPO 1
-             projWidth: 35, 
-            projHeight: 35,
+            projWidth: 35, projHeight: 35,
         },
-
-             // TIPO 1: PARA E ATACA (weaponLevel: 3, Halo, Tilt)
+        // TIPO 4: Passa direto mais rápido (Level 1)
         {
             imagePath: "../assets/img/Enemy/inimigo3.png", width: 110, height: 80, maxHealth: 50, speed: 350, fireRate: 1500, damage: 20, projectileSpeed: 600,
-            projectileImgUM: "../assets/img/projectile/tiro-verde.png", 
-            projectileImgDois:"../assets/img/projectile/tiro-verde.png", 
+            projectileImgUM: "../assets/img/projectile/tiro-verde.png",
+            projectileImgDois: "../assets/img/projectile/tiro-verde.png",
             projectileImgTres: null,
             minScore: 0,
-            scoreValue: 25, 
-            weaponLevel: 1, 
-             canStopToAttack: false,
+            scoreValue: 25,
+            weaponLevel: 1,
+            canStopToAttack: false,
             isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: true,
-            
-            // 🛑 TAMANHO DO PROJÉTIL TIPO 1
-            projWidth: 20, 
-            projHeight: 35,
+            projWidth: 20, projHeight: 35,
         },
     ];
 
@@ -89,9 +98,10 @@ function spawnRandomEnemy(player, currentScore = 0) {
     const randomType = availableEnemies[Math.floor(Math.random() * availableEnemies.length)];
     const typeCopy = JSON.parse(JSON.stringify(randomType));
 
+    // Escala de dificuldade (Aplica-se ao typeCopy)
     typeCopy.speed += Math.floor(currentScore / 250);
     typeCopy.maxHealth += Math.floor(currentScore / 150);
-    
+
     // Determinar se para e ataca
     const canStop = randomType.canStopToAttack;
     let stopY = canStop ? (Math.random() * 150 + 100) : null;
@@ -104,8 +114,8 @@ function spawnRandomEnemy(player, currentScore = 0) {
         typeCopy.projectileImgUM, typeCopy.projectileImgDois, typeCopy.projectileImgTres
     ].filter(img => img);
 
-    // --- Posição de spawn ---
-    const spawnX = Math.random() * (CANVAS_WIDTH - typeCopy.width); 
+    // --- Posição de spawn (Usando CANVAS_WIDTH importado) ---
+    const spawnX = Math.random() * (CANVAS_WIDTH - typeCopy.width);
     const spawnY = -typeCopy.height;
 
     // --- Criar inimigo ---
@@ -113,41 +123,37 @@ function spawnRandomEnemy(player, currentScore = 0) {
         spawnX, spawnY,
         typeCopy.width, typeCopy.height,
         typeCopy.imagePath,
-        
+
         // Parâmetros de Estado e Mira
-        player, 
+        player,
         canStop,
         stopY,
         attackDuration,
         shouldContinue,
-        
+
         // Parâmetros Base
         typeCopy.maxHealth,
         typeCopy.speed,
         typeCopy.fireRate,
         typeCopy.damage,
         typeCopy.projectileSpeed,
-        
+
         // Projéteis, Score e Level
         projectileList,
         typeCopy.scoreValue,
-        typeCopy.weaponLevel, 
-        
-        // 🛑 NOVO: Passando Largura e Altura do Projétil para o construtor do Enemy
-        typeCopy.projWidth, 
+        typeCopy.weaponLevel,
+
+        // NOVO: Passando Largura e Altura do Projétil
+        typeCopy.projWidth,
         typeCopy.projHeight,
-        
+
         // Parâmetros Visuais
         typeCopy.isRotating,
         typeCopy.isPropulsor,
         typeCopy.isPlasmaHalo,
-        typeCopy.enableTilt 
+        typeCopy.enableTilt
     );
 
-    // 🛑 ADICIONA AO ARRAY GLOBAL 'enemies'
-    if (typeof enemies !== 'undefined') {
-        enemies.push(newEnemy);
-    } else {
-        console.error("A variável global 'enemies' não está definida.");
-    }
+    // 🛑 ADICIONA AO ARRAY GLOBAL 'enemies' (agora importado)
+    enemies.push(newEnemy);
 }

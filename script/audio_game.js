@@ -1,19 +1,24 @@
 // ======================================================
-// FUNÇÕES DE ÁUDIO (Mantidas)
+// VARIÁVEIS DE ESTADO (Exportadas com 'let' para leitura/escrita)
 // ======================================================
 
-// Variáveis Globais (currentBGM e isMusicPlaying devem ser declaradas globalmente)
-let currentBGM = null;
-let isMusicPlaying = false; 
+// Referência ao objeto de áudio da música de fundo atual
+export let currentBGM = null;
+// Flag de estado da música
+export let isMusicPlaying = false; 
 
-function playBGM(musicPath, volume = 1) {
+// ======================================================
+// FUNÇÕES DE CONTROLE DE MÚSICA DE FUNDO (BGM)
+// ======================================================
+
+export function playBGM(musicPath, volume = 1) {
     // 1. Parar e Limpar a Música Anterior
     if (currentBGM) {
         currentBGM.pause();
         currentBGM.currentTime = 0;
     }
     
-    // 2. Criar e Configurar a Nova Música (musicPath AGORA É UMA STRING VÁLIDA)
+    // 2. Criar e Configurar a Nova Música
     currentBGM = new Audio(musicPath);
     currentBGM.volume = volume;
     currentBGM.loop = true;
@@ -31,10 +36,7 @@ function playBGM(musicPath, volume = 1) {
 }
 
 
-// ---------------------------------------------
-// FUNÇÃO PARA PARAR TODAS AS MÚSICAS
-// ---------------------------------------------
-function stopBGM() {
+export function stopBGM() {
     if (currentBGM) {
         currentBGM.pause();
         currentBGM.currentTime = 0;
@@ -44,58 +46,53 @@ function stopBGM() {
     }
 }
 
-// Função para tocar som da moeda
-function playCoinSound() {
-    const sound = new Audio("../assets/audio/moeda.mp3"); // nova instância sempre
-    sound.volume = 1;
-    sound.play().catch(() => { }); // evita erro se som bloqueado
+// ======================================================
+// FUNÇÕES DE CONTROLE DE EFEITOS SONOROS (SFX)
+// ======================================================
+
+export function playCoinSound() {
+    // Usa 'const' pois a referência 'sound' só existe dentro desta função
+    const sound = new Audio("../assets/audio/moeda.mp3"); 
+    sound.volume = 1;
+    sound.play().catch(() => { }); 
 }
 
-
-
-// ---------------------------------------------
-// SOM DE EXPLOSÃO DE NAVE 
-// ---------------------------------------------
-function playExplosionSound() {
-    const sound = new Audio("../assets/audio/explosion-inimigo.mp3"); // nova instância
-    sound.volume = 1;
-    sound.play().catch(() => { }); // evita erro se bloqueado pelo navegador
+export function playExplosionSound() {
+    const sound = new Audio("../assets/audio/explosion-inimigo.mp3"); 
+    sound.volume = 1;
+    sound.play().catch(() => { }); 
 }
 
+// ---------------------------------------------
+// SOM TIRO NAVE PLAYER (Requer gerenciamento de loop)
+// ---------------------------------------------
 
-// ---------------------------------------------
-// SOM TIRO NAVE PLAYER (O volume 1 está correto)
-// ---------------------------------------------
-function shootSoundPlay() {
-    // Cria uma nova instância de áudio
+// Variável para armazenar a referência do som de tiro em loop
+let loopingShootSound = null; 
+
+export function startShootSoundLoop() {
+    // Se já estiver tocando, ignora
+    if (loopingShootSound) return; 
+
     const shootSound = new Audio("../assets/audio/laser3.mp3"); 
-    
-    // Define a propriedade loop como true
     shootSound.loop = true; 
-    
-    // Define a velocidade de reprodução
-    // 1.5 significa 150% da velocidade normal (mais rápido e com pitch mais alto)
     shootSound.playbackRate = 1.6; 
-    
-    // Define o volume
     shootSound.volume = 0.06; 
     
-    // Inicia a reprodução. O som continuará tocando e repetindo mais rápido.
     shootSound.play().catch(() => {
-        // Ignora erros de reprodução automática no navegador
+        // Ignora erros
     });
     
-    // Observação: Lembre-se que para parar o loop, você precisará de uma referência
-    // global para este objeto `shootSound`.
+    // Armazena a referência para que possa ser parada
+    loopingShootSound = shootSound;
 }
 
-
-
-
-
-
-
-
-
-
- 
+export function stopShootSoundLoop() {
+    if (loopingShootSound) {
+        loopingShootSound.pause();
+        loopingShootSound.currentTime = 0;
+        loopingShootSound = null;
+    }
+}
+// OBSERVAÇÃO: A função original 'shootSoundPlay' foi dividida em 
+// 'startShootSoundLoop' e 'stopShootSoundLoop' para melhor controle do som em loop.

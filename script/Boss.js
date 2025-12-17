@@ -1,5 +1,25 @@
+// ======================================================
+// IMPORTS OBRIGATÓRIOS
+// ======================================================
+import { GameObject } from './GameObject.js';
+import { Projectile } from './Projectile.js';
+import { Particle } from './particle.js';
+import { derrotouBoss } from './FimDoGame.js';  // 🛑 IMPORTAR FUNÇÃO DE FIM DE JOGO 🛑
+// Importa a função de áudio (se playBGM estiver em audio_game.js, precisamos importar)
+import { playBGM } from './audio_game.js';
+import {
+    CANVAS_WIDTH,
+    setCurrentBoss,
+    setBossDefeated,
+    CANVAS_HEIGHT,
+    particles,
+    currentBoss,
+    bossDefeated
+} from './globals.js';
+
+
 // ------------------ BOSS COMPLETO REFEITO E CORRIGIDO ------------------
-class Boss extends GameObject {
+export class Boss extends GameObject {
     constructor(x, y, width, height, imagePath, maxHealth = 2000) {
 
         const originalWidth = width;
@@ -77,7 +97,7 @@ class Boss extends GameObject {
 
             if (this.explosionTimer >= this.explosionDuration) {
                 this.isAlive = false;
-                endGame();
+                 derrotouBoss(); // 🛑 USE A FUNÇÃO IMPORTADA CORRETA
             }
             // Força um giro violento e reduz a aura
             this.rotation += 10 * (deltaTime / 16.67);
@@ -161,83 +181,83 @@ class Boss extends GameObject {
         this.auraRotation += this.auraRotationSpeed * (deltaTime / 16.67);
 
         // ------------------ FASES PELO HP ------------------
- // ------------------ FASES PELO HP ------------------
-if (hpPercent < 0.70 && this.phase === 1) {
-    this.phase = 2;
-    this.weaponCooldown = 700;
-    this.rotationSpeed = 0;   // NÃO GIRA AINDA
-}
+        // ------------------ FASES PELO HP ------------------
+        if (hpPercent < 0.70 && this.phase === 1) {
+            this.phase = 2;
+            this.weaponCooldown = 700;
+            this.rotationSpeed = 0;   // NÃO GIRA AINDA
+        }
 
-if (hpPercent < 0.40 && this.phase === 2) {
-    this.phase = 3;
-    this.weaponCooldown = 500;
-    this.rotationSpeed = 0;   // AINDA NÃO GIRA
-}
+        if (hpPercent < 0.40 && this.phase === 2) {
+            this.phase = 3;
+            this.weaponCooldown = 500;
+            this.rotationSpeed = 0;   // AINDA NÃO GIRA
+        }
 
-if (hpPercent < 0.15 && this.phase === 3) {
-    this.phase = 4;
-    this.weaponCooldown = 350;
+        if (hpPercent < 0.15 && this.phase === 3) {
+            this.phase = 4;
+            this.weaponCooldown = 350;
 
-    // AGORA SIM → COMEÇA A GIRAR
-    this.rotationSpeed = 7.0;
-}
+            // AGORA SIM → COMEÇA A GIRAR
+            this.rotationSpeed = 7.0;
+        }
 
 
         this.fireTimer += deltaTime;
     }
 
- 
 
-// -------------------------------------------------------
-// DAMAGE SYSTEM (AJUSTADO PARA SOM)
-// -------------------------------------------------------
-takeDamage(dmg, particlesArray) {
-    this.currentHealth -= dmg;
 
-    const bar = document.getElementById("bossHealthBar");
-    if (bar) bar.style.width = Math.max(0, this.currentHealth / this.maxHealth * 100) + "%";
+    // -------------------------------------------------------
+    // DAMAGE SYSTEM (AJUSTADO PARA SOM)
+    // -------------------------------------------------------
+    takeDamage(dmg, particlesArray) {
+        this.currentHealth -= dmg;
 
-    const hp = this.currentHealth / this.maxHealth;
+        const bar = document.getElementById("bossHealthBar");
+        if (bar) bar.style.width = Math.max(0, this.currentHealth / this.maxHealth * 100) + "%";
 
-    // ... (Lógica de mudança de aura/fase mantida) ...
-    if (hp > 0.50) {
-        this.auraRotationSpeed = 2;
-        this.auraColor = "rgba(40,0,60,1.0)";
-    } else if (hp > 0.30) {
-        this.auraRotationSpeed = 3;
-        this.auraColor = "rgba(90,0,140,1.0)";
-    } else if (hp > 0.15) {
-        this.auraRotationSpeed = 4.5;
-        this.auraColor = "rgba(200,0,200,1.0)";
-    } else {
-        this.auraRotationSpeed = 7;
-        this.auraColor = "rgba(255,0,0,1.0)";
-    }
-    // ... (Fim da lógica de aura/fase mantida) ...
+        const hp = this.currentHealth / this.maxHealth;
 
-    if (this.currentHealth <= 0) {
-        if (!this.isExploding) {
-            this.isExploding = true;
-            this.rotationSpeed = 10;
-            this.isAlive = true;
-            bossDefeated = true;
-            
-            // 🔥 CHAMA O SOM DA EXPLOSÃO AQUI!
-         
-if (typeof playBGM === 'function') {
-    // Apenas passe o valor '1' para o segundo parâmetro (volume)
-    playBGM('../assets/audio/explosaoBoss.mp3', 1);
-}
-            
-            if (typeof this.generateParticles === 'function' && particlesArray) {
-                this.generateParticles(particlesArray);
-            }
+        // ... (Lógica de mudança de aura/fase mantida) ...
+        if (hp > 0.50) {
+            this.auraRotationSpeed = 2;
+            this.auraColor = "rgba(40,0,60,1.0)";
+        } else if (hp > 0.30) {
+            this.auraRotationSpeed = 3;
+            this.auraColor = "rgba(90,0,140,1.0)";
+        } else if (hp > 0.15) {
+            this.auraRotationSpeed = 4.5;
+            this.auraColor = "rgba(200,0,200,1.0)";
+        } else {
+            this.auraRotationSpeed = 7;
+            this.auraColor = "rgba(255,0,0,1.0)";
         }
+        // ... (Fim da lógica de aura/fase mantida) ...
 
-        const barContainer = document.getElementById("bossHealthBarContainer");
-        if (barContainer) barContainer.style.display = "none";
+      // Em ../script/Boss.js:takeDamage()
+
+    if (this.currentHealth <= 0) {
+        if (!this.isExploding) {
+            this.isExploding = true;
+            this.rotationSpeed = 10;
+            this.isAlive = true; // Mantemos como true para que a explosão desenhe
+
+            // 🛑 CORREÇÃO DA LINHA 243
+            setBossDefeated(true); 
+            
+            // 🔥 CHAMA O SOM DA EXPLOSÃO AQUI!
+            if (typeof playBGM === 'function') {
+                playBGM('../assets/audio/explosaoBoss.mp3', 1);
+            }
+            
+            if (particlesArray) this.generateParticles(particlesArray);
+        }
+
+        const barContainer = document.getElementById("bossHealthBarContainer");
+        if (barContainer) barContainer.style.display = "none";
+    }
     }
-}
     // -------------------------------------------------------
     // ATAQUES (MANTIDOS)
     // -------------------------------------------------------
@@ -252,45 +272,45 @@ if (typeof playBGM === 'function') {
         }
     }
 
-shootSingle(arr) {
-    // --------------------------------------
-    // Disparo normal (mantido do seu código)
-    // --------------------------------------
-    const cx = this.x + this.width / 2;
-    const cy = this.y + this.height * 0.7;
-    const offset = 105 * this.currentScale;
+    shootSingle(arr) {
+        // --------------------------------------
+        // Disparo normal (mantido do seu código)
+        // --------------------------------------
+        const cx = this.x + this.width / 2;
+        const cy = this.y + this.height * 0.7;
+        const offset = 105 * this.currentScale;
 
-    arr.push(new Projectile(cx - offset, cy, 25, 40, "../assets/img/projectile/laser-vermelho.png", 900, 25, "enemy", 0));
-    arr.push(new Projectile(cx + offset, cy, 25, 40, "../assets/img/projectile/laser-vermelho.png", 900, 25, "enemy", 0));
+        arr.push(new Projectile(cx - offset, cy, 25, 40, "../assets/img/projectile/laser-vermelho.png", 900, 25, "enemy", 0));
+        arr.push(new Projectile(cx + offset, cy, 25, 40, "../assets/img/projectile/laser-vermelho.png", 900, 25, "enemy", 0));
 
-    // --------------------------------------
-    // Disparo 360 ocasional
-    // --------------------------------------
-    if (!this.single360Counter) this.single360Counter = 0;
-    this.single360Counter++;
+        // --------------------------------------
+        // Disparo 360 ocasional
+        // --------------------------------------
+        if (!this.single360Counter) this.single360Counter = 0;
+        this.single360Counter++;
 
-    // 1 tiro 360 a cada 4 tiros single
-    const intervalo360 = 4;
+        // 1 tiro 360 a cada 4 tiros single
+        const intervalo360 = 4;
 
-    if (this.single360Counter >= intervalo360) {
-        this.single360Counter = 0;
-        this.shoot360(arr); // chama seu método já existente
+        if (this.single360Counter >= intervalo360) {
+            this.single360Counter = 0;
+            this.shoot360(arr); // chama seu método já existente
+        }
     }
-}
 
     shootTriple(arr) {
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height;
-        arr.push(new Projectile(cx, cy - 80, 25, 40,"../assets/img/projectile/tiro-laranja.png", 900, 25, "enemy", 0));
-        arr.push(new Projectile(cx - 50, cy, 28, 40, "../assets/img/projectile/tiro-laranja.png",900, 25, "enemy", -0.15));
-        arr.push(new Projectile(cx + 50, cy, 25, 40, "../assets/img/projectile/tiro-laranja.png",900, 25, "enemy", 0.15));
+        arr.push(new Projectile(cx, cy - 80, 25, 40, "../assets/img/projectile/tiro-laranja.png", 900, 25, "enemy", 0));
+        arr.push(new Projectile(cx - 50, cy, 28, 40, "../assets/img/projectile/tiro-laranja.png", 900, 25, "enemy", -0.15));
+        arr.push(new Projectile(cx + 50, cy, 25, 40, "../assets/img/projectile/tiro-laranja.png", 900, 25, "enemy", 0.15));
     }
 
     shootSpray(arr) {
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height;
         for (let i = -3; i <= 3; i++) {
-            arr.push(new Projectile(cx, cy, 28, 28,"../assets/img/projectile/tiro-laranja.png", 400, 20, "enemy", i * 0.1));
+            arr.push(new Projectile(cx, cy, 28, 28, "../assets/img/projectile/tiro-laranja.png", 400, 20, "enemy", i * 0.1));
         }
     }
 

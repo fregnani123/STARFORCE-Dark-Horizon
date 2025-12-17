@@ -1,11 +1,20 @@
-// Arquivo: script/Background.js (FINAL COM ATMOSPHERIC BLUR)
-class Background {
-    constructor(imagePath, speed, canvasWidth, canvasHeight) {
+// ======================================================
+// IMPORTS OBRIGATÓRIOS
+// ======================================================
+// Importa as dimensões fixas do canvas de globals.js
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from './globals.js'; 
+
+
+export class Background {
+    // Agora o construtor só recebe dados dinâmicos (caminho e velocidade)
+    constructor(imagePath, speed) {
         this.img = new Image();
         this.img.src = imagePath;
         this.speed = speed;
-        this.canvasWidth = canvasWidth;
-        this.canvasHeight = canvasHeight;
+        
+        // Usa as constantes importadas DIRETAMENTE
+        this.canvasWidth = CANVAS_WIDTH;
+        this.canvasHeight = CANVAS_HEIGHT;
 
         this.visualScale = 0.8;
 
@@ -25,12 +34,18 @@ class Background {
             // iniciar de baixo para cima
             this.y1 = this.canvasHeight - this.scaledHeight;
         };
+        
+        this.img.onerror = () => {
+            console.error(`Falha ao carregar imagem de fundo: ${imagePath}`);
+            this.isReady = false;
+        };
     }
 
     update(deltaTime) {
         if (!this.isReady || !this.isScrolling) return;
 
-        const movement = this.speed * deltaTime / 5000;
+        // O fator de 5000 no denominador foi mantido, mas o deltaTime está correto.
+        const movement = this.speed * deltaTime / 5000; 
         this.y1 += movement;
 
         if (this.y1 >= 0) {
