@@ -1,0 +1,831 @@
+:root {
+    --primary-yellow: #ffcc00;
+    --dark-bg: #0a0a0a;
+    --gray-panel: #1e1e1e;
+    --border-gray: #333333;
+    --text-light: #e0e0e0;
+}
+
+/* Importando uma fonte gamer/tech */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
+.board-card {
+    position: relative;
+}
+
+
+/* Container principal Botões */
+.container-updates {
+    position: absolute;
+    bottom: 30%;
+    width: 100%;
+    background-color: transparent;
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    /* Espaço fixo entre botões */
+    padding: 20px 0;
+}
+
+/* Base dos botões com tamanho travado */
+.btn-update {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    /* Tamanho fixo */
+    height: 140px;
+    /* Altura fixa para manter alinhamento */
+    transition: all 0.3s ease;
+    outline: none;
+    z-index: 9999999;
+}
+
+/* Estilo das imagens */
+.btn-update img {
+    width: 70px;
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 5px rgba(255, 68, 0, 0));
+    /* Sombra de fogo inicial */
+}
+
+.btn-upgrade img {
+    width: 80px;
+}
+
+.btn-upgrade span {
+    color: rgb(0, 0, 0) !important;
+}
+
+/* Estilo do texto */
+.btn-update span {
+    color: #ffffff;
+    font-family: 'Orbitron', sans-serif;
+    /* Sugestão de fonte gamer */
+    font-weight: bold;
+    font-size: 10px;
+    text-transform: uppercase;
+    text-align: center;
+    text-shadow: 0 0 8px #ff440000;
+    /* Brilho de fogo no texto */
+    transition: color 0.3s;
+
+}
+
+/* Animação de Pulsação de Fogo */
+@keyframes fire-pulse {
+    0% {
+        filter: drop-shadow(0 0 5px #ff000000) brightness(1);
+        transform: scale(1);
+    }
+
+    50% {
+        filter: drop-shadow(0 0 15px #ffbb0004) brightness(1.2);
+        transform: scale(1.05);
+    }
+
+    100% {
+        filter: drop-shadow(0 0 5px #ff440004) brightness(1);
+        transform: scale(1);
+    }
+}
+
+/* Estado Hover (Mouse em cima) */
+.btn-update:hover img {
+    animation: fire-pulse 1.5s infinite ease-in-out;
+}
+
+.btn-update:hover span {
+    color: #ffffff;
+    /* Texto fica dourado no hover */
+
+}
+
+/* Efeito de clique */
+.btn-update:active {
+    transform: scale(0.9);
+}
+
+/* Scrollbar Personalizada */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--dark-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-yellow);
+    border-radius: 4px;
+    box-shadow: 0 0 10px var(--primary-yellow);
+}
+
+.display-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+ 
+}
+h2 {
+    /* Ativa o alinhamento flexível */
+    display: flex;
+    justify-content: space-between; /* Empurra o span para a esquerda e o botão para a direita */
+    align-items: center; /* Centraliza verticalmente o texto e o botão */
+    color: var(--primary-yellow);
+    width: 100%;
+    position: fixed;
+    background: rgba(0, 0, 0, 0.653);
+    z-index: 9999;
+    top: 0;
+    left: 0; /* Ajustado de -.5% para 0 para evitar desalinhamento */
+    margin: 0;
+    padding: 1rem 3rem; /* 1rem em cima/baixo e 3rem nas laterais */
+    box-sizing: border-box; /* Garante que o padding não aumente o tamanho da barra */
+    border-bottom: 1px solid rgba(0, 195, 255, 0.3); /* Linha fina azul LED para combinar com sua nave */
+}
+
+/* Ajuste opcional para o botão de fechar ficar bonito */
+#btn-close-customize {
+    background: transparent;
+    border: 1px solid var(--primary-yellow);
+    color: var(--primary-yellow);
+    padding: 5px 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#btn-close-customize:hover {
+    background: var(--primary-yellow);
+    color: #000;
+    box-shadow: 0 0 10px var(--primary-yellow);
+}h2 {
+    /* Ativa o alinhamento flexível */
+    display: flex;
+    justify-content: space-between; /* Empurra o span para a esquerda e o botão para a direita */
+    align-items: center; /* Centraliza verticalmente o texto e o botão */
+
+    color: var(--primary-yellow);
+    width: 100%;
+    position: fixed;
+    background: rgba(0, 0, 0, 0.653);
+    z-index: 9999;
+    top: 0;
+    left: 0; /* Ajustado de -.5% para 0 para evitar desalinhamento */
+    margin: 0;
+    padding: 1rem 3rem; /* 1rem em cima/baixo e 3rem nas laterais */
+    box-sizing: border-box; /* Garante que o padding não aumente o tamanho da barra */
+    border-bottom: 1px solid rgba(0, 195, 255, 0.3); /* Linha fina azul LED para combinar com sua nave */
+}
+
+/* Ajuste opcional para o botão de fechar ficar bonito */
+#btn-close-customize {
+    background: transparent;
+    border: 1px solid var(--primary-yellow);
+    color: var(--primary-yellow);
+    padding: 5px 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#btn-close-customize:hover {
+    background: var(--primary-yellow);
+    color: #000;
+    box-shadow: 0 0 10px var(--primary-yellow);
+}
+ 
+
+/* Overlay de Fundo */
+.customize-overlay {
+    position: fixed;
+    z-index: 999999;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+/* Modal Principal */
+.customize-modal {
+    background: var(--gray-panel);
+    border: 2px solid var(--primary-yellow);
+    box-shadow: 0 0 25px rgba(255, 204, 0, 0.2);
+    width: 100%;
+    max-width: 900px;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Header */
+.modal-header {
+    background: var(--primary-yellow);
+    color: black;
+    padding: 10px 20px;
+    font-family: 'Orbitron', sans-serif;
+    clip-path: polygon(0 0, 95% 0, 100% 100%, 0% 100%);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+#btn-close-customize{
+    height: 2rem;
+}
+.customize-hull-overlay {
+    position: absolute;
+    padding-top: 5rem;
+    left: 0;
+    top: 0;
+    z-index: 10000000;
+    display: none
+    ;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 100vh;
+    justify-content: center;
+    overflow-y: auto;
+
+    /* Adicionando a Imagem de Fundo */
+    background-image: url('../img/cenario-start/hangar.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    /* Opcional: mantém o fundo parado ao rolar */
+}
+
+/* Estrutura de Conteúdo */
+.customize-hull-div {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 20px;
+    gap: 20px;
+}
+
+
+#ship-preview-img {
+    max-width: 50%;
+    padding: 1rem;
+    /* O segredo está em acumular sombras com diferentes raios de expansão */
+    filter: 
+        drop-shadow(0 0 10px #fff)          /* Núcleo branco (calor máximo) */
+        drop-shadow(0 0 30px var(--primary-yellow)) /* Brilho médio */
+        drop-shadow(0 0 70px var(--primary-yellow)) /* Brilho de longo alcance */
+        drop-shadow(0 0 120px rgba(255, 215, 0, 0.4)); /* Aura final */
+    
+    animation: float 4s ease-in-out infinite, hyperGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes hyperGlow {
+    from {
+        filter: 
+            drop-shadow(0 0 5px #fff)
+            drop-shadow(0 0 20px var(--primary-yellow))
+            drop-shadow(0 0 50px var(--primary-yellow));
+    }
+    to {
+        filter: 
+            drop-shadow(0 0 15px #fff)
+            drop-shadow(0 0 40px var(--primary-yellow))
+            drop-shadow(0 0 100px var(--primary-yellow))
+            drop-shadow(0 0 150px var(--primary-yellow));
+    }
+}
+
+/* Direita: Status */
+.stats-container {
+    flex: 1;
+    min-width: 250px;
+ 
+    padding: 15px;
+    border-left: 3px solid var(--primary-yellow);
+}
+
+.stat-row {
+    margin-bottom: 18px;
+    width: 50%;
+}
+
+.stat-label {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-light);
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+}
+
+.bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  overflow: hidden;
+
+  /* MUITO IMPORTANTE */
+  padding: 0;
+  position: relative;
+}
+
+
+.bar div {
+    height: 100%;
+    background: linear-gradient(90deg, #ccaa00, var(--primary-yellow));
+    box-shadow: 0 0 8px var(--primary-yellow);
+}
+
+/* Inferior: Carrossel de Chassis */
+/* ================================
+   SEÇÃO PRINCIPAL
+================================ */
+.selection-section {
+  width: 100%;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 0, 0.4);
+}
+
+.selection-section h4 {
+  text-align: center;
+  color: var(--text-light);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.7rem;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* ================================
+   LAYOUT GERAL
+================================ */
+.selection-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0px;
+  align-items: center;
+  padding: 6rem;
+}
+
+/* ================================
+   SELETOR DE NAVES
+================================ */
+.ship-selector {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+   
+}
+
+/* GRID DAS NAVES (REFERÊNCIA DAS SETAS) */
+.ship-grid {
+  position: relative;
+  display: flex;
+  gap: 0px;
+}
+
+/* ================================
+   SETAS (COLADAS NA NAVE)
+================================ */
+ 
+/* CONTAINERS DAS SETAS */
+.nav-arrow-1,
+.nav-arrow-2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+/* margem negativa */
+.nav-arrow-1 {
+  margin-right: -30px;
+}
+
+.nav-arrow-2 {
+  margin-left: -30px;
+}
+
+/* IMAGEM */
+.nav-arrow-1 img,
+.nav-arrow-2 img {
+  width: 42px;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  will-change: transform;
+}
+
+/* HOVER SEM EMPURRAR */
+.nav-arrow-1 img:hover,
+.nav-arrow-2 img:hover {
+  opacity: 1;
+  transform: scale(1.15); /* cresce visualmente */
+}
+
+
+/* ================================
+   CARD DA NAVE
+================================ */
+.ship-item {
+  width: 160px;
+  height: 160px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.ship-item-img {
+  width: 85%;
+}
+
+/* NAVE ATIVA */
+.ship-item.active {
+  border: 5px solid #ffe600;
+  animation: pulseGlow 2s infinite;
+}
+
+
+/* ================================
+   PAINEL DE INFORMAÇÕES (HUD)
+================================ */
+.ship-info {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  padding: 25px 28px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 0, 0.25);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+  color: var(--text-light);
+   box-sizing: border-box;
+}
+
+/* detalhe tech */
+.ship-info::before {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, #ffe600, transparent);
+  margin-bottom: 15px;
+}
+
+/* TÍTULO INFO */
+.ship-info h3 {
+  font-family: 'Orbitron', sans-serif;
+  color: #ffe600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+/* DESCRIÇÃO */
+.ship-info .desc {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+/* ================================
+   STATS (ALINHADAS À ESQUERDA)
+================================ */
+.ship-stats {
+  margin-bottom: 20px;
+      margin-left: 5rem;
+}
+
+.stat {
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.stat span {
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 6px;
+  color: #ccc;
+  padding-left: 0;
+  margin-left: 0;
+
+}
+
+/* ================================
+   STATS
+================================ */
+.ship-stats {
+  margin-bottom: 20px;
+}
+
+.stat {
+  margin-bottom: 16px;
+}
+
+.stat span {
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 6px;
+  color: #ccc;
+}
+
+/* ================================
+   BARRA BASE
+================================ */
+.bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ================================
+   PREENCHIMENTO
+================================ */
+.fill {
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+
+  border-radius: 10px 0 0 10px;
+  box-sizing: border-box;
+}
+
+/* brilho inicial HUD */
+.fill::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+
+  width: 4px;
+  height: 100%;
+
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 8px rgba(255,255,255,0.9);
+  pointer-events: none;
+}
+
+/* ================================
+   VALORES
+================================ */
+.stat {
+  width: 100%;
+}
+
+/* BLINDAGEM */
+.fill.armor {
+  width: 88%; /* visualmente ≈ 80% */
+  background: linear-gradient(90deg, #00e5ff, #007bff);
+}
+
+/* VELOCIDADE */
+.fill.speed {
+  width: 100%; /* visualmente ≈ 65% */
+  background: linear-gradient(90deg, #00ff99, #00cc66);
+}
+
+/* ================================
+   SLOTS DE ARMAS
+================================ */
+.slots {
+  display: flex;
+  gap: 8px;
+}
+
+.slot {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #ffe600;
+  opacity: 0.3;
+}
+
+.slot.active {
+  background: #ffe600;
+  box-shadow: 0 0 8px rgba(255,230,0,0.8);
+  opacity: 1;
+}
+
+/* ================================
+   PREÇO E BOTÃO
+================================ */
+.price {
+  font-weight: bold;
+  margin: 18px 0;
+  color: #ffd700;
+}
+
+/* BOTÃO COMPRAR */
+.btn-buy {
+  width: 100%;
+  padding: 16px 40px;
+  background: linear-gradient(90deg, #ffe600, #ffb700);
+  border: none;
+  border-radius: 10px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(255,230,0,0.85);
+  transition: all 0.25s ease;
+}
+
+.btn-buy:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 40px rgba(255,230,0,1);
+}
+
+.btn-buy:active {
+  transform: scale(0.98);
+}
+/* ===============================
+   BARRAS DO CHASSI (ISOLADAS)
+================================ */
+
+.chassi-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  margin-top: 6px;
+}
+
+.chassi-fill {
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 10px 0 0 10px;
+}
+
+/* brilho HUD */
+.chassi-fill::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 8px rgba(255,255,255,0.9);
+}
+
+/* ===============================
+   VALORES REAIS (AGORA FUNCIONAM)
+================================ */
+
+/* BLINDAGEM */
+.chassi-fill.armor {
+  width: 80%;
+  background: linear-gradient(90deg, #00e5ff, #007bff);
+}
+
+/* VELOCIDADE */
+.chassi-fill.speed {
+  width: 65%;
+  background: linear-gradient(90deg, #00ff99, #00cc66);
+}
+
+/* ================================
+   RESPONSIVO
+================================ */
+@media (max-width: 768px) {
+  .selection-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .ship-info {
+    text-align: center;
+  }
+
+  .ship-grid {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav-arrow:first-child {
+    left: -30px;
+  }
+
+  .nav-arrow:last-child {
+    right: -30px;
+  }
+}
+
+
+.ship-grid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding-left: 5rem;
+    padding-right: 5rem;
+}
+
+.ship-item {
+    background: var(--dark-bg);
+    border: 1px solid var(--border-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+    display: none;
+}
+
+.ship-item {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+}
+.ship-item:hover,
+.ship-item.active {
+    margin-top: 2rem;
+    border-color: #fff;
+    transform: translateY(-8px);
+    border: 3px solid var(--primary-yellow);
+    /* Fundo em tons de branco e cinza futurista */
+    background: radial-gradient(circle, #ffffff 0%, #e0e0e0 50%, #bcbcbc 100%);
+    border-radius: 10px;
+}
+
+
+.ship-item.active {
+    display: flex;
+    width: 350px;
+    height: 350px;
+}
+
+.ship-item-img {
+    max-width: 90%;
+    max-height: 90%;
+}
+
+/* Setas */
+.nav-arrow {
+    font-size: 2rem;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 0 15px;
+    user-select: none;
+    transition: 0.3s;
+}
+
+.nav-arrow:hover {
+    transform: scale(1.3);
+      color: var(--text-light);
+}
+.nav-arrow img{
+    width: 3rem;
+}
+/* Animação */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+/* Responsividade */
+@media (max-width: 700px) {
+    .customize-hull-div {
+        flex-direction: column;
+    }
+
+    .preview-section {
+        height: 200px;
+    }
+
+    .ship-grid {
+        overflow-x: auto;
+        padding-bottom: 10px;
+    }
+}

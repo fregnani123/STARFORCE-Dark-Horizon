@@ -25,25 +25,24 @@ export const NODE_IMAGES = [
     '../assets/img/cenario-start/planeta_terra.png', 
 ];
 
-// Nomes das fases
+// Nomes das fases em MAIÚSCULO
 export const NOME_FASES = [
-    'Invação', 
-    'Área 51', 
-    'Marte Vermelho', 
-    'Júpiter Caótico', 
-    'Anéis de Saturno', 
-    'Urano Gelado', 
-    'Netuno Azul', 
-    'Cinturão de Asteroides', 
-    'Nebulosa', 
-    'Buraco Negro', 
-    'Estação Espacial', 
-    'Cometa Viajante', 
-    'Galáxia Andrômeda', 
-    'Planeta X', 
-    'Universo Infinito', 
+    'INVASÃO', 
+    'ÁREA 51', 
+    'MARTE VERMELHO', 
+    'JÚPITER CAÓTICO', 
+    'ANÉIS DE SATURNO', 
+    'URANO GELADO', 
+    'NETUNO AZUL', 
+    'CINTURÃO DE ASTEROIDES', 
+    'NEBULOSA', 
+    'BURACO NEGRO', 
+    'ESTAÇÃO ESPACIAL', 
+    'COMETA VIAJANTE', 
+    'GALÁXIA ANDRÔMEDA', 
+    'PLANETA X', 
+    'UNIVERSO INFINITO', 
 ];
-
 
 // ======================================================
 // DEFINIÇÃO DAS MISSÕES (EXPORTADA)
@@ -52,7 +51,7 @@ export const NOME_FASES = [
 export const MISSIONS = [
     // NOTA: Os caminhos de imagem e áudio foram mantidos, assumindo que são corretos.
 
-    { id: 1, name: NOME_FASES[0], bg: "../assets/img/cenarios/cenario-missao-1/cenario-1.png", layers: ["../assets/img/cenarios/cenario-missao-1/cenario-1.png"], music: "../assets/audio/Ultra-Lag-chosic.com_.mp3", scrollSpeed: 100, enemyConfig: { spawnRate: 1.0, difficulty: 1 } },
+    { id: 1, name: NOME_FASES[0], bg: "../assets/img/cenarios/cenario-missao-1/cenario-1.png", layers: ["../assets/img/cenarios/cenario-missao-1/cenario-1.png"], music: "../../assets/audio/epic-trailer-music-349631.mp3", scrollSpeed: 100, enemyConfig: { spawnRate: 1.0, difficulty: 1 } },
 
     { id: 2, name: NOME_FASES[1], bg: "../../assets/img/cenarios/cenario-missao-1/2 (2).png", layers: ["../../assets/img/cenarios/cenario-missao-1/2 (2).png"], music: "../assets/audio/Ultra-Lag-chosic.com_.mp3", scrollSpeed: 100, enemyConfig: { spawnRate: 1.0, difficulty: 1 } },
 

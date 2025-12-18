@@ -37,6 +37,14 @@ export function gameLoop(timestamp) {
 
     // --- 1. CÁLCULO DO DELTA TIME E PAUSA ---
     let deltaTime = timestamp - lastTime;
+
+// 🛑 ADICIONE ISSO AQUI: Limpa o canvas COMPLETAMENTE antes de desenhar
+    ctx.save(); // Salva o estado do contexto
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reseta qualquer translação/zoom
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT); // Limpa rastro
+    ctx.fillStyle = "black"; // Ou a cor do seu fundo
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    ctx.restore(); // Restaura para os desenhos seguintes
     
     setLastTime(timestamp); 
 
@@ -54,11 +62,18 @@ export function gameLoop(timestamp) {
     // ---------------------------------------------
     // BACKGROUND & CÁLCULO DE SCROLL SPEED
     // ---------------------------------------------
-    
-    BACKGROUND_SPEED_Y = 0; 
-    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+   // ---------------------------------------------
+    // BACKGROUND & LIMPEZA DE TELA
+    // ---------------------------------------------
+    BACKGROUND_SPEED_Y = 0; 
 
-    if (gameBackgrounds && gameBackgrounds.length > 0) {
+    // 🛑 CORREÇÃO DEFINITIVA DO RASTRO (FLASH) 🛑
+    // Em vez de clearRect, usamos fillRect preto para atropelar qualquer rastro de movimento.
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    if (gameBackgrounds && gameBackgrounds.length > 0) {
+        // ... restante do código do background ...
         const mainBg = gameBackgrounds[0];
         
         if (mainBg.isScrolling && mainBg.speed && BACKGROUND_SPEED_DIVISOR) {

@@ -1,12 +1,22 @@
 /* ====================================================================== */
 /* BOTOES DA TELA INICIAL */
 /* ====================================================================== */
-
-#gameCanvas{
+#gameCanvas {
     height: 100vh;
     width: 650px;
-}
 
+    /* 🛑 CORREÇÃO PARA O RASTRO (FLASH) 🛑 */
+    /* Impede que o navegador tente "suavizar" o movimento, o que causa o rastro vermelho */
+    image-rendering: pixelated; 
+    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
+
+    /* Garante que o hardware de vídeo trate o canvas como um objeto fixo */
+    will-change: transform;
+    
+    /* Remove qualquer filtro de suavização padrão do navegador */
+    -webkit-font-smoothing: none;
+}
 #main-wrapper {
     display: none;
     position: absolute; /* Posição absoluta para cobrir a tela */

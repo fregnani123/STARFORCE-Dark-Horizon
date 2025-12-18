@@ -39,7 +39,7 @@ export function spawnRandomEnemy(player) {
         // TIPO 1: PARA E ATACA (weaponLevel: 3, Halo, Tilt)
         {
             // 🛑 VERIFIQUE ESTE CAMINHO 🛑
-            imagePath: "../assets/img/Enemy/inimigo3.png", width: 110, height: 80, maxHealth: 50, speed: 250, fireRate: 1500, damage: 20, projectileSpeed: 450,
+            imagePath: "../assets/img/Enemy/inimigo3.png", width: 110, height: 80, maxHealth: 150, speed: 250, fireRate: 1500, damage: 20, projectileSpeed: 450,
             projectileImgUM: "../assets/img/projectile/tiro-verde.png",
             projectileImgDois: "../assets/img/projectile/tiro-verde.png",
             projectileImgTres: null,
@@ -52,7 +52,7 @@ export function spawnRandomEnemy(player) {
         },
         // TIPO 2: PASSA DIRETO (weaponLevel: 4, Tiro 360)
         {
-            imagePath: "../assets/img/Enemy/inimigo4.png", width: 90, height: 90, maxHealth: 50, speed: 200, fireRate: 1500, damage: 20, projectileSpeed: 250,
+            imagePath: "../assets/img/Enemy/inimigo4.png", width: 90, height: 90, maxHealth: 150, speed: 200, fireRate: 1500, damage: 20, projectileSpeed: 350,
             projectileImgUM: "../assets/img/projectile/tiro-espinho-amarelo.png",
             projectileImgDois: "../assets/img/projectile/espinho-verde.png",
             projectileImgTres: null,
@@ -65,7 +65,7 @@ export function spawnRandomEnemy(player) {
         },
         // TIPO 3: Para e Ataca (Level 4, Tiro Roxo)
         {
-            imagePath: "../assets/img/Enemy/inimigo4.png", width: 110, height: 80, maxHealth: 50, speed: 250, fireRate: 1500, damage: 20, projectileSpeed: 250,
+            imagePath: "../assets/img/Enemy/inimigo4.png", width: 110, height: 80, maxHealth: 150, speed: 250, fireRate: 1500, damage: 20, projectileSpeed: 300,
             projectileImgUM: "../assets/img/projectile/tiro-espinho-roxo.png",
             projectileImgDois: "../assets/img/projectile/tiro-espinho-roxo.png",
             projectileImgTres: null,
@@ -78,7 +78,7 @@ export function spawnRandomEnemy(player) {
         },
         // TIPO 4: Passa direto mais rápido (Level 1)
         {
-            imagePath: "../assets/img/Enemy/inimigo3.png", width: 110, height: 80, maxHealth: 50, speed: 350, fireRate: 1500, damage: 20, projectileSpeed: 600,
+            imagePath: "../assets/img/Enemy/inimigo3.png", width: 110, height: 80, maxHealth: 150, speed: 350, fireRate: 1500, damage: 20, projectileSpeed: 600,
             projectileImgUM: "../assets/img/projectile/tiro-verde.png",
             projectileImgDois: "../assets/img/projectile/tiro-verde.png",
             projectileImgTres: null,

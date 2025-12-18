@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="../assets/css/levelGame.css">
   <link rel="stylesheet" href="../assets/css/tela_inicio.css">    
   <link rel="stylesheet" href="../assets/css/btn-HUD.css">    
+  <link rel="stylesheet" href="../assets/css/update_nave.css">    
   <link rel="icon" type="image/x-icon" href="/favicon.ico">   
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
@@ -19,11 +20,11 @@
 // ======================================================
 //  Div tela de inicio 
 // ====================================================== -->
-<div id="loading-screen" style="display: none;"> 
+  <div id="loading-screen" style="display: none;">
     <div class="spinner-displays"></div>
     <p>Loading Game...</p>
-</div>
- 
+  </div>
+
 
       <div id="loadingOverlay">
             <div class="spinner"></div>
@@ -62,21 +63,33 @@
     <div class="wrap">
 
       <div class="header">
+        <button class="btn" id="menuBtnFases">Menu</button>
         <div>
           <div class="title">Progresso do Jogador</div>
           <div class="subtitle">Tabuleiro vertical — evolução de fases</div>
         </div>
         <div class="controls">
-          <button class="btn" id="menuBtnFases">Menu</button>
           <button class="btn" id="resetBtn">Reset</button>
           <button class="btn" id="nextBtn">Avançar</button>
         </div>
       </div>
       <div class="board-card">
+
+        <div class="container-updates">
+          <button id="btn_customize_open" class="btn-update btn-customize">
+            <img src="../assets/img/cenarios/customize.png" alt="Customize">
+            <span>CUSTOMIZE HULL</span>
+          </button>
+
+          <button class="btn-update btn-upgrade">
+            <img src="../assets/img/cenarios/update.png" alt="Upgrade">
+            <span>UPGRADE SHIP</span>
+          </button>
+        </div>
+
         <div class="board" id="board">
           <div class="track"></div>
           <div class="fill" id="fill"></div>
-
           <div class="nodes" id="nodes">
           </div>
 
@@ -158,10 +171,128 @@
         </div>
       </div>
     </div>
-  </div>
+    <!-- 
+// ======================================================
+//  Div customize-hull cores
+// ====================================================== -->
+    <div class="customize-hull-overlay" id="customize-hull-overlay">
+      <h2> <span>HULL & HANGAR MODS</span> <button id="btn-close-customize">EXIT</button> </h2>
+      <div class="customize-hull-div">
 
+        <div class="display-box">
+          <img id="ship-preview-img" src="../assets/img/nave-player/nave-player.png" alt="Preview">
+        </div>
+
+
+        <div class="stats-container">
+          <div class="ship-stats">
+            <h3>STATUS DA NAVE</h3>
+            <div class="stat-row">
+              <div class="stat-label"><span>Velocidade</span><span id="val-speed">70%</span></div>
+              <div class="bar">
+                <div id="stat-speed" style="width: 70%"></div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-label"><span>Resistência</span><span id="val-health">50%</span></div>
+              <div class="bar">
+                <div id="stat-health" style="width: 50%"></div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-label"><span>Energia</span><span id="val-energy">85%</span></div>
+              <div class="bar">
+                <div id="stat-energy" style="width: 85%"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+
+        <div class="selection-section">
+          <h4>Selecione o Chassi</h4>
+
+          <div class="selection-content">
+
+            <!-- ÁREA DE SELEÇÃO -->
+            <div class="ship-selector">
+              <span class="nav-arrow-1">
+                <img src="../assets/img/cenario-start/esquerda.png" alt="">
+              </span>
+
+              <div class="ship-grid">
+                <div class="ship-item active">
+                  <img class="ship-item-img" src="../assets/img/nave-player/-2.png">
+                </div>
+                <div class="ship-item">
+                  <img class="ship-item-img" src="../assets/img/nave-player/-2.png">
+                </div>
+                <div class="ship-item">
+                  <img class="ship-item-img" src="../assets/img/nave-player/-2.png">
+                </div>
+                <div class="ship-item">
+                  <img class="ship-item-img" src="../assets/img/nave-player/-2.png">
+                </div>
+              </div>
+
+              <span class="nav-arrow-2">
+                <img src="../assets/img/cenario-start/direita.png" alt="">
+              </span>
+            </div>
+
+            <!-- INFO DO CHASSI -->
+            <div class="ship-info">
+              <h3>CARACTERÍSTICAS DO CHASSI</h3>
+
+              <p class="desc">
+                Engenho de guerra estelar projetado para dominar batalhas no espaço profundo
+                e dentro da atmosfera planetária.
+              </p>
+
+              <!-- STATS -->
+              <div class="ship-stats-2">
+
+                <div class="stat">
+                  <span>BLINDAGEM</span>
+                  <div class="chassi-bar">
+                    <div class="chassi-fill armor"></div>
+                  </div>
+                </div>
+
+                <div class="stat">
+                  <span>VELOCIDADE</span>
+                  <div class="chassi-bar">
+                    <div class="chassi-fill speed"></div>
+                  </div>
+                </div>
+
+                <div class="stat">
+                  <span>SLOTS DE ARMAS</span>
+                  <div class="slots">
+                    <span class="slot active"></span>
+                    <span class="slot active"></span>
+                    <span class="slot active"></span>
+                    <span class="slot"></span>
+                  </div>
+                </div>
+              </div>
+
+              <p class="price">CUSTO: 150 STAR YELLOW</p>
+
+              <button class="btn-buy">ADIQUIRIR CHASSI</button>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
+  </div>
 </body>
- <script type="module" src="../script/init.js"></script>
+<script type="module" src="../script/init.js"></script>
+
 </html>
 
 </html>

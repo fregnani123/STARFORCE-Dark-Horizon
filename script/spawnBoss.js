@@ -27,7 +27,7 @@ export function spawnBoss() {
         250, 
         200, 
         "../assets/img/boss/boss.png",
-        500 // Vida
+        17000 // Vida
     );
 
     // 🛑 CORREÇÃO 3: Usar o Setter para definir a instância globalmente.

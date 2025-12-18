@@ -2,7 +2,8 @@
 // IMPORTS OBRIGATÓRIOS
 // ======================================================
 import { CONFIG, NODE_IMAGES, NOME_FASES } from './missao_construtor.js'; 
-import { loadMission, startGame } from '../start_game/start_game.js'; // Funções para iniciar a missão
+import { loadMission, startGame } from '../start_game.js'; // Funções para iniciar a missão
+import {openCustomizeHull,closeDiv} from './customize.js';
 // NOTA: O console.error no topo do código original deve ser movido para a função de inicialização.
 
 

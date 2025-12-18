@@ -4,11 +4,6 @@ const FGL_PLAYED_KEY = 'hasFGLVideoPlayed';
 const FGL_VIDEO_SOURCE = '../assets/video/aberturaLogo.mp4'; 
 const BODY = document.body;
 
-// Função auxiliar que deve ser IMPORTADA de outro lugar (por exemplo, audio_game.js)
-// Para funcionar, você DEVE garantir que a função 'playBGM' seja exportada e importada
-// no arquivo que chamar 'initLogoVideoLogic'.
-// Não a defino aqui para manter a modularidade.
-
 /**
  * Lógica principal para reproduzir o vídeo de logo ou pular.
  * @param {Function} onFinishCallback - Função a ser chamada após o vídeo terminar ou falhar.

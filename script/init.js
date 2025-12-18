@@ -1,6 +1,4 @@
-// =================================================================================
-// NOVO ARQUIVO: ../script/init.js (CORRIGIDO)
-// =================================================================================
+// ../script/init.js
 
 import { setupExitButton } from './utils/electron_controls.js'; 
 import { initLogoVideoLogic } from './utils/tela_logo_video.js';
@@ -8,27 +6,32 @@ import { initTelaInicial, mostrarTelaInicial } from './tela_inicial_module.js';
 import { initializeUpgradeButtons } from './btnUpdate.js';
 import { setupInputListeners } from './controle.js';
 import { initLevelDesigner } from './gameLevel/level_designer.js'; 
-import { initCanvasAndContext } from './globals.js'; // 🛑 IMPORTAÇÃO NECESSÁRIA
+import { initCanvasAndContext } from './globals.js';
+
+// Variável de controle para não inicializar duas vezes
+let isInitialized = false;
 
 window.addEventListener('DOMContentLoaded', () => {
-    
-    // 🛑 1. INICIALIZAÇÃO CRÍTICA DO CANVAS E CONTEXTO 🛑
-    // Deve ser a primeira coisa a ser feita para garantir que 'ctx' não seja null.
+    if (isInitialized) return;
+    isInitialized = true;
+
+    // 1. Inicializa o motor gráfico
     initCanvasAndContext(); 
     
-    // 2. Configura os elementos de UI/Desktop
+    // 2. Interface e Controles
     setupExitButton();
 
-    // 3. Configura os listeners da tela inicial e de nível/botões
+
     initTelaInicial();
+    
     initializeUpgradeButtons(); 
     initLevelDesigner();
     
-    // 4. Configura os inputs
+    // 3. Inputs (Garante que os eventos de teclado não dupliquem)
     setupInputListeners(); 
 
-    // 5. Inicia a sequência de carregamento do Logo.
+    // 4. Inicia o fluxo do jogo
     initLogoVideoLogic(mostrarTelaInicial); 
     
-    console.log("Sistema de Módulos ES6 inicializado com sucesso!");
+    console.log("Sistema inicializado: Nave blindada.");
 });
