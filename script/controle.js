@@ -146,20 +146,52 @@ export function togglePause() {
  * Atualiza todos os elementos HTML do HUD (Score, Vida, Arma, Upgrade).
  */
 export function updateHTMLHUD() {
+ 
     if (!playerShip) return;
 
-    // Score e Vida (Usa score importado)
-    document.getElementById("scoreValue").textContent = score;
+    // 🚀 LOCALIZA O ELEMENTO NO HTML
+    const scoreValueShow = document.getElementById('scoreValue');
 
-    const healthBar = document.getElementById("healthBar");
-    let percent = playerShip.health / playerShip.maxHealth;
-    if (healthBar) {
-        // Usa Template Literals
-        healthBar.style.width = `${(150 * percent)}px`; 
-        if (percent > 0.5) healthBar.style.background = "#32cd32";
-        else if (percent > 0.2) healthBar.style.background = "#ffc107";
-        else healthBar.style.background = "#dc3545";
+    // 🚀 ATUALIZA O TEXTO COM O VALOR DA VARIÁVEL SCORE
+    if (scoreValueShow) {
+        scoreValueShow.textContent = Math.floor(score); 
     }
+
+  
+const healthBar = document.getElementById("healthBar");
+const luz_manutençao = document.getElementById("luz-manutençao");
+
+let percent = playerShip.health / playerShip.maxHealth;
+
+if (healthBar && luz_manutençao) {
+
+    /* largura da barra */
+    healthBar.style.width = `${percent * 100}%`;
+
+    /* remove animações antigas */
+    luz_manutençao.classList.remove("blink-warning", "blink-danger");
+
+    if (percent > 0.5) {
+        healthBar.style.setProperty('--ledColor', '#1cff6b');
+        luz_manutençao.src = "../assets/img/pickup/manutencao-verde.png";
+    } 
+    else if (percent > 0.2) {
+        healthBar.style.setProperty('--ledColor', '#ffc107');
+        luz_manutençao.src = "../assets/img/pickup/manutencao-amarela.png";
+
+        /* pisca lento com pausa */
+        luz_manutençao.classList.add("blink-warning");
+    } 
+    else {
+        healthBar.style.setProperty('--ledColor', '#ff3b3b');
+        luz_manutençao.src = "../assets/img/pickup/manutencao-vermelha.png";
+
+        /* alerta crítico */
+        luz_manutençao.classList.add("blink-danger");
+    }
+}
+
+
 
     // Nível da Arma
     const weaponValueDisplay = document.getElementById("weaponValue");

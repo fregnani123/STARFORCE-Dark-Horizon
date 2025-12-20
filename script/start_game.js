@@ -121,6 +121,90 @@ export function loadMission(id) {
     }
 }
 
+
+const bg = document.getElementById('background');
+const manche = document.getElementById('manche');
+
+// ==============================
+// ESTADOS
+// ==============================
+let targetMoveX = 0;
+let currentMoveX = 0;
+
+let targetRotation = 0;
+let currentRotation = 0;
+
+let swayAngle = 0;
+let swayDirection = 1;
+
+// ==============================
+// AJUSTES FINOS (REALISMO)
+// ==============================
+const BACKGROUND_LERP = 0.08; // mais pesado
+const MANCH_LERP = 0.15;      // mais leve / rápido
+
+const MANCH_MULTIPLIER = 3.2;
+const MANCH_ROTATION_MULT = 0.9;
+
+// ==============================
+// ANIMAÇÃO CONTÍNUA
+// ==============================
+function animate() {
+    // sway automático bem sutil
+    swayAngle += 0.008 * swayDirection;
+    if (swayAngle > 0.4 || swayAngle < -0.4) {
+        swayDirection *= -1;
+    }
+
+    // ==============================
+    // INTERPOLAÇÃO (peso físico)
+    // ==============================
+    currentMoveX += (targetMoveX - currentMoveX) * BACKGROUND_LERP;
+    currentRotation += (targetRotation - currentRotation) * BACKGROUND_LERP;
+
+    // BACKGROUND (pesado)
+    bg.style.transform = `
+        translate(calc(-50% + ${currentMoveX}px), -50%)
+        rotate(${currentRotation + swayAngle}deg)
+    `;
+
+    // MANCH (mais solto)
+    manche.style.transform = `
+        translateX(calc(-50% + ${currentMoveX * MANCH_MULTIPLIER}px))
+        rotate(${currentRotation * MANCH_ROTATION_MULT}deg)
+    `;
+
+    requestAnimationFrame(animate);
+}
+
+// inicia
+animate();
+
+// ==============================
+// CONTROLES (A / D)
+// ==============================
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'a' || e.key === 'A') {
+        targetMoveX = -12;
+        targetRotation = -6;
+    }
+
+    if (e.key === 'd' || e.key === 'D') {
+        targetMoveX = 12;
+        targetRotation = 6;
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    if (
+        e.key === 'a' || e.key === 'A' ||
+        e.key === 'd' || e.key === 'D'
+    ) {
+        targetMoveX = 0;
+        targetRotation = 0;
+    }
+});
+
 // ------------------------
 // startGame (ADICIONADO EXPORT)
 // ------------------------
@@ -156,7 +240,19 @@ export function startGame() {
         if (backgroundVideo) backgroundVideo.play().catch(()=>{});
         
         // Inicia o som de tiro em loop se necessário
-        try { startShootSoundLoop(); } catch(e){}
+       // No seu arquivo de controle da missão ou no início do gameLoop:
+
+setTimeout(() => {
+    try { 
+        // Verifica se a função existe e se o jogo não foi pausado/encerrado nesse meio tempo
+        if (typeof startShootSoundLoop === 'function') {
+            startShootSoundLoop(); 
+            console.log("Som da missão iniciado após 2s.");
+        }
+    } catch (e) {
+        console.error("Erro ao iniciar o som:", e);
+    }
+}, 2000); // 2000 milissegundos = 2 segundos
 
         // 🛑 SÓ INICIA O LOOP SE ELE NÃO ESTIVER RODANDO
         if (!isGameLoopRunning) {
@@ -201,7 +297,7 @@ export function initGame() {
             SHIP_WIDTH,
             SHIP_HEIGHT,
             "../assets/img/nave-player/nave-player.png",
-            2000
+         500
         );
         setPlayerShip(newPlayer);
     } catch(e) { console.warn("Erro Player:", e); }

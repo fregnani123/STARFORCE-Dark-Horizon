@@ -104,12 +104,18 @@
         <div class="chip">Checkpoints: <strong id="cp">0</strong></div>
       </div>
     </div>
-
-    <!-- Esta parte para baixo onde e a dive que carrega o canva e as animaçoes controle etc -->
-    <div id="main-wrapper">
-      <video id="bgVideo" muted>
+    <!-- <video id="bgVideo" loop muted>
         <source src="../assets/video/fixo4k.mp4" type="video/mp4">
-      </video>
+      </video> -->
+    <!-- Esta parte para baixo onde e a dive que carrega o canva e as animaçoes controle etc -->
+
+    <div id="main-wrapper">
+
+      <div id="background">
+        <div id="manche"></div>
+      </div>
+
+
       <div id="gameContainer">
         <div id="gameContainer">
           <canvas id="gameCanvas"></canvas>
@@ -131,41 +137,44 @@
 
           <div class="info-and-health">
             <div class="div-laser">
-              <button id="superLaserButton">
-                <span class="laser-label"></span>
-                <span id="laserCost" class="laser-percent">0%</span>
-              </button>
 
-              <button id="upgradeButton">
-                <span class="upgrade-label">0%</span>
-              </button>
+              <div class="div-armas-1">
+                <button id="superLaserButton">
+                  <span class="laser-label"></span>
+                  <span id="laserCost" class="laser-percent">0%</span>
+                </button>
+              </div>
+
+              <div class="div-armas-2">
+                 <button id="upgradeButton">
+                  <span class="upgrade-label">0%</span>
+                </button>
+              </div>
+
             </div>
+
             <div class="div-score">
               <div class="hudRow">
                 <div>
                   <span class="hudLabel">Score:</span>
-                  <span id="scoreValue">0%</span>
+                  <span id="scoreValue">0</span>
                 </div>
               </div>
+              <div class="div-life" style="display: flex;align-items: center; gap: 5px;">
+                 <img id="luz-manutençao" alt="" style="width: 25px;">
+                <div id="healthBarContainer">
+                 
+                  <!-- A barra verde de preenchimento -->
+                  <div id="healthBar" style="width: 80%;"></div>
+                </div>
+              </div>
+              <button id="pauseButton">PAUSE</button>
               <div class="hudRow">
                 <div class="hudLabel-div">
                   <span class="hudLabel">Weapon Lvl:</span>
                   <span id="weaponValue">0%</span>
                 </div>
               </div>
-            </div>
-            <div class="div-life">
-              <div class="hudRow">
-
-                <div id="healthBarContainer">
-                  <!-- A barra verde de preenchimento -->
-                  <div id="healthBar" style="width: 80%;"></div>
-                  <!-- O texto centralizado e sobreposto -->
-                  <div id="healthBarText" style="display: flex;">Hull:<span id="hullLife">0</span>/<span
-                      id="hullValue">0</span></div>
-                </div>
-              </div>
-              <button id="pauseButton">PAUSE</button>
             </div>
           </div>
         </div>
