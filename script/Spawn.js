@@ -35,10 +35,9 @@ export function spawnRandomEnemy(player) {
         return;
     }
 
-    const enemyTypes = [
+   const enemyTypes = [
         // TIPO 1: PARA E ATACA (weaponLevel: 3, Halo, Tilt)
         {
-            // 🛑 VERIFIQUE ESTE CAMINHO 🛑
             imagePath: "../assets/img/Enemy/inimigo3.png", width: 110, height: 80, maxHealth: 150, speed: 250, fireRate: 1500, damage: 20, projectileSpeed: 450,
             projectileImgUM: "../assets/img/projectile/tiro-verde.png",
             projectileImgDois: "../assets/img/projectile/tiro-verde.png",
@@ -48,11 +47,12 @@ export function spawnRandomEnemy(player) {
             weaponLevel: 3,
             canStopToAttack: true,
             isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: true,
-            projWidth: 20, projHeight: 35,
+            // 🚀 REDUZIDO: de 20x35 para 12x22
+            projWidth: 12, projHeight: 22,
         },
         // TIPO 2: PASSA DIRETO (weaponLevel: 4, Tiro 360)
         {
-            imagePath: "../assets/img/Enemy/inimigo4.png", width: 90, height: 90, maxHealth: 150, speed: 200, fireRate: 1500, damage: 20, projectileSpeed: 350,
+            imagePath: "../assets/img/Enemy/inimigo4.png", width: 110, height: 80, maxHealth: 150, speed: 200, fireRate: 1500, damage: 20, projectileSpeed: 350,
             projectileImgUM: "../assets/img/projectile/tiro-espinho-amarelo.png",
             projectileImgDois: "../assets/img/projectile/espinho-verde.png",
             projectileImgTres: null,
@@ -61,7 +61,8 @@ export function spawnRandomEnemy(player) {
             weaponLevel: 4,
             canStopToAttack: false,
             isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: false,
-            projWidth: 35, projHeight: 35,
+            // 🚀 REDUZIDO: de 35x35 para 18x18 (tiro tipo espinho)
+            projWidth: 18, projHeight: 18,
         },
         // TIPO 3: Para e Ataca (Level 4, Tiro Roxo)
         {
@@ -74,7 +75,8 @@ export function spawnRandomEnemy(player) {
             weaponLevel: 4,
             canStopToAttack: true,
             isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: true,
-            projWidth: 35, projHeight: 35,
+            // 🚀 REDUZIDO: de 35x35 para 18x18
+            projWidth: 18, projHeight: 18,
         },
         // TIPO 4: Passa direto mais rápido (Level 1)
         {
@@ -84,13 +86,13 @@ export function spawnRandomEnemy(player) {
             projectileImgTres: null,
             minScore: 0,
             scoreValue: 25,
-            weaponLevel: 1,
+            weaponLevel: 3,
             canStopToAttack: false,
             isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: true,
-            projWidth: 20, projHeight: 35,
+            // 🚀 REDUZIDO: de 20x35 para 12x22
+            projWidth: 12, projHeight: 22,
         },
     ];
-
     // --- Filtrar e Escalar ---
     const availableEnemies = enemyTypes.filter(t => currentScore >= t.minScore);
     if (!availableEnemies.length) return;

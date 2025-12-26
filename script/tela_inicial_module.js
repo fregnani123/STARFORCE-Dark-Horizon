@@ -34,7 +34,7 @@ export function mostrarTelaInicial() {
     
     // Inicia a música de fundo
     try {
-        playBGM('../assets/audio/stellar-echoes-202315.mp3', 1); 
+        playBGM('../assets/audio/musicaGameBR.mp3', 1); 
     } catch (e) {
         console.warn("Módulo de áudio (playBGM) não importado ou definido.");
     }

@@ -2,32 +2,34 @@
 // IMPORTS OBRIGATÓRIOS (Orquestração de Inicialização)
 // ======================================================
 import { Background } from './Background.js';
-import { Player } from './Player.js'; 
-import { playBGM, startShootSoundLoop } from './audio_game.js'; 
-import { gameLoop } from './gameLoop.js'; 
+import { Player } from './Player.js';
+import { playBGM, startShootSoundLoop } from './audio_game.js';
+import { gameLoop } from './gameLoop.js';
 
-import { 
-    playerShip, 
-    lastTime, 
-    CANVAS_WIDTH, 
+import {
+    playerShip,
+    lastTime,
+    CANVAS_WIDTH,
     CANVAS_HEIGHT,
-    setLastTime, 
-    setPlayerShip, 
-    gameBackgrounds 
-} from './globals.js'; 
+    setLastTime,
+    setPlayerShip,
+    gameBackgrounds,
+    isPaused,      // Importado para controle
+    setPause       // Importado para resetar no start
+} from './globals.js';
 
-import { MISSIONS } from './gameLevel/missao_construtor.js'; 
+import { MISSIONS } from './gameLevel/missao_construtor.js';
 
 // ======================================================
 // CONFIGURAÇÃO E ESTADO INTERNO
 // ======================================================
 let CURRENT_MISSION = null;
 let MULTI_BACKGROUND_IMAGES = [];
-let SCROLL_SPEED = 100;
+let SCROLL_SPEED;
 let BG_IMAGE_PATH = "";
 
-// 🛑 TRAVA DE SEGURANÇA PARA EVITAR DUPLO LOOP (RESOLVE O PISCAR)
-let isGameLoopRunning = false; 
+// 🛑 TRAVA DE SEGURANÇA PARA EVITAR DUPLO LOOP
+let isGameLoopRunning = false;
 
 const MIN_LOADING_TIME_MS = 1500;
 const DEFAULT_IMAGES = ["../assets/img/nave-player/nave-player.png"];
@@ -94,14 +96,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (logoVideo) logoVideo.classList.add('hidden');
         if (startVideo) {
             startVideo.classList.remove('hidden');
-            startVideo.play().catch(()=>{});
+            startVideo.play().catch(() => { });
         }
         if (startScreen) startScreen.classList.remove('hidden');
     }
 });
 
 // ------------------------
-// Carrega missão (ADICIONADO EXPORT)
+// Carrega missão
 // ------------------------
 export function loadMission(id) {
     const mission = MISSIONS.find(m => m.id === Number(id));
@@ -117,96 +119,54 @@ export function loadMission(id) {
     SCROLL_SPEED = mission.scrollSpeed;
 
     if (mission.music) {
-        try { playBGM(mission.music, 1); } catch(e){ console.warn(e); }
+        try { playBGM(mission.music, 1); } catch (e) { console.warn(e); }
     }
 }
 
-
+// ==============================
+// EFEITOS DO MENU (MANCHE E BG)
+// ==============================
 const bg = document.getElementById('background');
 const manche = document.getElementById('manche');
 
-// ==============================
-// ESTADOS
-// ==============================
 let targetMoveX = 0;
 let currentMoveX = 0;
-
 let targetRotation = 0;
 let currentRotation = 0;
-
 let swayAngle = 0;
 let swayDirection = 1;
 
-// ==============================
-// AJUSTES FINOS (REALISMO)
-// ==============================
-const BACKGROUND_LERP = 0.08; // mais pesado
-const MANCH_LERP = 0.15;      // mais leve / rápido
-
+const BACKGROUND_LERP = 0.08;
+const MANCH_LERP = 0.15;
 const MANCH_MULTIPLIER = 3.2;
 const MANCH_ROTATION_MULT = 0.9;
 
-// ==============================
-// ANIMAÇÃO CONTÍNUA
-// ==============================
 function animate() {
-    // sway automático bem sutil
     swayAngle += 0.008 * swayDirection;
-    if (swayAngle > 0.4 || swayAngle < -0.4) {
-        swayDirection *= -1;
-    }
+    if (swayAngle > 0.4 || swayAngle < -0.4) swayDirection *= -1;
 
-    // ==============================
-    // INTERPOLAÇÃO (peso físico)
-    // ==============================
     currentMoveX += (targetMoveX - currentMoveX) * BACKGROUND_LERP;
     currentRotation += (targetRotation - currentRotation) * BACKGROUND_LERP;
 
-    // BACKGROUND (pesado)
-    bg.style.transform = `
-        translate(calc(-50% + ${currentMoveX}px), -50%)
-        rotate(${currentRotation + swayAngle}deg)
-    `;
-
-    // MANCH (mais solto)
-    manche.style.transform = `
-        translateX(calc(-50% + ${currentMoveX * MANCH_MULTIPLIER}px))
-        rotate(${currentRotation * MANCH_ROTATION_MULT}deg)
-    `;
+    if (bg) bg.style.transform = `translate(calc(-50% + ${currentMoveX}px), -50%) rotate(${currentRotation + swayAngle}deg)`;
+    if (manche) manche.style.transform = `translateX(calc(-50% + ${currentMoveX * MANCH_MULTIPLIER}px)) rotate(${currentRotation * MANCH_ROTATION_MULT}deg)`;
 
     requestAnimationFrame(animate);
 }
-
-// inicia
 animate();
 
-// ==============================
-// CONTROLES (A / D)
-// ==============================
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'a' || e.key === 'A') {
-        targetMoveX = -12;
-        targetRotation = -6;
-    }
-
-    if (e.key === 'd' || e.key === 'D') {
-        targetMoveX = 12;
-        targetRotation = 6;
-    }
+    if (e.key.toLowerCase() === 'a') { targetMoveX = -12; targetRotation = -6; }
+    if (e.key.toLowerCase() === 'd') { targetMoveX = 12; targetRotation = 6; }
 });
 
 document.addEventListener('keyup', (e) => {
-    if (
-        e.key === 'a' || e.key === 'A' ||
-        e.key === 'd' || e.key === 'D'
-    ) {
-        targetMoveX = 0;
-        targetRotation = 0;
-    }
+    const key = e.key.toLowerCase();
+    if (key === 'a' || key === 'd') { targetMoveX = 0; targetRotation = 0; }
 });
 
 // ------------------------
-// startGame (ADICIONADO EXPORT)
+// startGame
 // ------------------------
 export function startGame() {
     const startScreenDiv = document.getElementById("startScreen");
@@ -214,11 +174,12 @@ export function startGame() {
     const mainWrapper = document.getElementById("main-wrapper");
     const canvasOverlay = document.getElementById("canvasOverlay");
 
-    if (!CURRENT_MISSION) loadMission(1);
+    // 🚀 RESET DE SEGURANÇA: Garante que o jogo despause ao iniciar
+    setPause(false);
 
+    if (!CURRENT_MISSION) loadMission(1);
     if (startScreenDiv) startScreenDiv.classList.add('hidden');
     if (canvasOverlay) canvasOverlay.style.display = "flex";
-    
     if (loadingOverlay) loadingOverlay.classList.remove('hidden');
 
     Promise.all([
@@ -227,32 +188,22 @@ export function startGame() {
     ])
     .then(async () => {
         await waitCanvasReady();
-
-        // INICIALIZA OS OBJETOS
         initGame();
-
         await waitCanvasReady();
 
         if (loadingOverlay) loadingOverlay.classList.add('hidden');
         if (mainWrapper) mainWrapper.style.display = "flex";
 
         const backgroundVideo = document.getElementById("bgVideo");
-        if (backgroundVideo) backgroundVideo.play().catch(()=>{});
-        
-        // Inicia o som de tiro em loop se necessário
-       // No seu arquivo de controle da missão ou no início do gameLoop:
+        if (backgroundVideo) backgroundVideo.play().catch(() => { });
 
-setTimeout(() => {
-    try { 
-        // Verifica se a função existe e se o jogo não foi pausado/encerrado nesse meio tempo
-        if (typeof startShootSoundLoop === 'function') {
-            startShootSoundLoop(); 
-            console.log("Som da missão iniciado após 2s.");
-        }
-    } catch (e) {
-        console.error("Erro ao iniciar o som:", e);
-    }
-}, 2000); // 2000 milissegundos = 2 segundos
+        setTimeout(() => {
+            try {
+                if (typeof startShootSoundLoop === 'function') {
+                    startShootSoundLoop();
+                }
+            } catch (e) { console.error("Erro ao iniciar o som:", e); }
+        }, 2000);
 
         // 🛑 SÓ INICIA O LOOP SE ELE NÃO ESTIVER RODANDO
         if (!isGameLoopRunning) {
@@ -268,53 +219,42 @@ setTimeout(() => {
 }
 
 // ------------------------
-// initGame (ADICIONADO EXPORT)
+// initGame
 // ------------------------
 export function initGame() {
     const SHIP_WIDTH = 70;
     const SHIP_HEIGHT = 80;
 
-    // Limpa backgrounds antigos antes de criar novos
     gameBackgrounds.length = 0;
 
-    // Criar Background
     try {
-        gameBackgrounds.push(
-            new Background(
-                MULTI_BACKGROUND_IMAGES,
-                SCROLL_SPEED,
-                CANVAS_WIDTH,
-                CANVAS_HEIGHT
-            )
-        );
-    } catch(e) { console.warn("Erro Background:", e); }
+        const novoBG = new Background(MULTI_BACKGROUND_IMAGES, SCROLL_SPEED);
+        gameBackgrounds.push(novoBG);
+    } catch (e) { console.warn("Erro Background:", e); }
 
-    // Criar Player
     try {
         const newPlayer = new Player(
-            (CANVAS_WIDTH / 2) - (SHIP_WIDTH / 2), 
+            (CANVAS_WIDTH / 2) - (SHIP_WIDTH / 2),
             CANVAS_HEIGHT - SHIP_HEIGHT - 50,
             SHIP_WIDTH,
             SHIP_HEIGHT,
             "../assets/img/nave-player/nave-player.png",
-         500
+            700
         );
         setPlayerShip(newPlayer);
-    } catch(e) { console.warn("Erro Player:", e); }
+    } catch (e) { console.warn("Erro Player:", e); }
 
     setLastTime(performance.now());
 }
 
 // ------------------------
-// Ativa nodes de missão (ADICIONADO EXPORT)
+// Ativa nodes de missão
 // ------------------------
 export function attachMissionNodes() {
     const nodes = document.querySelectorAll('.node');
     nodes.forEach(n => {
-        // Remove listeners antigos clonando o nó (evita execuções duplicadas)
         const newNode = n.cloneNode(true);
         n.parentNode.replaceChild(newNode, n);
-
         const id = newNode.dataset.mission || newNode.dataset.index || newNode.dataset.id;
         newNode.addEventListener('click', () => {
             loadMission(Number(id));
@@ -323,10 +263,9 @@ export function attachMissionNodes() {
     });
 }
 
-// Inicia os listeners ao carregar o DOM
 document.addEventListener('DOMContentLoaded', attachMissionNodes);
 
-// Mantém as referências globais se o seu sistema de designer precisar
+// Exportações globais
 window.loadMission = loadMission;
 window.startGame = startGame;
 window.initGame = initGame;

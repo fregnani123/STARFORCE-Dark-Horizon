@@ -51,9 +51,22 @@ export const NOME_FASES = [
 export const MISSIONS = [
     // NOTA: Os caminhos de imagem e áudio foram mantidos, assumindo que são corretos.
 
-    { id: 1, name: NOME_FASES[0], bg: "../assets/img/cenarios/cenario-missao-1/cenario-1.png", layers: ["../assets/img/cenarios/cenario-missao-1/cenario-1.png"], music: "../assets/audio/epic-trailer-music-349631.mp3", scrollSpeed: 100, enemyConfig: { spawnRate: 1.0, difficulty: 1 } },
+ { 
+    id: 1, 
+    name: NOME_FASES[0], 
+    // Adicione camadas de PNGs transparentes!
+    layers: [
+        "../assets/img/cenarios/espaço.png", // Fundo lento
+         "../assets/img/cenarios/espaco.png", // Fundo lento
+         "../assets/img/cenarios/espaco - Copia.png", // Fundo lento
+   
+    ], 
+    music: "../assets/audio/musicaGameUS.mp3", 
+    scrollSpeed: 300, 
+    enemyConfig: { spawnRate: 1.0, difficulty: 1 } 
+},
 
-    { id: 2, name: NOME_FASES[1], bg: "../assets/img/cenarios/cenario-missao-1/2 (2).png", layers: ["../../assets/img/cenarios/cenario-missao-1/2 (2).png"], music: "../assets/audio/Ultra-Lag-chosic.com_.mp3", scrollSpeed: 100, enemyConfig: { spawnRate: 1.0, difficulty: 1 } },
+    { id: 2, name: NOME_FASES[1], bg: "../assets/img/cenarios/cenario-missao-1/2 (2).png", layers: ["../assets/img/cenarios/cenario-missao-1/2 (2).png"], music:  "../assets/audio/epic-trailer-music-349631.mp333", scrollSpeed: 100, enemyConfig: { spawnRate: 1.0, difficulty: 1 } },
 
     { id: 3, name: NOME_FASES[2], bg: "../assets/img/cenarios/cenario-missao-1/cenario-1.png", layers: ["../assets/img/cenarios/cenario-missao-1/cenario-1.png"], music: "../assets/audio/Ultra-Lag-chosic.com_.mp3", scrollSpeed: 100, enemyConfig: { spawnRate: 1.0, difficulty: 1 } },
 

@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../assets/css/tela_inicio.css">    
   <link rel="stylesheet" href="../assets/css/btn-HUD.css">    
   <link rel="stylesheet" href="../assets/css/update_nave.css">    
+  <link rel="stylesheet" href="../assets/css/superLaser.css">    
   <link rel="icon" type="image/x-icon" href="/favicon.ico">   
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
@@ -121,8 +122,9 @@
           <canvas id="gameCanvas"></canvas>
         </div>
         <div id="pauseOverlay" class="hidden">
-          <h2>PAUSADO</h2>
+     
           <div id="pause-Menu">
+                 <h4>PAUSADO</h4>
             <button class="pause-menu-button">CONTINUAR</button>
             <button class="pause-menu-button">CONFIGURAÇÕES</button>
             <button class="pause-menu-button">SAIR DA MISSÃO</button>
@@ -143,35 +145,73 @@
                   <span class="laser-label"></span>
                   <span id="laserCost" class="laser-percent">0%</span>
                 </button>
+                <button id="pauseButton">SYSTEM</button>
               </div>
 
               <div class="div-armas-2">
-                 <button id="upgradeButton">
+                <div class="info-nave">
+                  <div class="status-block">
+                    <span class="status-label">VELOCITY</span>
+                    <div class="status-display">
+                      <span id="shipSpeed" class="digital-num">0</span>
+                      <span class="status-unit">KM/S</span>
+                    </div>
+                  </div>
+
+                  <div class="status-block">
+                    <span class="status-label">MAG-FIELD</span>
+                    <div class="status-display">
+                      <span id="magStrength" class="digital-num">0</span>
+                      <span class="status-unit">GAUSS</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="telechamada">
+                  <!-- IMAGEM / VÍDEO DO PILOTO (fica em cima) -->
+                  <video autoplay loop muted playsinline width="150" class="video-piloto">
+                    <source src="../assets/video/alertaPiloto.mp4" type="video/mp4">
+                  </video>
+
+                  <!-- COMUNICADO DE ÁUDIO -->
+                  <div class="audio-comm">
+                    <div class="audio-bars">
+                      <div class="icoAudio"></div>
+                      <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="stat"><span>⭐</span> <span id="starCount">0</span></div>
+                <!-- BOTÃO -->
+                <button id="upgradeButton">
                   <span class="upgrade-label">0%</span>
                 </button>
+
               </div>
+
 
             </div>
 
             <div class="div-score">
               <div class="hudRow">
-                <div>
-                  <span class="hudLabel">Score:</span>
-                  <span id="scoreValue">0</span>
+                <div class="scoreHUD">
+                  <span class="hudLabel">SCORE:</span>
+                  <span id="scoreValue">000000</span>
                 </div>
+
               </div>
               <div class="div-life" style="display: flex;align-items: center; gap: 5px;">
-                 <img id="luz-manutençao" alt="" style="width: 25px;">
+                <img id="luz-manutençao" alt="" style="width: 25px;">
                 <div id="healthBarContainer">
-                 
+
                   <!-- A barra verde de preenchimento -->
                   <div id="healthBar" style="width: 80%;"></div>
                 </div>
               </div>
-              <button id="pauseButton">PAUSE</button>
+
               <div class="hudRow">
                 <div class="hudLabel-div">
-                  <span class="hudLabel">Weapon Lvl:</span>
+                  <span class="hudLabel">WEAPON Lvl:</span>
                   <span id="weaponValue">0%</span>
                 </div>
               </div>

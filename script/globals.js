@@ -4,7 +4,7 @@
 
 export const BOSS_SCORE_TRIGGER = 3000;
 export const MAX_DELTA_TIME_MS = 100;
-export const ENEMY_SPAWN_INTERVAL = 2000;
+export const ENEMY_SPAWN_INTERVAL = 1000;
 export const SUPER_LASER_REQUIREMENT = 100;
 
 export const HEALTH_PICKUP_VALUE = 100;
@@ -12,10 +12,43 @@ export const HEALTH_PICKUP_IMAGE = "../assets/img/pickup/concerto.png";
 export const magnetRadius = 250;
 export const magnetStrength = 100; 
 
-export const CANVAS_WIDTH = 600; 
+export const CANVAS_WIDTH = 1000; 
 export const CANVAS_HEIGHT = 800; 
 export const BACKGROUND_SPEED_DIVISOR = 5000; 
 
+// Valores iniciais estáveis
+ 
+export let currentShipSpeed = 10760 ; 
+export const CRUISE_SPEED = 10760;      // Mínimo (sua variável base)
+export const SOUND_SPEED = 11760;       // Máximo (Velocidade do som aprox. em km/h)
+export let currentMagStrength = 12.0;
+
+// 🚀 Adicione essas funções para permitir a alteração
+export function setShipSpeed(value) {
+    currentShipSpeed = value;
+}
+
+// =========================================================================
+// 2. VARIÁVEIS ÍTENS STARS
+// =========================================================================
+
+export let playerStars = 0;
+
+export function updatePlayerStars(value) {
+    playerStars += value;
+    
+    // Atualiza o texto na tela (HUD) automaticamente
+    const starElement = document.getElementById('starCount');
+    if (starElement) {
+        starElement.textContent = playerStars;
+    }
+}
+
+// Simulação de oscilação fictícia
+ 
+ 
+
+// Chame essa função dentro do seu updateHTMLHUD()  
 // =========================================================================
 // 2. ELEMENTOS DO DOM E CONTEXTO (BLINDADO)
 // =========================================================================
@@ -119,3 +152,4 @@ export function setLogoVideoPlayed(state) {
     hasPlayedLogoVideo = state;
     sessionStorage.setItem('logoVideoPlayed', state);
 }
+

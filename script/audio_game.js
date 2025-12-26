@@ -2,38 +2,9 @@
 // VARIÁVEIS DE ESTADO (Exportadas com 'let' para leitura/escrita)
 // ======================================================
 
-// Referência ao objeto de áudio da música de fundo atual
-export let currentBGM = null;
-// Flag de estado da música
+
 export let isMusicPlaying = false; 
 
-// ======================================================
-// FUNÇÕES DE CONTROLE DE MÚSICA DE FUNDO (BGM)
-// ======================================================
-
-export function playBGM(musicPath, volume = 1) {
-    // 1. Parar e Limpar a Música Anterior
-    if (currentBGM) {
-        currentBGM.pause();
-        currentBGM.currentTime = 0;
-    }
-    
-    // 2. Criar e Configurar a Nova Música
-    currentBGM = new Audio(musicPath);
-    currentBGM.volume = volume;
-    currentBGM.loop = true;
-    isMusicPlaying = true;
-    
-    // 3. Tentar Reproduzir
-    currentBGM.play()
-        .then(() => {
-            console.log(`Música de fundo iniciada: ${musicPath}`);
-        })
-        .catch(e => {
-            console.warn(`Falha no Autoplay para ${musicPath}:`, e.message);
-            isMusicPlaying = false;
-        });
-}
 
 
 export function stopBGM() {
@@ -45,7 +16,47 @@ export function stopBGM() {
         console.log("Música de fundo parada.");
     }
 }
+// audio_game.js
 
+// Armazene a referência da música atual
+let currentBGM = null;
+
+// Exemplo de como sua função playBGM deve guardar a referência
+export function playBGM(path, volume = 1) {
+    if (currentBGM) currentBGM.pause();
+    currentBGM = new Audio(path);
+    currentBGM.loop = true;
+    currentBGM.volume = volume;
+    currentBGM.play();
+}
+
+export function pauseAllSounds() {
+    // 1. Pausa a música de fundo
+    if (currentBGM) currentBGM.pause();
+
+    // 2. Para o loop de tiros (se você usa um som contínuo)
+    // Se startShootSoundLoop usa um setInterval ou um Audio.loop, 
+    // você precisa ter uma função stopShootSoundLoop()
+    if (typeof stopShootSoundLoop === 'function') {
+        stopShootSoundLoop();
+    }
+
+    // 3. Opcional: Pausar todos os elementos de áudio do documento
+    const allAudios = document.querySelectorAll('audio');
+    allAudios.forEach(audio => audio.pause());
+}
+
+export function resumeAllSounds() {
+    // Retoma a música de fundo
+    if (currentBGM && !currentBGM.ended) {
+        currentBGM.play();
+    }
+    
+    // Retoma os tiros se a nave estiver atirando
+    if (typeof startShootSoundLoop === 'function') {
+        startShootSoundLoop();
+    }
+}
 // ======================================================
 // FUNÇÕES DE CONTROLE DE EFEITOS SONOROS (SFX)
 // ======================================================

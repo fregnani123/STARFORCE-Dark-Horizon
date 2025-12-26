@@ -101,96 +101,60 @@ export class Player extends GameObject {
         }
 
         // Método que cria projéteis. Ele retorna os projéteis criados.
-        fire() {
+      fire() {
+    if (this.fireTimer < this.fireRate || !this.isAlive || this.inIntro || this.superLaserActive || this.isExiting) {
+        return [];
+    }
 
-                if (this.fireTimer < this.fireRate || !this.isAlive || this.inIntro || this.superLaserActive || this.isExiting) {
-                        return []; // Não atira, retorna array vazio
-                }
+    const newProjectiles = [];
 
-                const newProjectiles = [];
+    // --- NÍVEL DE ARMA 1 ---
+    if (this.weaponLevel === 1) {
+        // Reduzido de 20x40 para 10x25
+        newProjectiles.push(new Projectile(this.x + this.width / 2 - 5, this.y - 20, 10, 25, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
 
-                // --- NÍVEL DE ARMA 1 ---
-                if (this.weaponLevel === 1) {
-                        newProjectiles.push(new Projectile(this.x + this.width / 2 - 10, this.y - 20, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
+    // --- NÍVEL DE ARMA 2 ---
+    } else if (this.weaponLevel === 2) {
+        // Reduzidos para 10x25
+        newProjectiles.push(new Projectile(this.x + this.width * 0.25 - 5, this.y - 10, 10, 25, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
+        newProjectiles.push(new Projectile(this.x + this.width * 0.75 - 5, this.y - 10, 10, 25, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
 
-                        // --- NÍVEL DE ARMA 2 ---
-                } else if (this.weaponLevel === 2) {
-                        newProjectiles.push(new Projectile(this.x + this.width * 0.25 - 10, this.y - 10, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
-                        newProjectiles.push(new Projectile(this.x + this.width * 0.75 - 10, this.y - 10, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
+    // --- NÍVEL DE ARMA 3 ---
+    } else if (this.weaponLevel === 3) {
+        newProjectiles.push(new Projectile(this.x + this.width / 2 - 5, this.y - 20, 10, 25, "../assets/img/projectile/tiro-azul.png", 600, 15, 'player', 0, false, null, false));
+        newProjectiles.push(new Projectile(this.x + this.width * 0.15 - 5, this.y - 5, 10, 25, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
+        newProjectiles.push(new Projectile(this.x + this.width * 0.85 - 5, this.y - 5, 10, 25, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
 
-                        // --- NÍVEL DE ARMA 3 ---
-                } else if (this.weaponLevel === 3) {
-                        // 3 Tiros normais
-                        newProjectiles.push(new Projectile(this.x + this.width / 2 - 10, this.y - 20, 20, 40, "../assets/img/projectile/tiro-azul.png", 600, 15, 'player', 0, false, null, false));
-                        newProjectiles.push(new Projectile(this.x + this.width * 0.15 - 10, this.y - 5, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
-                        newProjectiles.push(new Projectile(this.x + this.width * 0.85 - 10, this.y - 5, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
-
-                        const BOMB_FIRE_RATE = 1000;
-
-                        if (this.bombTimer >= BOMB_FIRE_RATE) {
-                                newProjectiles.push(new Projectile(
-                                        this.x + this.width / 15 - 15,
-                                        this.y - 10,
-                                        50,
-                                        50,
-                                        "../assets/img/projectile/bomba.png",
-                                        250,
-                                        50,
-                                        'player',
-                                        0,
-                                        false,
-                                        null,
-                                        true
-                                ));
-                                this.bombTimer = 0;
-                        }
-
-                        // --- NÍVEL DE ARMA 4 (5 Tiros Diagonais Sutis + Bomba TELEGUIADA) ---
-                }
-
-                else if (this.weaponLevel === 4) {
-                        // 1. Tiro Central Forte
-                        newProjectiles.push(new Projectile(this.x + this.width / 2 - 15, this.y - 25, 30, 50, "../assets/img/projectile/tiro.png", 600, 25, 'player', 0, false, null, false));
-
-                        // 2. Tiros Internos (Retos)
-                        newProjectiles.push(new Projectile(this.x + this.width * 0.30 - 10, this.y - 10, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
-                        newProjectiles.push(new Projectile(this.x + this.width * 0.70 - 10, this.y - 10, 20, 40, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
-
-                        // 3. Tiros das Pontas (Levemente Diagonais)
-                        const DIAGONAL_ANGLE = 0.08;
-
-                        newProjectiles.push(new Projectile(this.x + this.width * 0.05 - 10, this.y, 20, 40, "../assets/img/projectile/tiro-azul-baixo.png", 600, 15, 'player', -DIAGONAL_ANGLE, false, null, false));
-                        newProjectiles.push(new Projectile(this.x + this.width * 0.95 - 10, this.y, 20, 40, "../assets/img/projectile/tiro-azul-baixo.png", 600, 15, 'player', DIAGONAL_ANGLE, false, null, false));
-
-                        // Lógica da Bomba
-                        const BOMB_FIRE_RATE = 1000;
-
-                        if (this.bombTimer >= BOMB_FIRE_RATE) {
-                                newProjectiles.push(new Projectile(
-                                        this.x + this.width / 15 - 15,
-                                        this.y - 10,
-                                        50,
-                                        50,
-                                        "../assets/img/projectile/tiro.png",
-                                        250,
-                                        50,
-                                        'player',
-                                        0,
-                                        false,
-                                        null,
-                                        true
-                                ));
-                                this.bombTimer = 0;
-                        }
-                }
-
-                // Reseta o timer do tiro principal
-                this.fireTimer = 0;
-
-                // Retorna o array de novos projéteis 
-                return newProjectiles;
+        const BOMB_FIRE_RATE = 1000;
+        if (this.bombTimer >= BOMB_FIRE_RATE) {
+            // Bomba reduzida de 50x50 para 30x30
+            newProjectiles.push(new Projectile(this.x + this.width / 15 - 15, this.y - 10, 30, 30, "../assets/img/projectile/bomba.png", 250, 50, 'player', 0, false, null, true));
+            this.bombTimer = 0;
         }
 
+    // --- NÍVEL DE ARMA 4 ---
+    } else if (this.weaponLevel === 4) {
+        // Tiro central um pouco maior que os outros, mas menor que o original (de 30x50 para 15x35)
+        newProjectiles.push(new Projectile(this.x + this.width / 2 - 7.5, this.y - 25, 15, 35, "../assets/img/projectile/tiro.png", 600, 25, 'player', 0, false, null, false));
+
+        // Outros tiros reduzidos para 10x25
+        newProjectiles.push(new Projectile(this.x + this.width * 0.30 - 5, this.y - 10, 10, 25, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
+        newProjectiles.push(new Projectile(this.x + this.width * 0.70 - 5, this.y - 10, 10, 25, "../assets/img/projectile/tiro.png", 600, 15, 'player', 0, false, null, false));
+
+        const DIAGONAL_ANGLE = 0.08;
+        newProjectiles.push(new Projectile(this.x + this.width * 0.05 - 5, this.y, 10, 25, "../assets/img/projectile/tiro-azul-baixo.png", 600, 15, 'player', -DIAGONAL_ANGLE, false, null, false));
+        newProjectiles.push(new Projectile(this.x + this.width * 0.95 - 5, this.y, 10, 25, "../assets/img/projectile/tiro-azul-baixo.png", 600, 15, 'player', DIAGONAL_ANGLE, false, null, false));
+
+        const BOMB_FIRE_RATE = 1000;
+        if (this.bombTimer >= BOMB_FIRE_RATE) {
+            newProjectiles.push(new Projectile(this.x + this.width / 15 - 15, this.y - 10, 30, 30, "../assets/img/projectile/tiro.png", 250, 50, 'player', 0, false, null, true));
+            this.bombTimer = 0;
+        }
+    }
+
+    this.fireTimer = 0;
+    return newProjectiles;
+}
 
         update(deltaTime) {
                 const t = deltaTime / 1000;

@@ -1,75 +1,76 @@
-// ======================================================
-// IMPORTS OBRIGATÓRIOS
-// ======================================================
-// Importa as dimensões fixas do canvas de globals.js
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from './globals.js'; 
 
-
 export class Background {
-    // Agora o construtor só recebe dados dinâmicos (caminho e velocidade)
-    constructor(imagePath, speed) {
-        this.img = new Image();
-        this.img.src = imagePath;
-        this.speed = speed;
-        
-        // Usa as constantes importadas DIRETAMENTE
+    constructor(imagePaths, baseSpeed) {
         this.canvasWidth = CANVAS_WIDTH;
         this.canvasHeight = CANVAS_HEIGHT;
-
-        this.visualScale = 0.8;
-
-        this.y1 = 0;
-        this.isReady = false;
-        this.isScrolling = true;
-
-        this.img.onload = () => {
-            this.isReady = true;
-
-            // fator para manter proporção
-            const ratio = this.canvasWidth / this.img.width;
-
-            // altura escalonada
-            this.scaledHeight = this.img.height * ratio * this.visualScale;
-
-            // iniciar de baixo para cima
-            this.y1 = this.canvasHeight - this.scaledHeight;
-        };
+        this.baseSpeed = baseSpeed;
         
-        this.img.onerror = () => {
-            console.error(`Falha ao carregar imagem de fundo: ${imagePath}`);
-            this.isReady = false;
-        };
+        this.layers = imagePaths.map((path, index) => {
+            const img = new Image();
+            img.src = path;
+
+            // 🚀 AJUSTE DE VELOCIDADE:
+            let factor = 1.0; 
+            if (index === 0) factor = 0.02; // Fundo Profundo (mais lento)
+            else if (index === 1) factor = 0.05; // Camada 2 (Estrelas) - Mais rápida que a anterior, mas ainda suave
+            else factor = 0.15; // Restante (Cenário principal)
+
+            return {
+                img: img,
+                y: 0,
+                isReady: false,
+                scaledHeight: 0,
+                speedFactor: factor 
+            };
+        });
+
+        this.initLayers();
+    }
+
+    initLayers() {
+        this.layers.forEach(layer => {
+            layer.img.onload = () => {
+                layer.isReady = true;
+                const ratio = this.canvasWidth / layer.img.width;
+                layer.scaledHeight = layer.img.height * ratio;
+                layer.y = this.canvasHeight - layer.scaledHeight;
+            };
+        });
     }
 
     update(deltaTime) {
-        if (!this.isReady || !this.isScrolling) return;
-
-        // O fator de 5000 no denominador foi mantido, mas o deltaTime está correto.
-        const movement = this.speed * deltaTime / 5000; 
-        this.y1 += movement;
-
-        if (this.y1 >= 0) {
-            this.y1 = 0;
-            this.isScrolling = false;
-        }
+        const deltaFraction = deltaTime / 1000;
+        this.layers.forEach(layer => {
+            if (!layer.isReady) return;
+            layer.y += (this.baseSpeed * layer.speedFactor) * deltaFraction;
+            if (layer.y >= layer.scaledHeight) {
+                layer.y -= layer.scaledHeight;
+            }
+        });
     }
 
     draw(ctx) {
-        if (!this.isReady) return;
+        this.layers.forEach((layer, index) => {
+            if (!layer.isReady) return;
 
-        // 🌫️ ADICIONA DESFOQUE ATMOSFÉRICO
-        ctx.filter = "blur(1.5px) brightness(0.95)";
+            ctx.save();
+            
+            // 🚀 REMOVIDO TRANSPARÊNCIA E BLUR DA CAMADA 2
+            // Mantemos opacidade total e sem filtros para as camadas 0 e 1
+            if (index <= 1) {
+                ctx.globalAlpha = 1.0;
+                ctx.filter = "none";
+            } else {
+                ctx.globalAlpha = 1.0;
+                ctx.filter = "none";
+            }
 
-        // desenha com blur
-        ctx.drawImage(
-            this.img,
-            0,
-            this.y1,
-            this.canvasWidth,
-            this.scaledHeight
-        );
+            // Desenho das duas cópias para o loop infinito
+            ctx.drawImage(layer.img, 0, layer.y, this.canvasWidth, layer.scaledHeight);
+            ctx.drawImage(layer.img, 0, layer.y - layer.scaledHeight, this.canvasWidth, layer.scaledHeight);
 
-        // 🔄 RESETA FILTRO para não afetar sprites do jogo
-        ctx.filter = "none";
+            ctx.restore();
+        });
     }
 }

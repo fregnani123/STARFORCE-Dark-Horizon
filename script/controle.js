@@ -8,12 +8,14 @@ import {
     isPaused, 
     lastTime,       // Necessário para ajustar o tempo ao despausar
     score,          // Necessário para atualizar o HUD
-    nextWeaponUpgradeCost // Necessário para calcular o progresso do upgrade no HUD
+    nextWeaponUpgradeCost, // Necessário para calcular o progresso do upgrade no HUD
+   currentShipSpeed, setShipSpeed, CRUISE_SPEED, SOUND_SPEED, setPause, setLastTime,  
 } from './globals.js'; 
+
 import { trySuperLaser, tryUpgradeWeapon } from './btnUpdate.js';
 import { gameLoop } from './gameLoop.js'; // Necessário para reiniciar o loop após a pausa
 
-
+ 
 // ======================================================
 // ESTADO INTERNO DO MÓDULO DE CONTROLE
 // ======================================================
@@ -46,6 +48,59 @@ const touch = {
 
 let canvasRect;
 
+
+
+
+// ======================================================
+// Velocimetro - Imã Itens 
+// ======================================================
+ 
+
+export function updateFictionalStats() {
+    const speedEl = document.getElementById('shipSpeed');
+    const magEl = document.getElementById('magStrength');
+
+    // --- 1. CONTROLE DE VELOCIDADE ---
+    
+    if (keys.up) { 
+        // Acelera até a velocidade do som
+        if (currentShipSpeed < SOUND_SPEED) {
+            setShipSpeed(currentShipSpeed + 2);
+        }
+    } else if (keys.down) { 
+        // Desacelera, mas não deixa baixar da velocidade de cruzeiro
+        if (currentShipSpeed > CRUISE_SPEED) {
+            setShipSpeed(currentShipSpeed - 2);
+        }
+    }
+
+    // Tecla R: Retorno suave para a velocidade de cruzeiro
+    if (keys.r || keys.R) {
+        if (currentShipSpeed > CRUISE_SPEED) {
+            setShipSpeed(Math.max(CRUISE_SPEED, currentShipSpeed - 5));
+        } else if (currentShipSpeed < CRUISE_SPEED) {
+            setShipSpeed(Math.min(CRUISE_SPEED, currentShipSpeed + 5));
+        }
+    }
+
+    // --- 2. OSCILAÇÃO REALISTA (Vibração do painel) ---
+    // Usamos o tempo (Date.now) para criar uma onda senoidal suave
+    // Isso faz o número "tremer" levemente entre -1 e +1
+    const vibration = Math.sin(Date.now() * 0.005) * 1.5;
+    const speedWithVibration = currentShipSpeed + vibration;
+
+    // --- 3. ATUALIZAÇÃO DA TELA ---
+    if (speedEl) {
+        // Exibe o número com a vibração, mas sem casas decimais picadas
+        speedEl.textContent = Math.floor(speedWithVibration);
+    }
+
+    if (magEl) {
+        // Magnetismo também pode ter uma micro oscilação para parecer real
+        const magVibration = Math.cos(Date.now() * 0.002) * 0.1;
+        magEl.textContent = (12.0 + magVibration).toFixed(1);
+    }
+}
 
 // ======================================================
 // MOVIMENTO E LÓGICA DE PAUSA (EXPORTADAS)
@@ -108,31 +163,33 @@ export function updatePlayerMovement() {
         touch.lastX = null;
         touch.lastY = null;
     }
+    updateFictionalStats()
 }
 
 /**
  * Alterna o estado de pausa do jogo (chamada por eventos de teclado e botões).
  */
+
+import { pauseAllSounds, resumeAllSounds } from './audio_game.js';
+// ... outros imports
+
 export function togglePause() {
-    // isPaused, lastTime são importados de globals.js
     if (playerShip && !playerShip.inIntro) { 
-        isPaused = !isPaused; // Inverte o estado
+        const novoEstado = !isPaused;
+        setPause(novoEstado); 
 
         const pauseOverlay = document.getElementById('pauseOverlay');
-        const pauseButton = document.getElementById('pauseButton');
 
-        if (pauseOverlay) {
-            if (isPaused) {
-                pauseOverlay.classList.remove('hidden');
-                if (pauseButton) pauseButton.classList.add('hidden');
-            } else {
-                // lastTime = performance.now(); // Ajusta o delta time (variável global)
-                // NOTA: lastTime precisaria de um setter em globals.js ou ser gerenciada pelo gameLoop.
-                
-                pauseOverlay.classList.add('hidden');
-                if (pauseButton) pauseButton.classList.remove('hidden');
-                gameLoop(performance.now()); // Reinicia o game loop
-            }
+        if (novoEstado) { 
+            // ⏸️ JOGO PAUSADO
+            pauseOverlay.classList.remove('hidden');
+            pauseAllSounds(); // <--- PARA OS SONS
+        } else { 
+            // ▶️ JOGO RETOMADO
+            pauseOverlay.classList.add('hidden');
+            setLastTime(performance.now());
+            resumeAllSounds(); // <--- VOLTA OS SONS
+            requestAnimationFrame(gameLoop); 
         }
     }
 }
@@ -145,51 +202,84 @@ export function togglePause() {
 /**
  * Atualiza todos os elementos HTML do HUD (Score, Vida, Arma, Upgrade).
  */
+/**
+ * Atualiza todos os elementos HTML do HUD (Score, Vida, Arma, Upgrade).
+ */
 export function updateHTMLHUD() {
- 
     if (!playerShip) return;
 
-    // 🚀 LOCALIZA O ELEMENTO NO HTML
+    // 1. ATUALIZAÇÃO DO SCORE
     const scoreValueShow = document.getElementById('scoreValue');
-
-    // 🚀 ATUALIZA O TEXTO COM O VALOR DA VARIÁVEL SCORE
     if (scoreValueShow) {
         scoreValueShow.textContent = Math.floor(score); 
     }
 
-  
-const healthBar = document.getElementById("healthBar");
-const luz_manutençao = document.getElementById("luz-manutençao");
+    // 2. SELEÇÃO DE ELEMENTOS
+    const healthBar = document.getElementById("healthBar");
+    const luz_manutençao = document.getElementById("luz-manutençao");
+    const telechamada = document.querySelector('.telechamada');
+    const infoNave = document.querySelector('.info-nave');
+    const videoPiloto = document.querySelector('.video-piloto');
 
-let percent = playerShip.health / playerShip.maxHealth;
+    let percent = playerShip.health / playerShip.maxHealth;
 
-if (healthBar && luz_manutençao) {
+    if (healthBar && luz_manutençao) {
+        healthBar.style.width = `${Math.max(0, percent * 100)}%`;
+        luz_manutençao.classList.remove("blink-warning", "blink-danger");
 
-    /* largura da barra */
-    healthBar.style.width = `${percent * 100}%`;
+        // FUNÇÃO AUXILIAR PARA PARAR O VÍDEO E VOLTAR AO NORMAL
+        const pararAlertaPiloto = () => {
+            if (telechamada) telechamada.style.display = 'none';
+            if (infoNave) infoNave.style.display = 'flex';
+            if (videoPiloto) {
+                videoPiloto.pause();      // 🛑 Para o vídeo imediatamente
+                videoPiloto.muted = true;   // 🔇 Muta para garantir que o áudio suma
+                videoPiloto.currentTime = 0; // Volta para o início
+            }
+        };
 
-    /* remove animações antigas */
-    luz_manutençao.classList.remove("blink-warning", "blink-danger");
+        if (percent > 0.5) {
+            // --- ESTADO VERDE ---
+            healthBar.style.setProperty('--ledColor', '#1cff6b');
+            luz_manutençao.src = "../assets/img/pickup/manutencao-verde.png";
+            pararAlertaPiloto(); // Garante que o vídeo pare se recuperou vida
+        } 
+        else if (percent > 0.2) {
+            // --- ESTADO AMARELO ---
+            healthBar.style.setProperty('--ledColor', '#ffc107');
+            luz_manutençao.src = "../assets/img/pickup/manutencao-amarela.png";
+            luz_manutençao.classList.add("blink-warning");
+            pararAlertaPiloto(); // 🚀 Mata o vídeo e o áudio se sair do crítico
+        } 
+        else {
+            // --- 🚨 ESTADO VERMELHO (ALERTA CRÍTICO) ---
+            healthBar.style.setProperty('--ledColor', '#ff3b3b');
+            luz_manutençao.src = "../assets/img/pickup/manutencao-vermelha.png";
+            luz_manutençao.classList.add("blink-danger");
 
-    if (percent > 0.5) {
-        healthBar.style.setProperty('--ledColor', '#1cff6b');
-        luz_manutençao.src = "../assets/img/pickup/manutencao-verde.png";
-    } 
-    else if (percent > 0.2) {
-        healthBar.style.setProperty('--ledColor', '#ffc107');
-        luz_manutençao.src = "../assets/img/pickup/manutencao-amarela.png";
+            // Só inicia o vídeo se ele ainda não estiver aparecendo (evita loop de play)
+            if (telechamada && telechamada.style.display !== 'block') {
+                telechamada.style.display = 'block';
+                if (infoNave) infoNave.style.display = 'none';
 
-        /* pisca lento com pausa */
-        luz_manutençao.classList.add("blink-warning");
-    } 
-    else {
-        healthBar.style.setProperty('--ledColor', '#ff3b3b');
-        luz_manutençao.src = "../assets/img/pickup/manutencao-vermelha.png";
+                if (videoPiloto) {
+                    videoPiloto.muted = false; // 🔊 Abre o áudio
+                    videoPiloto.play().catch(e => console.log("Erro Play:", e));
 
-        /* alerta crítico */
-        luz_manutençao.classList.add("blink-danger");
+                    // Se o vídeo acabar sozinho antes do player curar, ele fecha a div
+                    videoPiloto.onended = () => {
+                        telechamada.style.display = 'none';
+                        if (infoNave) infoNave.style.display = 'block';
+                        videoPiloto.muted = true;
+                    };
+                }
+            }
+        }
     }
-}
+
+    if (typeof updateFictionalStats === "function") {
+        updateFictionalStats();
+    }
 
 
 
