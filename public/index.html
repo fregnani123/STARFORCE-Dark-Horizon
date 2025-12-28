@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="../assets/css/btn-HUD.css">    
   <link rel="stylesheet" href="../assets/css/update_nave.css">    
   <link rel="stylesheet" href="../assets/css/superLaser.css">    
+  <link rel="stylesheet" href="../assets/css/novo-jogo.css">    
   <link rel="icon" type="image/x-icon" href="/favicon.ico">   
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
@@ -39,8 +40,8 @@
         <div class="tela-inicio">
               <div class="menu-posicionamento">
                     <img src="../assets/img/cenario-start/ring-12779.gif" class="gif-centralizado">
-                    <button id="startButton" class="botao-menu">CONTINUAR</button>
-                    <button id="continuar" class="botao-menu">NOVO JOGO</button>
+                    <button id="continuar" class="botao-menu">CONTINUAR</button>
+                    <button id="novo-jogo" class="botao-menu">NOVO JOGO</button>
                     <button id="configButton" class="botao-menu">CONFIGURAÇÕES</button>
                     <button id="exit" class="botao-menu">SAIR</button>
                 </div>
@@ -50,6 +51,40 @@
       </video>
     </div>
   </div>
+  <!-- 
+// ======================================================
+// Criando Player - Inicio do game 
+// ====================================================== -->
+
+  <div id="playerCreationOverlay" class="hidden">
+    <div class="creation-box">
+      <h2>REGISTRO DE PILOTO</h2>
+      <p>Insira seu código de identificação:</p>
+      <input type="text" id="playerNameInput" placeholder="NOME DO PILOTO" maxlength="15">
+      <button id="confirmarPlayer" class="botao-menu">INICIAR MISSÃO</button>
+    </div>
+  </div>
+
+  <div id="cutsceneContainer" class="hidden">
+    <div class="video-background-blur"></div>
+
+    <div class="video-wrapper">
+      <div class="video-hud-top">
+        <div class="rec-indicator">REC</div>
+        <div class="timer-group">
+          <span class="year-label">YEAR: 4098 A.D.</span>
+          <div id="videoTimer">00:00:00</div>
+        </div>
+      </div>
+
+      <video id="historyVideo">
+        <source src="../assets/video/inicio_game.mp4" type="video/mp4">
+        Seu navegador não suporta vídeos.
+      </video>
+      <button id="skipCutscene">PULAR [ESC]</button>
+    </div>
+  </div>
+
   <!-- 
 // ======================================================
 //  Div tela missões 
@@ -122,9 +157,9 @@
           <canvas id="gameCanvas"></canvas>
         </div>
         <div id="pauseOverlay" class="hidden">
-     
+
           <div id="pause-Menu">
-                 <h4>PAUSADO</h4>
+            <h4>PAUSADO</h4>
             <button class="pause-menu-button">CONTINUAR</button>
             <button class="pause-menu-button">CONFIGURAÇÕES</button>
             <button class="pause-menu-button">SAIR DA MISSÃO</button>

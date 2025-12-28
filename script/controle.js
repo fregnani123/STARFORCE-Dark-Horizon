@@ -334,14 +334,11 @@ export function updateHTMLHUD() {
  * Chamada no init.js ou start_game.js após o DOM estar pronto.
  */
 export function setupInputListeners() {
-    
-    // --- FUNÇÕES AUXILIARES DE TOQUE ---
     const canvas = document.getElementById('gameCanvas');
     if (!canvas) return;
 
     function getCanvasPosition(clientX, clientY) {
         canvasRect = canvas.getBoundingClientRect();
-        // Usa CANVAS_WIDTH/HEIGHT importados
         const scaleX = CANVAS_WIDTH / canvasRect.width; 
         const scaleY = CANVAS_HEIGHT / canvasRect.height; 
         return {
@@ -350,47 +347,51 @@ export function setupInputListeners() {
         };
     }
 
-    // TECLADO (PC)
+    // --- TECLADO (PC) ---
     window.addEventListener('keydown', (e) => {
+        // 🛑 BLOQUEIO RESOLVIDO: Se o foco for um campo de texto, ignora os comandos do jogo
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
         const keyName = KEY_MAP[e.key] || KEY_MAP[e.key.toLowerCase()];
 
         if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') { 
-            togglePause(); // Função exportada/importada
+            togglePause();
         }
         
-        // Impede o scroll da página ao usar setas
         if (keyName && (keyName === 'up' || keyName === 'down' || keyName === 'left' || keyName === 'right')) {
+            // Só impede o scroll se NÃO estiver digitando
             e.preventDefault();
         }
 
         if (keyName && keys[keyName] !== undefined) keys[keyName] = true;
 
-        if (e.key === 'q' || e.key === 'Q') trySuperLaser(); // Função importada
-        if (e.key === 'e' || e.key === 'E') {
-            tryUpgradeWeapon(); // Função importada
-        }
+        if (e.key === 'q' || e.key === 'Q') trySuperLaser();
+        if (e.key === 'e' || e.key === 'E') tryUpgradeWeapon();
     });
 
     window.addEventListener('keyup', (e) => {
+        // Também ignora o "soltar tecla" se estiver no input
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
         const keyName = KEY_MAP[e.key] || KEY_MAP[e.key.toLowerCase()];
         if (keyName && keys[keyName] !== undefined) keys[keyName] = false;
     });
 
-    // EVENTOS DE TOQUE (MOBILE)
+    // --- EVENTOS DE TOQUE (Ajustados para não quebrar inputs externos) ---
     canvas.addEventListener('touchstart', (e) => {
-        if (e.target.tagName !== 'CANVAS' || !playerShip || !playerShip.isAlive || e.touches.length !== 1) return;
-        e.preventDefault();
+        // Só executa a lógica se o toque for EXCLUSIVAMENTE no Canvas
+        if (e.target !== canvas || !playerShip || !playerShip.isAlive || e.touches.length !== 1) return;
+        
+        e.preventDefault(); // Impede o scroll apenas no canvas
 
         const touchPos = getCanvasPosition(e.touches[0].clientX, e.touches[0].clientY);
-
         touch.xOffset = touchPos.x - playerShip.x;
         touch.yOffset = touchPos.y - playerShip.y;
         touch.targetX = touchPos.x;
         touch.targetY = touchPos.y;
         touch.isDragging = true;
-        touch.lastX = playerShip.x;
-        touch.lastY = playerShip.y;
     }, { passive: false });
+
 
     canvas.addEventListener('touchmove', (e) => {
         if (!touch.isDragging || e.touches.length !== 1) return;

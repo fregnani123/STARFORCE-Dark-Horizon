@@ -2,8 +2,7 @@
 import { playBGM } from './audio_game.js'; 
 
 // Elementos do DOM
-const divIniciar = document.getElementById('div-index');
-const divLevel = document.getElementById('container_levelGame');
+
 const loadingScreen = document.getElementById('loading-screen'); 
 const telaInicio = document.querySelector('.tela-inicio');
 const videoFundo = document.getElementById('video-fundo');
@@ -40,41 +39,13 @@ export function mostrarTelaInicial() {
     }
 }
 
-// Lógica de Event Listeners
-function setupTelaInicialListeners() {
-    const btn_divIniciar = document.getElementById('continuar'); // NOVO JOGO
-    const btn_divLevel = document.getElementById('menuBtnFases'); // Voltar para o menu
 
-    // Inicialização: TUDO ESCONDIDO
-    if (telaInicio) telaInicio.style.display = 'none';
-
-    // Ao clicar no botão "NOVO JOGO" -> Vai para a tela de Level/Missões
-    if (btn_divIniciar) {
-        btn_divIniciar.addEventListener('click', () => {
-            showLoadingScreen(() => {
-                if (divIniciar) divIniciar.style.display = 'none';
-                if (divLevel) divLevel.style.display = 'flex';
-            });
-        });
-    }
-
-    // Ao clicar no botão "menuBtnFases" -> Volta para a div inicial
-    if (btn_divLevel) {
-        btn_divLevel.addEventListener('click', () => {
-            showLoadingScreen(() => {
-                if (divLevel) divLevel.style.display = 'none';
-                if (divIniciar) divIniciar.style.display = 'flex';
-            });
-        });
-    }
-}
 
 /**
  * Função principal a ser exportada para o init.js
  */
 export function initTelaInicial() {
-    // 1. Configura os event listeners da tela inicial e de nível
-    setupTelaInicialListeners();
+
     
     // 2. Chama a lógica do vídeo de logo. O callback será 'mostrarTelaInicial'.
     // NOTE: A função initLogoVideoLogic deve ser importada no init.js e passada para cá,

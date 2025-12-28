@@ -50,24 +50,31 @@ export class Background {
         });
     }
 
-    draw(ctx) {
+   draw(ctx) {
         this.layers.forEach((layer, index) => {
             if (!layer.isReady) return;
 
             ctx.save();
             
-            // 🚀 REMOVIDO TRANSPARÊNCIA E BLUR DA CAMADA 2
-            // Mantemos opacidade total e sem filtros para as camadas 0 e 1
-            if (index <= 1) {
-                ctx.globalAlpha = 1.0;
-                ctx.filter = "none";
-            } else {
-                ctx.globalAlpha = 1.0;
-                ctx.filter = "none";
+            // Camada 0 e Camada 2+: Padrão
+            ctx.globalAlpha = 1.0;
+            ctx.filter = "none";
+
+            // 🚀 EFEITO DE BRILHO PARA A CAMADA 2 (Terra, Lua e Nave)
+            if (index === 1) {
+                // Adiciona um brilho sutil amarelado/branco para simular o reflexo do sol
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = "rgba(255, 255, 200, 0.4)"; // Amarelo bem clarinho
+                
+                // Opcional: 'lighter' faz as cores brilharem mais onde houver luz na imagem
+                // Se ficar forte demais, pode remover a linha abaixo
+                ctx.globalCompositeOperation = "source-over"; 
             }
 
-            // Desenho das duas cópias para o loop infinito
+            // 1. Imagem descendo
             ctx.drawImage(layer.img, 0, layer.y, this.canvasWidth, layer.scaledHeight);
+
+            // 2. Cópia acima (Loop Infinito)
             ctx.drawImage(layer.img, 0, layer.y - layer.scaledHeight, this.canvasWidth, layer.scaledHeight);
 
             ctx.restore();

@@ -71,15 +71,16 @@ html, body {
 /* ====================================================================== */
 /* 3. TELA DE INÍCIO (.tela-inicio) */
 /* ====================================================================== */
-
-/* --- ESTADO NORMAL (Animação sempre ativa) --- */
+/* --- ESTADO NORMAL (Com formato Sci-Fi e Animação de Fogo) --- */
 .botao-menu {
-    padding: 10px 8px;
-    font-family: 'Orbitron';
+    padding: 12px 20px; /* Aumentado lateralmente por causa do clip-path */
+    font-family: 'Orbitron', sans-serif;
     font-size: 14px;
     font-weight: 700;
-    width: 180px;
-    margin: -5px; /* Ajustei de -5 para 5 para o brilho não cortar */
+    width: 200px; /* Largura levemente maior para o texto não bater no corte */
+    position: relative;
+    z-index: 1;
+    margin-bottom: -5px;
 
     /* 🔥 Gradiente de fogo */
     background: linear-gradient(
@@ -90,30 +91,41 @@ html, body {
         #ff4500
     );
     background-size: 300% 300%;
-    
-    /* 🛑 AQUI ESTAVA O ERRO: A animação deve estar aqui para rodar sempre */
     animation: fogo 2s ease infinite; 
     
     color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    border-radius: 5px;
+    border: none; /* Removido border comum para não bugar o clip-path */
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 0 10px rgba(255, 69, 0, 0.4);
+    
+    /* 🚀 FORMATO TRAPEZOIDAL (Chanfrado nas laterais) */
+    clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+    
+    /* Brilho externo */
+    box-shadow: 0 0 15px rgba(255, 69, 0, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-/* 🔥 HOVER (Apenas aumenta o brilho e o tamanho) */
+/* 🔥 HOVER (Brilho Intenso e Escala) */
 .botao-menu:hover {
-    transform: scale(1.08);
-    box-shadow: 0 0 25px #ff4500, 0 0 45px rgba(255, 215, 0, 0.5);
-    border-color: #fff;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+    transform: scale(1.1);
+    box-shadow: 0 0 30px #ff4500, 0 0 50px rgba(255, 215, 0, 0.6);
+    filter: brightness(1.2); /* Deixa as cores do fogo mais vivas */
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
 }
 
+/* Efeito de Clique */
 .botao-menu:active {
     transform: scale(0.95);
 }
 
+/* 🎞️ ANIMAÇÃO DO GRADIENTE (Movimento do Fogo) */
+@keyframes fogo {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
 /* 🛑 CERTIFIQUE-SE DE QUE O KEYFRAMES ESTÁ ASSIM NO SEU CSS: */
 @keyframes fogo {
     0% { background-position: 0% 50%; }

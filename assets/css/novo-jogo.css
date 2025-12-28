@@ -1,0 +1,280 @@
+/* ======================================================
+   1. CONFIGURAÇÕES GERAIS
+   ====================================================== */
+.hidden {
+    display: none !important;
+}
+
+/* ======================================================
+   2. REGISTRO DE PILOTO (LAYOUT VERTICAL)
+   ====================================================== */
+#playerCreationOverlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.creation-box {
+    padding: 2.5rem;
+    border: 2px solid #ffd900;
+    background: rgba(0, 15, 30, 0.98);
+    box-shadow: 0 0 40px rgba(255, 217, 0, 0.2);
+    text-align: center;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    gap: 1.5rem;
+    max-width: 450px;
+    width: 90%;
+}
+
+.creation-box h2 {
+    font-family: 'Orbitron', sans-serif;
+    color: #fff;
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+.creation-box p {
+    font-family: 'Orbitron', sans-serif;
+    color: #ffd900;
+    font-size: 0.85rem;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: 2px solid #ffd900;
+    animation: typing 3s steps(35, end), blink-caret 0.75s step-end infinite;
+}
+
+#playerNameInput {
+    width: 100%;
+    box-sizing: border-box;
+    text-transform: uppercase;
+    background: rgba(0, 20, 40, 0.8);
+    border: 2px solid #ffd900;
+    color: #fff;
+    padding: 15px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2rem;
+    text-align: center;
+    letter-spacing: 3px;
+    outline: none;
+    transition: 0.3s;
+}
+
+#playerNameInput:focus {
+    box-shadow: 0 0 20px rgba(255, 217, 0, 0.5), inset 0 0 15px rgba(255, 217, 0, 0.4);
+    border-color: #fff;
+}
+
+#confirmarPlayer {
+    width: 100%;
+    padding: 15px;
+    background: #ffd900;
+    color: #000;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+    transition: 0.3s;
+}
+
+#confirmarPlayer:hover {
+    background: #fff;
+    transform: translateY(-2px);
+}
+
+/* ======================================================
+   3. CUTSCENE (HUD, REC, TIMER E SOBREPOSIÇÃO)
+   ====================================================== */
+#cutsceneContainer {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 20000;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+@media (min-width: 1025px) {
+    #cutsceneContainer::before {
+        content: "SYSTEM_BOOT_SEQUENCE... \A LOADING_STORY_DATA... \A PILOT_IDENTIFIED \A ENCRYPTED_SIGNAL...";
+        white-space: pre;
+        position: absolute;
+        left: 5%;
+        color: rgba(255, 217, 0, 0.4);
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.75rem;
+        line-height: 2;
+        z-index: 20005;
+        pointer-events: none;
+    }
+
+    #cutsceneContainer::after {
+        content: "RADAR_ACTIVE \A [||||||||||||] 100% \A SECTOR_7G \A NO_THREATS_FOUND";
+        white-space: pre;
+        position: absolute;
+        right: 5%;
+        color: rgba(255, 217, 0, 0.4);
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.75rem;
+        line-height: 2;
+        text-align: right;
+        z-index: 20005;
+        pointer-events: none;
+    }
+}
+
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20001;
+}
+
+#historyVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 20002;
+}
+
+.video-background-blur {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+    background-size: 100% 4px;
+    z-index: 20006;
+    pointer-events: none;
+}
+
+.video-hud-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 20008;
+    pointer-events: none;
+    padding: 40px;
+    box-sizing: border-box;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.hud-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rec-indicator {
+    color: #ff0000;
+    font-weight: bold;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rec-indicator::before {
+    content: "";
+    width: 12px; height: 12px;
+    background: #ff0000;
+    border-radius: 50%;
+    animation: blink 1s steps(2, start) infinite;
+}
+
+#videoTimer {
+    color: #ffd900;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+}
+
+/* Cantoneiras HUD */
+.corner {
+    position: absolute;
+    width: 30px; height: 30px;
+    border: 2px solid rgba(255, 217, 0, 0.3);
+}
+.top-left { top: 20px; left: 20px; border-right: 0; border-bottom: 0; }
+.top-right { top: 20px; right: 20px; border-left: 0; border-bottom: 0; }
+.bottom-left { bottom: 20px; left: 20px; border-right: 0; border-top: 0; }
+.bottom-right { bottom: 20px; right: 20px; border-left: 0; border-top: 0; }
+
+#skipCutscene {
+    position: absolute;
+    bottom: 40px; right: 40px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #ffd900;
+    color: #ffd900;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    z-index: 20010;
+    text-transform: uppercase;
+    clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+    transition: 0.3s;
+}
+
+#skipCutscene:hover {
+    background: #ffd900;
+    color: #000;
+}
+
+/* ======================================================
+   4. ANIMAÇÕES E EXTRAS
+   ====================================================== */
+@keyframes blink { to { visibility: hidden; } }
+
+@keyframes typing { from { width: 0; } to { width: 100%; } }
+
+@keyframes blink-caret { from, to { border-color: transparent; } 50% { border-color: #ffd900; } }
+
+@keyframes fogo {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.botao-menu {
+    padding: 10px 18px;
+    font-family: 'Orbitron';
+    font-size: 14px;
+    font-weight: 700;
+    width: 180px;
+    background: linear-gradient(120deg, #ff4500, #ff8c00, #ffd700, #ff4500);
+    background-size: 300% 300%;
+    animation: fogo 2s ease infinite; 
+    color: #ffffff;
+    cursor: pointer;
+    clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+    border: none;
+    transition: 0.3s;
+}
+
+.botao-menu:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+
+.video-hud-top{
+    position: absolute;
+    bottom: 20px;
+    z-index: 999999;
+
+}
