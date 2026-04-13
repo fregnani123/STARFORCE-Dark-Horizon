@@ -1,0 +1,366 @@
+/* ============================================================
+   UPGRADE SHIP OVERLAY
+   ============================================================ */
+.upgrade-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background:
+        linear-gradient(rgba(0,0,14,0.82), rgba(0,0,14,0.82)),
+        url('../img/cenario-start/hangar.png') center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+
+.upgrade-overlay.hidden {
+    display: none !important;
+}
+
+/* ── Modal ── */
+.upgrade-modal {
+    width: min(98vw, 1020px);
+    height: min(92vh, 820px);
+    background: linear-gradient(170deg, rgba(8,8,24,0.88) 0%, rgba(4,4,15,0.92) 100%);
+    border: 1px solid #00d4ff33;
+    border-radius: 16px;
+    box-shadow:
+        0 0 0 1px #00d4ff11,
+        0 0 60px #0022ff18,
+        0 0 120px #000a2211;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;   /* filho body faz o scroll, não o modal */
+}
+
+/* ── HEADER FIXO ── */
+.upgrade-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 22px;
+    background: linear-gradient(90deg, #00080f 0%, #001020 60%, #00080f 100%);
+    border-bottom: 1px solid #00d4ff22;
+    position: relative;
+}
+
+/* linha decorativa neon no topo do header */
+.upgrade-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00d4ff, #0066ff, #00d4ff, transparent);
+    opacity: 0.7;
+}
+
+/* Esquerda: título + piloto */
+.upgrade-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.upgrade-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(0.9rem, 2vw, 1.25rem);
+    font-weight: 700;
+    color: #00d4ff;
+    letter-spacing: 3px;
+    text-shadow: 0 0 14px #00d4ff88, 0 0 30px #0066ff44;
+    white-space: nowrap;
+}
+
+.upgrade-pilot-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.upgrade-pilot-tag .tag-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.55rem;
+    color: #446688;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+#upgrade-pilot-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    color: #88ccff;
+    letter-spacing: 1px;
+}
+
+/* Centro: chips de stats */
+.upgrade-header-center {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.upgrade-stat-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: #ffffff08;
+    border: 1px solid #00d4ff1a;
+    border-radius: 8px;
+    padding: 6px 18px;
+    min-width: 90px;
+}
+
+.upgrade-stat-chip .chip-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.5rem;
+    color: #446688;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.upgrade-stat-chip .chip-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffd700;
+    text-shadow: 0 0 8px #ffd70066;
+}
+
+#upgrade-mission-display {
+    color: #00d4ff;
+    text-shadow: 0 0 8px #00d4ff66;
+}
+
+/* Direita: botão EXIT */
+.upgrade-header-right {
+    flex-shrink: 0;
+}
+
+#btn-close-upgrade {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #ff5555;
+    background: transparent;
+    border: 1px solid #ff444466;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+#btn-close-upgrade:hover {
+    background: #ff2222;
+    color: #fff;
+    border-color: #ff2222;
+    box-shadow: 0 0 16px #ff222266;
+}
+
+/* ── BODY ROLÁVEL ── */
+.upgrade-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 20px 20px 28px;
+    scrollbar-width: thin;
+    scrollbar-color: #00d4ff22 transparent;
+}
+
+.upgrade-body::-webkit-scrollbar { width: 5px; }
+.upgrade-body::-webkit-scrollbar-track { background: transparent; }
+.upgrade-body::-webkit-scrollbar-thumb { background: #00d4ff33; border-radius: 4px; }
+
+/* ── Grid de 4 colunas ── */
+.upgrade-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    min-height: 100%;
+}
+
+@media (max-width: 800px) {
+    .upgrade-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .upgrade-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Coluna ── */
+.upgrade-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.upgrade-col-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.72rem;
+    color: #6aaddd;
+    text-align: center;
+    letter-spacing: 2px;
+    padding: 8px 4px;
+    border-radius: 6px;
+    background: #ffffff05;
+    border: 1px solid #00d4ff18;
+    margin-bottom: 2px;
+}
+
+/* ── Cards de nível ── */
+.upgrade-card {
+    background: #06061a;
+    border: 1px solid #00d4ff1a;
+    border-radius: 10px;
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    position: relative;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.upgrade-card.state-current {
+    border-color: #00d4ff77;
+    box-shadow: 0 0 14px #00d4ff22, inset 0 0 20px #00d4ff08;
+    background: #040d1c;
+}
+
+.upgrade-card.state-locked {
+    opacity: 0.38;
+    filter: grayscale(60%);
+}
+
+.upgrade-card.state-unlocked {
+    border-color: #ffd70044;
+    background: #0d0900;
+}
+
+/* Badge de nível */
+.upgrade-card .level-badge {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.58rem;
+    color: #334455;
+    letter-spacing: 1px;
+}
+
+.upgrade-card.state-current .level-badge { color: #00d4ff; }
+.upgrade-card.state-unlocked .level-badge { color: #ffd700; }
+
+.upgrade-card .card-icon { font-size: 1.5rem; text-align: center; }
+
+.upgrade-card .card-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    color: #aaddff;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.upgrade-card .card-desc {
+    font-size: 0.62rem;
+    color: #4d7799;
+    text-align: center;
+    line-height: 1.4;
+}
+
+/* Seta entre cards */
+.upgrade-arrow {
+    text-align: center;
+    color: #00d4ff22;
+    font-size: 0.85rem;
+    line-height: 1;
+}
+
+/* Botão COMPRAR */
+.upgrade-card .btn-buy-upgrade {
+    width: 100%;
+    margin-top: 4px;
+    background: linear-gradient(90deg, #002a44, #004466);
+    border: 1px solid #00d4ff66;
+    color: #00d4ff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem;
+    padding: 8px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.18s ease;
+    text-align: center;
+}
+
+.upgrade-card .btn-buy-upgrade:hover:not(:disabled) {
+    background: linear-gradient(90deg, #003a55, #0066aa);
+    box-shadow: 0 0 12px #00d4ff44;
+    transform: translateY(-1px);
+}
+
+.upgrade-card .btn-buy-upgrade:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+/* Status labels */
+.status-label {
+    width: 100%;
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.58rem;
+    padding: 6px 4px;
+    letter-spacing: 1px;
+    border-radius: 5px;
+    margin-top: 4px;
+}
+
+.status-label.current  { color: #00d4ff; background: #001833; border: 1px solid #00d4ff22; }
+.status-label.unlocked { color: #ffd700; background: #1a1000; border: 1px solid #ffd70022; }
+
+/* ── Coluna Super Laser — destaque amarelo ── */
+.upgrade-col-laser .upgrade-col-title {
+    color: #ffcc00;
+    text-shadow: 0 0 10px #ffcc0055;
+    border-color: #ffcc0022;
+    background: #0a0800;
+}
+
+.upgrade-col-laser .upgrade-card {
+    border-color: #ffcc0022;
+    background: #0e0a00;
+}
+
+.upgrade-col-laser .upgrade-card.state-current {
+    border-color: #ffcc0088;
+    box-shadow: 0 0 16px #ffcc0022, inset 0 0 20px #ffcc0008;
+}
+
+.upgrade-col-laser .btn-buy-upgrade {
+    background: linear-gradient(90deg, #2a1a00, #443300);
+    border-color: #ffcc0066;
+    color: #ffcc00;
+}
+
+.upgrade-col-laser .btn-buy-upgrade:hover:not(:disabled) {
+    background: linear-gradient(90deg, #3a2400, #554400);
+    box-shadow: 0 0 12px #ffcc0044;
+}
+
+/* Missão requerida */
+.status-label.mission-lock {
+    color: #ff6666;
+    background: #1a0000;
+    border: 1px solid #ff444422;
+    font-size: 0.56rem;
+    line-height: 1.5;
+    padding: 8px 6px;
+}
+

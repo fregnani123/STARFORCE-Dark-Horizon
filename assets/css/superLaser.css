@@ -210,3 +210,24 @@
 .laser-percent{
     font-size: .9rem !important;
 }
+
+/* Super Laser — estado BLOQUEADO (não comprado) */
+#superLaserButton.laser-locked {
+    border-color: #444 !important;
+    opacity: 0.55;
+    cursor: not-allowed;
+    filter: grayscale(80%) brightness(0.6);
+    animation: none !important;
+    box-shadow: none !important;
+}
+
+#superLaserButton.laser-locked .laser-label {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+#superLaserButton.laser-locked .laser-percent {
+    font-size: 0.55rem !important;
+    color: #ff6666;
+    letter-spacing: 1px;
+}

@@ -28,6 +28,8 @@ function showLoadingScreen(callback) {
  * Esta função é chamada como callback após o vídeo de logo.
  */
 export function mostrarTelaInicial() {
+    const divIndex = document.getElementById('div-index');
+    if (divIndex) divIndex.style.display = 'flex';
     if (telaInicio) telaInicio.style.display = 'flex';
     if (videoFundo) videoFundo.play().catch(() => {});
     

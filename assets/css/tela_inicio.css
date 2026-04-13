@@ -11,7 +11,7 @@ html, body {
     overflow: hidden;
 }
 #div-index{
-    display:flex;
+    display:none;
 }
 #container_levelGame{
       display: none;
@@ -73,14 +73,14 @@ html, body {
 /* ====================================================================== */
 /* --- ESTADO NORMAL (Com formato Sci-Fi e Animação de Fogo) --- */
 .botao-menu {
-    padding: 12px 20px; /* Aumentado lateralmente por causa do clip-path */
+    padding: 12px 20px;
     font-family: 'Orbitron', sans-serif;
     font-size: 14px;
     font-weight: 700;
-    width: 200px; /* Largura levemente maior para o texto não bater no corte */
+    width: 200px;
     position: relative;
     z-index: 1;
-    margin-bottom: -5px;
+    margin-bottom: 12px;
 
     /* 🔥 Gradiente de fogo */
     background: linear-gradient(
@@ -152,6 +152,7 @@ html, body {
     justify-content: center;
     align-items: flex-start;
     padding-left: 200px;
+    gap: 4px;
     z-index: 10;
     background-size: 300% 300%;
 }

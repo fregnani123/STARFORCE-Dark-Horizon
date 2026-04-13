@@ -20,6 +20,18 @@
     align-items: center;
 }
 
+#confirmNewGameOverlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 10001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .creation-box {
     padding: 2.5rem;
     border: 2px solid #ffd900;
@@ -93,6 +105,63 @@
     transform: translateY(-2px);
 }
 
+#cancelarPlayer {
+    width: 100%;
+    padding: 15px;
+    background: #555;
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+    transition: 0.3s;
+}
+
+#cancelarPlayer:hover {
+    background: #777;
+    transform: translateY(-2px);
+}
+
+#confirmarReset {
+    width: 100%;
+    padding: 15px;
+    background: #d9534f;
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+    transition: 0.3s;
+}
+
+#confirmarReset:hover {
+    background: #ff6b63;
+    transform: translateY(-2px);
+}
+
+#cancelarReset {
+    width: 100%;
+    padding: 15px;
+    background: #555;
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+    transition: 0.3s;
+}
+
+#cancelarReset:hover {
+    background: #777;
+    transform: translateY(-2px);
+}
+
 /* ======================================================
    3. CUTSCENE (HUD, REC, TIMER E SOBREPOSIÇÃO)
    ====================================================== */
@@ -108,112 +177,14 @@
     overflow: hidden;
 }
 
-@media (min-width: 1025px) {
-    #cutsceneContainer::before {
-        content: "SYSTEM_BOOT_SEQUENCE... \A LOADING_STORY_DATA... \A PILOT_IDENTIFIED \A ENCRYPTED_SIGNAL...";
-        white-space: pre;
-        position: absolute;
-        left: 5%;
-        color: rgba(255, 217, 0, 0.4);
-        font-family: 'Orbitron', sans-serif;
-        font-size: 0.75rem;
-        line-height: 2;
-        z-index: 20005;
-        pointer-events: none;
-    }
-
-    #cutsceneContainer::after {
-        content: "RADAR_ACTIVE \A [||||||||||||] 100% \A SECTOR_7G \A NO_THREATS_FOUND";
-        white-space: pre;
-        position: absolute;
-        right: 5%;
-        color: rgba(255, 217, 0, 0.4);
-        font-family: 'Orbitron', sans-serif;
-        font-size: 0.75rem;
-        line-height: 2;
-        text-align: right;
-        z-index: 20005;
-        pointer-events: none;
-    }
-}
-
-.video-wrapper {
-    position: relative;
+#historiaFrame {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 20001;
+    border: none;
+    z-index: 1;
 }
-
-#historyVideo {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    z-index: 20002;
-}
-
-.video-background-blur {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-    background-size: 100% 4px;
-    z-index: 20006;
-    pointer-events: none;
-}
-
-.video-hud-overlay {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 20008;
-    pointer-events: none;
-    padding: 40px;
-    box-sizing: border-box;
-    font-family: 'Orbitron', sans-serif;
-}
-
-.hud-top-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.rec-indicator {
-    color: #ff0000;
-    font-weight: bold;
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.rec-indicator::before {
-    content: "";
-    width: 12px; height: 12px;
-    background: #ff0000;
-    border-radius: 50%;
-    animation: blink 1s steps(2, start) infinite;
-}
-
-#videoTimer {
-    color: #ffd900;
-    font-size: 1.2rem;
-    letter-spacing: 2px;
-}
-
-/* Cantoneiras HUD */
-.corner {
-    position: absolute;
-    width: 30px; height: 30px;
-    border: 2px solid rgba(255, 217, 0, 0.3);
-}
-.top-left { top: 20px; left: 20px; border-right: 0; border-bottom: 0; }
-.top-right { top: 20px; right: 20px; border-left: 0; border-bottom: 0; }
-.bottom-left { bottom: 20px; left: 20px; border-right: 0; border-top: 0; }
-.bottom-right { bottom: 20px; right: 20px; border-left: 0; border-top: 0; }
 
 #skipCutscene {
     position: absolute;
@@ -271,10 +242,3 @@
     filter: brightness(1.1);
 }
 
-
-.video-hud-top{
-    position: absolute;
-    bottom: 20px;
-    z-index: 999999;
-
-}

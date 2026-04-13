@@ -6,15 +6,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/overlay.css">
   <link rel="stylesheet" href="../assets/css/levelGame.css">
-  <link rel="stylesheet" href="../assets/css/tela_inicio.css">    
-  <link rel="stylesheet" href="../assets/css/btn-HUD.css">    
-  <link rel="stylesheet" href="../assets/css/update_nave.css">    
-  <link rel="stylesheet" href="../assets/css/superLaser.css">    
-  <link rel="stylesheet" href="../assets/css/novo-jogo.css">    
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">   
+  <link rel="stylesheet" href="../assets/css/tela_inicio.css"> 
+  <link rel="stylesheet" href="../assets/css/btn-HUD.css"> 
+  <link rel="stylesheet" href="../assets/css/update_nave.css"> 
+  <link rel="stylesheet" href="../assets/css/upgrade.css">
+  <link rel="stylesheet" href="../assets/css/superLaser.css"> 
+  <link rel="stylesheet" href="../assets/css/novo-jogo.css"> 
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../assets/css/settings.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
-    <title> Starforce Dark Horizon</title>
+  <title> Starforce Dark Horizon</title>
 </head>
 
 <body>
@@ -27,27 +29,26 @@
     <p>Loading Game...</p>
   </div>
 
-
-      <div id="loadingOverlay">
-            <div class="spinner"></div>
-            <p>Loading Game...</p>
-       </div>
+ <div id="loadingOverlay">
+   <div class="spinner"></div>
+   <p>Loading Game...</p>
+    </div>
 
   <div id="div-index">
-      <div class="video-dark-overlay "></div>
+     <div class="video-dark-overlay "></div>
 
 
-        <div class="tela-inicio">
-              <div class="menu-posicionamento">
-                    <img src="../assets/img/cenario-start/ring-12779.gif" class="gif-centralizado">
-                    <button id="continuar" class="botao-menu">CONTINUAR</button>
-                    <button id="novo-jogo" class="botao-menu">NOVO JOGO</button>
-                    <button id="configButton" class="botao-menu">CONFIGURAÇÕES</button>
-                    <button id="exit" class="botao-menu">SAIR</button>
-                </div>
-              <video autoplay muted id="video-fundo">
+ <div class="tela-inicio">
+       <div class="menu-posicionamento">
+      <img src="../assets/img/cenario-start/ring-12779.gif" class="gif-centralizado">
+         <button id="continuar" class="botao-menu">CONTINUAR</button>
+         <button id="novo-jogo" class="botao-menu">NOVO JOGO</button>
+         <button id="configButton" class="botao-menu">CONFIGURAÇÕES</button>
+         <button id="exit" class="botao-menu">SAIR</button>
+         </div>
+        <video autoplay muted id="video-fundo">
         <source src="../assets/video/videoStart.mp4" type="video/mp4">
-                    Seu navegador não suporta a tag de vídeo.
+         Seu navegador não suporta a tag de vídeo.
       </video>
     </div>
   </div>
@@ -61,28 +62,34 @@
       <h2>REGISTRO DE PILOTO</h2>
       <p>Insira seu código de identificação:</p>
       <input type="text" id="playerNameInput" placeholder="NOME DO PILOTO" maxlength="15">
-      <button id="confirmarPlayer" class="botao-menu">INICIAR MISSÃO</button>
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button id="confirmarPlayer" class="botao-menu" style="flex: 1;">INICIAR MISSÃO</button>
+        <button id="cancelarPlayer" class="botao-menu" style="flex: 1; background: #555;">CANCELAR</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmNewGameOverlay" class="hidden">
+    <div class="creation-box" style="max-width: 500px;">
+      <h2>⚠️ AVISO</h2>
+      <p id="warningText">Iniciar um novo jogo apagará seu progresso atual.</p>
+      <p id="progressDetails" style="color: #ffd900; margin-bottom: 20px;"></p>
+      <p style="margin-bottom: 20px;">Tem certeza que deseja continuar?</p>
+      <div style="display: flex; gap: 10px;">
+        <button id="confirmarReset" class="botao-menu" style="flex: 1; background: #d9534f;">APAGAR E COMEÇAR</button>
+        <button id="cancelarReset" class="botao-menu" style="flex: 1;">VOLTAR</button>
+      </div>
     </div>
   </div>
 
   <div id="cutsceneContainer" class="hidden">
-    <div class="video-background-blur"></div>
-
-    <div class="video-wrapper">
-      <div class="video-hud-top">
-        <div class="rec-indicator">REC</div>
-        <div class="timer-group">
-          <span class="year-label">YEAR: 4098 A.D.</span>
-          <div id="videoTimer">00:00:00</div>
-        </div>
-      </div>
-
-      <video id="historyVideo">
-        <source src="../assets/video/inicio_game.mp4" type="video/mp4">
-        Seu navegador não suporta vídeos.
-      </video>
-      <button id="skipCutscene">PULAR [ESC]</button>
-    </div>
+    <iframe
+      id="historiaFrame"
+      src=""
+      style="position:absolute;inset:0;width:100%;height:100%;border:none;z-index:1;"
+      allowfullscreen
+    ></iframe>
+    <button id="skipCutscene">PULAR [ESC]</button>
   </div>
 
   <!-- 
@@ -101,11 +108,11 @@
       <div class="header">
         <button class="btn" id="menuBtnFases">Menu</button>
         <div>
-          <div class="title">Progresso do Jogador</div>
+          <div class="title">Piloto: <span id="pilotNameDisplay">---</span></div>
           <div class="subtitle">Tabuleiro vertical — evolução de fases</div>
         </div>
         <div class="controls">
-          <button class="btn" id="resetBtn">Reset</button>
+          <button class="btn" id="resetBtn">PRIMEIRA MISSÃO</button>
           <button class="btn" id="nextBtn">Avançar</button>
         </div>
       </div>
@@ -117,7 +124,7 @@
             <span>CUSTOMIZE HULL</span>
           </button>
 
-          <button class="btn-update btn-upgrade">
+          <button class="btn-update btn-upgrade" id="btn-upgrade-open">
             <img src="../assets/img/cenarios/update.png" alt="Upgrade">
             <span>UPGRADE SHIP</span>
           </button>
@@ -138,6 +145,7 @@
         <div class="chip">Nível: <strong id="lvl">1</strong></div>
         <div class="chip">XP: <strong id="xp">0/100</strong></div>
         <div class="chip">Checkpoints: <strong id="cp">0</strong></div>
+        <div class="chip">⭐ Estrelas: <strong id="starCountMissions">0</strong></div>
       </div>
     </div>
     <!-- <video id="bgVideo" loop muted>
@@ -160,14 +168,88 @@
 
           <div id="pause-Menu">
             <h4>PAUSADO</h4>
-            <button class="pause-menu-button">CONTINUAR</button>
-            <button class="pause-menu-button">CONFIGURAÇÕES</button>
-            <button class="pause-menu-button">SAIR DA MISSÃO</button>
+            <button id="pauseContinueBtn" class="pause-menu-button">CONTINUAR</button>
+            <button id="pauseSettingsBtn" class="pause-menu-button">CONFIGURAÇÕES</button>
+            <button id="pauseExitBtn" class="pause-menu-button">SAIR DA MISSÃO</button>
           </div>
           <p class="p-pause">Pressione P ou ESC para continuar rapidamente.</p>
         </div>
         <div id="bossHealthBarContainer">
           <div id="bossHealthBar"></div>
+        </div>
+
+        <!-- MISSÃO COMPLETA -->
+        <div id="missionCompleteOverlay" class="hidden" style="
+          position: absolute; inset: 0;
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          background: rgba(0,0,0,0.82);
+          z-index: 999;
+          font-family: 'Orbitron', sans-serif;
+        ">
+          <div style="
+            border: 2px solid rgba(0,183,255,0.85);
+            box-shadow: 0 0 40px rgba(0,183,255,0.35), inset 0 0 32px rgba(0,183,255,0.08);
+            background: rgba(5,12,24,0.96);
+            padding: 48px 72px;
+            border-radius: 14px;
+            text-align: center;
+            min-width: 420px;
+          ">
+            <div style="font-size:11px; letter-spacing:7px; color:#ffd64a; margin-bottom:14px; opacity:0.85;">✦ STARFORCE DARK HORIZON ✦</div>
+            <h1 style="font-size:36px; color:#fff; margin:0 0 4px; text-shadow: 0 0 24px rgba(0,183,255,0.7); letter-spacing:2px;">MISSÃO COMPLETA!</h1>
+            <p id="missionCompleteSubtitle" style="color:#66d9ff; font-size:12px; letter-spacing:4px; margin:0 0 28px; opacity:0.9;"></p>
+
+            <!-- Divisor -->
+            <div style="border-top:1px solid rgba(0,183,255,0.25); margin-bottom:24px;"></div>
+
+            <!-- Stats grid -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px 32px; margin-bottom:28px; text-align:left;">
+              <div>
+                <div style="font-size:9px; letter-spacing:3px; color:#66d9ff; opacity:0.75; margin-bottom:4px;">PILOTO</div>
+                <div id="mc-pilot" style="font-size:16px; color:#fff; letter-spacing:1px;">—</div>
+              </div>
+              <div>
+                <div style="font-size:9px; letter-spacing:3px; color:#66d9ff; opacity:0.75; margin-bottom:4px;">SCORE</div>
+                <div id="mc-score" style="font-size:16px; color:#fff;">—</div>
+              </div>
+              <div>
+                <div style="font-size:9px; letter-spacing:3px; color:#ffd700; opacity:0.8; margin-bottom:4px;">⭐ ESTRELAS COLETADAS</div>
+                <div id="mc-stars-mission" style="font-size:22px; color:#ffd700; font-weight:bold;">0</div>
+              </div>
+              <div>
+                <div style="font-size:9px; letter-spacing:3px; color:#ffd64a; opacity:0.75; margin-bottom:4px;">⭐ TOTAL DE ESTRELAS</div>
+                <div id="mc-stars-total" style="font-size:22px; color:#ffd64a;">0</div>
+              </div>
+              <div>
+                <div style="font-size:9px; letter-spacing:3px; color:#66d9ff; opacity:0.75; margin-bottom:4px;">NÍVEL DE ARMA</div>
+                <div id="mc-weapon" style="font-size:16px; color:#fff;">—</div>
+              </div>
+              <div>
+                <div style="font-size:9px; letter-spacing:3px; color:#66d9ff; opacity:0.75; margin-bottom:4px;">PRÓXIMA MISSÃO</div>
+                <div id="mc-next" style="font-size:16px; color:#66d9ff;">—</div>
+              </div>
+            </div>
+
+            <!-- Divisor -->
+            <div style="border-top:1px solid rgba(255,214,74,0.3); margin-bottom:24px;"></div>
+
+            <button id="missionCompleteBtn" style="
+              background: transparent;
+              border: 2px solid #ffd64a;
+              color: #ffd64a;
+              font-family: 'Orbitron', sans-serif;
+              font-size: 13px;
+              letter-spacing: 4px;
+              padding: 14px 44px;
+              cursor: pointer;
+              border-radius: 6px;
+              box-shadow: 0 0 20px rgba(255,214,74,0.25);
+              transition: all 0.2s;
+            " onmouseover="this.style.background='rgba(255,214,74,0.12)'" onmouseout="this.style.background='transparent'">
+              🚀 CONTINUAR
+            </button>
+          </div>
         </div>
 
         <div id="hudPanel">
@@ -260,120 +342,323 @@
 //  Div customize-hull cores
 // ====================================================== -->
     <div class="customize-hull-overlay" id="customize-hull-overlay">
-      <h2> <span>HULL & HANGAR MODS</span> <button id="btn-close-customize">EXIT</button> </h2>
+
+      <!-- HEADER FIXO — padrão UPGRADE SHIP -->
+      <div class="hull-header">
+        <div class="hull-header-left">
+          <span class="hull-header-title">🚀 HULL &amp; HANGAR MODS</span>
+          <span class="hull-pilot-tag">
+            <span class="hull-tag-label">PILOTO</span>
+            <span id="hull-pilot-name">—</span>
+          </span>
+        </div>
+        <div class="hull-header-center">
+          <div class="hull-stat-chip">
+            <span class="hull-chip-label">⭐ RECURSOS</span>
+            <span id="hull-stars-display" class="hull-chip-value">0</span>
+          </div>
+          <div class="hull-stat-chip">
+            <span class="hull-chip-label">📡 MISSÃO</span>
+            <span id="hull-mission-display" class="hull-chip-value hull-chip-mission">1</span>
+          </div>
+        </div>
+        <div class="hull-header-right">
+          <button id="btn-close-customize">✕ EXIT</button>
+        </div>
+      </div>
+
       <div class="customize-hull-div">
 
-        <div class="display-box">
-          <img id="ship-preview-img" src="../assets/img/nave-player/nave-player.png" alt="Preview">
-        </div>
+        <!-- LINHA SUPERIOR: preview + painel info -->
+        <div class="hull-top-row">
 
+          <!-- ESQUERDA: Preview da nave -->
+          <div class="display-box">
+            <img id="ship-preview-img" src="../assets/img/nave-player/nave-metal.png" alt="Preview">
+          </div>
 
-        <div class="stats-container">
-          <div class="ship-stats">
-            <h3>STATUS DA NAVE</h3>
-            <div class="stat-row">
-              <div class="stat-label"><span>Velocidade</span><span id="val-speed">70%</span></div>
-              <div class="bar">
-                <div id="stat-speed" style="width: 70%"></div>
+          <!-- DIREITA: Painel de informações -->
+          <div class="hull-info-panel">
+            <h3 class="hull-ship-name">NAVE METAL</h3>
+            <p class="hull-rarity">COMUM</p>
+
+            <p class="hull-desc">
+              Engenho de guerra estelar projetado para dominar batalhas no espaço profundo
+              e dentro da atmosfera planetária.
+            </p>
+
+            <!-- Stats superiores: velocidade / resistência / energia -->
+            <div class="hull-stats-top">
+              <div class="hull-stat-item">
+                <label>Velocidade <span id="val-speed">70%</span></label>
+                <div class="hull-bar"><div class="hull-bar-fill" id="stat-speed" style="width:70%"></div></div>
+              </div>
+              <div class="hull-stat-item">
+                <label>Resistência <span id="val-health">80%</span></label>
+                <div class="hull-bar"><div class="hull-bar-fill" id="stat-health" style="width:80%"></div></div>
+              </div>
+              <div class="hull-stat-item">
+                <label>Energia <span id="val-energy">75%</span></label>
+                <div class="hull-bar"><div class="hull-bar-fill" id="stat-energy" style="width:75%"></div></div>
               </div>
             </div>
-            <div class="stat-row">
-              <div class="stat-label"><span>Resistência</span><span id="val-health">50%</span></div>
-              <div class="bar">
-                <div id="stat-health" style="width: 50%"></div>
+
+            <!-- Stats do chassi -->
+            <div class="hull-stats-chassi">
+              <div class="chassi-stat-row">
+                <span>BLINDAGEM</span>
+                <div class="chassi-bar"><div class="chassi-fill armor"></div></div>
+              </div>
+              <div class="chassi-stat-row">
+                <span>VELOCIDADE</span>
+                <div class="chassi-bar"><div class="chassi-fill speed"></div></div>
+              </div>
+              <div class="chassi-stat-row">
+                <span>SLOTS DE ARMAS</span>
+                <div class="slots">
+                  <span class="slot active"></span>
+                  <span class="slot active"></span>
+                  <span class="slot active"></span>
+                  <span class="slot"></span>
+                </div>
               </div>
             </div>
-            <div class="stat-row">
-              <div class="stat-label"><span>Energia</span><span id="val-energy">85%</span></div>
-              <div class="bar">
-                <div id="stat-energy" style="width: 85%"></div>
-              </div>
-            </div>
+
+            <p class="hull-price">CUSTO: 0 ⭐ STARS</p>
+            <button class="btn-buy">EM USO</button>
           </div>
 
         </div>
 
-
-        <div class="selection-section">
+        <!-- CARROSSEL NO RODAPÉ -->
+        <div class="hull-carousel-section">
           <h4>Selecione o Chassi</h4>
-
-          <div class="selection-content">
-
-            <!-- ÁREA DE SELEÇÃO -->
-            <div class="ship-selector">
-              <span class="nav-arrow-1">
-                <img src="../assets/img/cenario-start/esquerda.png" alt="">
-              </span>
-
-              <div class="ship-grid">
-                <div class="ship-item active">
-                  <img class="ship-item-img" src="../assets/img/nave-player/-2.png">
-                </div>
-                <div class="ship-item">
-                  <img class="ship-item-img" src="../assets/img/nave-player/-2.png">
-                </div>
-                <div class="ship-item">
-                  <img class="ship-item-img" src="../assets/img/nave-player/-2.png">
-                </div>
-                <div class="ship-item">
-                  <img class="ship-item-img" src="../assets/img/nave-player/-2.png">
-                </div>
-              </div>
-
-              <span class="nav-arrow-2">
-                <img src="../assets/img/cenario-start/direita.png" alt="">
-              </span>
-            </div>
-
-            <!-- INFO DO CHASSI -->
-            <div class="ship-info">
-              <h3>CARACTERÍSTICAS DO CHASSI</h3>
-
-              <p class="desc">
-                Engenho de guerra estelar projetado para dominar batalhas no espaço profundo
-                e dentro da atmosfera planetária.
-              </p>
-
-              <!-- STATS -->
-              <div class="ship-stats-2">
-
-                <div class="stat">
-                  <span>BLINDAGEM</span>
-                  <div class="chassi-bar">
-                    <div class="chassi-fill armor"></div>
-                  </div>
-                </div>
-
-                <div class="stat">
-                  <span>VELOCIDADE</span>
-                  <div class="chassi-bar">
-                    <div class="chassi-fill speed"></div>
-                  </div>
-                </div>
-
-                <div class="stat">
-                  <span>SLOTS DE ARMAS</span>
-                  <div class="slots">
-                    <span class="slot active"></span>
-                    <span class="slot active"></span>
-                    <span class="slot active"></span>
-                    <span class="slot"></span>
-                  </div>
-                </div>
-              </div>
-
-              <p class="price">CUSTO: 150 STAR YELLOW</p>
-
-              <button class="btn-buy">ADIQUIRIR CHASSI</button>
-            </div>
+          <div class="ship-selector">
+            <span class="nav-arrow-1"><img src="../assets/img/cenario-start/esquerda.png" alt="←"></span>
+            <div class="ship-grid"><!-- Populado por customize.js --></div>
+            <span class="nav-arrow-2"><img src="../assets/img/cenario-start/direita.png" alt="→"></span>
           </div>
         </div>
-
 
       </div>
     </div>
 
   </div>
+
+  <!-- =============================================
+       UPGRADE SHIP OVERLAY
+  ============================================== -->
+  <div id="upgrade-ship-overlay" class="upgrade-overlay hidden">
+    <div class="upgrade-modal">
+
+      <!-- HEADER FIXO -->
+      <div class="upgrade-header">
+        <div class="upgrade-header-left">
+          <span class="upgrade-title">⚡ UPGRADE SHIP</span>
+          <span class="upgrade-pilot-tag">
+            <span class="tag-label">PILOTO</span>
+            <span id="upgrade-pilot-name">—</span>
+          </span>
+        </div>
+        <div class="upgrade-header-center">
+          <div class="upgrade-stat-chip">
+            <span class="chip-label">⭐ ESTRELAS</span>
+            <span id="upgrade-stars-display" class="chip-value">0</span>
+          </div>
+          <div class="upgrade-stat-chip">
+            <span class="chip-label">📡 MISSÃO</span>
+            <span id="upgrade-mission-display" class="chip-value">1</span>
+          </div>
+        </div>
+        <div class="upgrade-header-right">
+          <button id="btn-close-upgrade">✕ EXIT</button>
+        </div>
+      </div>
+
+      <!-- CORPO ROLÁVEL -->
+      <div class="upgrade-body">
+        <div class="upgrade-grid">
+
+          <!-- WEAPON -->
+          <div class="upgrade-col" id="upgrade-col-weapon">
+            <div class="upgrade-col-title">🔫 ARMAMENTO</div>
+            <div class="upgrade-levels" id="weapon-levels"></div>
+          </div>
+
+          <!-- HULL -->
+          <div class="upgrade-col" id="upgrade-col-hull">
+            <div class="upgrade-col-title">🛡️ BLINDAGEM</div>
+            <div class="upgrade-levels" id="hull-levels"></div>
+          </div>
+
+          <!-- ENGINE -->
+          <div class="upgrade-col" id="upgrade-col-engine">
+            <div class="upgrade-col-title">🚀 PROPULSÃO</div>
+            <div class="upgrade-levels" id="engine-levels"></div>
+          </div>
+
+          <!-- SUPER LASER -->
+          <div class="upgrade-col upgrade-col-laser" id="upgrade-col-laser">
+            <div class="upgrade-col-title">⚡ SUPER LASER</div>
+            <div class="upgrade-levels" id="laser-levels"></div>
+          </div>
+
+          <!-- NAVE PARCEIRA -->
+          <div class="upgrade-col upgrade-col-laser" id="upgrade-col-wingman">
+            <div class="upgrade-col-title">🦊 NAVE PARCEIRA</div>
+            <div class="upgrade-levels" id="wingman-levels"></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =============================================
+       SETTINGS OVERLAY
+  ============================================== -->
+  <div id="settings-overlay" class="settings-overlay hidden">
+    <div class="settings-modal">
+
+      <!-- HEADER -->
+      <div class="settings-header">
+        <span class="settings-title">⚙ CONFIGURAÇÕES</span>
+        <button id="btn-close-settings">✕ EXIT</button>
+      </div>
+
+      <!-- BODY ROLÁVEL -->
+      <div class="settings-body">
+
+        <!-- ÁUDIO -->
+        <div class="settings-section">
+          <div class="settings-section-title">🔊 Áudio</div>
+
+          <div class="settings-row">
+            <div class="settings-label">
+              Volume da Música
+              <small>Controla a intensidade da trilha sonora</small>
+            </div>
+            <div class="settings-slider-wrap">
+              <input type="range" id="setting-music-volume" class="settings-slider" min="0" max="100" value="100">
+              <span class="slider-value" id="val-music-volume">100%</span>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-label">
+              Volume dos Efeitos Sonoros
+              <small>Tiros, explosões e coletas de estrelas</small>
+            </div>
+            <div class="settings-slider-wrap">
+              <input type="range" id="setting-sfx-volume" class="settings-slider" min="0" max="100" value="100">
+              <span class="slider-value" id="val-sfx-volume">100%</span>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-label">
+              Música Ligada
+              <small>Liga ou desliga a música de fundo</small>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-music-enabled" checked>
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-label">
+              Efeitos Sonoros Ligados
+              <small>Liga ou desliga todos os efeitos de som</small>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-sfx-enabled" checked>
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- VÍDEO -->
+        <div class="settings-section">
+          <div class="settings-section-title">🖥 Vídeo</div>
+
+          <div class="settings-row">
+            <div class="settings-label">
+              Tela Cheia
+              <small>Alterna entre modo janela e tela cheia</small>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-fullscreen" checked>
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-label">
+              Qualidade das Partículas
+              <small>Explosões, rastros e efeitos visuais</small>
+            </div>
+            <select id="setting-particle" class="settings-select">
+              <option value="high">ALTA</option>
+              <option value="medium">MÉDIA</option>
+              <option value="low">BAIXA</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- JOGO -->
+        <div class="settings-section">
+          <div class="settings-section-title">🎮 Jogo</div>
+
+          <div class="settings-row">
+            <div class="settings-label">
+              Exibir Dicas de Controles na HUD
+              <small>Mostra atalhos e indicações na tela de batalha</small>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-control-hints" checked>
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-label">
+              Idioma
+              <small>Language / Idioma do jogo</small>
+            </div>
+            <select id="setting-language" class="settings-select">
+              <option value="pt-BR">PT-BR</option>
+              <option value="en">ENGLISH</option>
+              <option value="es">ESPAÑOL</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- CONTROLES -->
+        <div class="settings-section">
+          <div class="settings-section-title">⌨ Mapa de Controles</div>
+          <div class="keybind-grid">
+            <div class="keybind-row"><span>Mover nave</span><span class="keybind-key">← ↑ ↓ →</span></div>
+            <div class="keybind-row"><span>Atirar</span><span class="keybind-key">SPACE</span></div>
+            <div class="keybind-row"><span>Super Laser</span><span class="keybind-key">Q</span></div>
+            <div class="keybind-row"><span>Upgrade Ship</span><span class="keybind-key">U</span></div>
+            <div class="keybind-row"><span>Pause</span><span class="keybind-key">ESC</span></div>
+            <div class="keybind-row"><span>Hull & Hangar</span><span class="keybind-key">H</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RODAPÉ COM SALVAR -->
+      <div class="settings-save-bar">
+        <span class="settings-saved-msg" id="settings-saved-msg">✔ SALVO COM SUCESSO</span>
+        <button id="btn-save-settings">💾 SALVAR</button>
+      </div>
+
+    </div>
+  </div>
+
 </body>
 <script type="module" src="../script/init.js"></script>
 

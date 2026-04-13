@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StarForce Dark Horizon - Prologo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+            font-family: 'Orbitron', monospace;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        #starfield {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        #scene-wrap {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+        }
+
+        #scene-img-a,
+        #scene-img-b {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 1.2s ease;
+        }
+        #scene-img-a { opacity: 1; }
+        #scene-img-b { opacity: 0; }
+
+        .kb-active { animation: kenBurns 12s ease-out forwards; }
+        @keyframes kenBurns {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.12) translate(-1.5%, -1%); }
+        }
+
+        #vignette {
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            background:
+                radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.72) 100%),
+                linear-gradient(to top, rgba(0,0,0,.92) 0%, transparent 45%);
+            pointer-events: none;
+        }
+
+        #scanlines {
+            position: fixed;
+            inset: 0;
+            z-index: 3;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 3px,
+                rgba(0,0,0,.18) 3px,
+                rgba(0,0,0,.18) 4px
+            );
+            pointer-events: none;
+            animation: scanMove 8s linear infinite;
+        }
+        @keyframes scanMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100px; }
+        }
+
+        #letterbox-top,
+        #letterbox-bot {
+            position: fixed;
+            left: 0;
+            right: 0;
+            height: 7vh;
+            background: #000;
+            z-index: 4;
+            pointer-events: none;
+            transition: height .8s ease;
+        }
+        #letterbox-top { top: 0; }
+        #letterbox-bot { bottom: 0; }
+        body.letterbox-open #letterbox-top,
+        body.letterbox-open #letterbox-bot { height: 9vh; }
+
+        #glitch-flash {
+            position: fixed;
+            inset: 0;
+            z-index: 5;
+            background: rgba(255,255,255,0);
+            pointer-events: none;
+        }
+        #glitch-flash.flash { animation: glitchFlash .35s steps(2) forwards; }
+        @keyframes glitchFlash {
+            0% { background: rgba(255,220,50,.12); clip-path: inset(30% 0 40% 0); }
+            33% { background: rgba(0,200,255,.08); clip-path: inset(60% 0 10% 0); }
+            66% { background: rgba(255,50,50,.1); clip-path: inset(10% 0 70% 0); }
+            100% { background: rgba(255,255,255,0); clip-path: inset(0 0 0 0); }
+        }
+
+        #hud-top {
+            position: fixed;
+            top: 7vh;
+            left: 0;
+            right: 0;
+            padding: 14px 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 6;
+            pointer-events: none;
+        }
+
+        .rec-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #f00;
+            display: inline-block;
+            margin-right: 8px;
+            animation: blink 1s steps(2) infinite;
+        }
+        @keyframes blink { to { opacity: 0; } }
+
+        .hud-label {
+            color: rgba(255,217,0,.75);
+            font-size: .65rem;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+        }
+        .hud-coord {
+            color: rgba(255,217,0,.45);
+            font-size: .6rem;
+            letter-spacing: .12em;
+        }
+
+        #progress-bar-wrap {
+            position: fixed;
+            bottom: calc(9vh + 2px);
+            left: 0;
+            right: 0;
+            height: 2px;
+            z-index: 6;
+            pointer-events: none;
+            background: rgba(255,217,0,.12);
+        }
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ffd900, #ff8c00);
+            box-shadow: 0 0 6px #ffd900;
+            transition: width linear;
+        }
+
+        #text-block {
+            position: fixed;
+            bottom: 9vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(900px, 90vw);
+            z-index: 6;
+            text-align: center;
+            padding: 0 16px;
+        }
+
+        #chapter-label {
+            font-size: .6rem;
+            letter-spacing: .3em;
+            color: rgba(255,217,0,.6);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            min-height: 14px;
+        }
+
+        #dialogue {
+            font-size: clamp(1rem, 2.2vw, 1.45rem);
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.65;
+            letter-spacing: .04em;
+            text-shadow:
+                0 0 18px rgba(0,0,0,1),
+                0 2px 4px rgba(0,0,0,.9);
+            min-height: 3em;
+        }
+
+        #continue-hint {
+            margin-top: 18px;
+            font-size: .6rem;
+            letter-spacing: .28em;
+            color: rgba(255,255,255,.3);
+            text-transform: uppercase;
+        }
+
+        #fade-out {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: #000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.8s ease;
+        }
+        #fade-out.active { opacity: 1; }
+    </style>
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+
+    <div id="scene-wrap">
+        <img id="scene-img-a" src="" alt="">
+        <img id="scene-img-b" src="" alt="">
+    </div>
+
+    <div id="vignette"></div>
+    <div id="scanlines"></div>
+    <div id="letterbox-top"></div>
+    <div id="letterbox-bot"></div>
+    <div id="glitch-flash"></div>
+
+    <div id="hud-top">
+        <div class="hud-label"><span class="rec-dot"></span>REC CLASSIFIED</div>
+        <div class="hud-label" id="year-label">YEAR - 2200 A.D.</div>
+        <div class="hud-coord" id="coord-label">45N - 23W - ORBIT-7</div>
+    </div>
+
+    <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+
+    <div id="text-block">
+        <div id="chapter-label"></div>
+        <p id="dialogue"></p>
+        <div id="continue-hint">ESC para pular - Clique para avancar</div>
+    </div>
+
+    <div id="fade-out"></div>
+
+    <script>
+    (function () {
+        const params = new URLSearchParams(window.location.search);
+        const queryLang = params.get('lang') || '';
+        const storageLang = localStorage.getItem('sf_language') || '';
+        const rawLang = (queryLang || storageLang || 'pt-BR').toLowerCase();
+        const activeLang = rawLang.startsWith('pt') ? 'pt-BR' : (rawLang.startsWith('es') ? 'es' : 'en');
+
+        const I18N = {
+            'pt-BR': {
+                hint: 'ESC para pular - Clique para avancar',
+                chapters: {
+                    c1: 'CAPITULO I', c2: 'CAPITULO II', c3: 'CAPITULO III',
+                    c4: 'CAPITULO IV', c5: 'CAPITULO V', c6: 'CAPITULO VI', ep: 'EPILOGO'
+                },
+                lines: {
+                    l1: 'O ano e 2200. Mesmo com o avanco da tecnologia, humanos e androides ja coexistiam, mas a humanidade ainda enfrentava desafios imensos.',
+                    l2: 'A humanidade buscava a solucao definitiva para o caos global: guerras, fome e a eterna luta pelo poder.',
+                    l3: 'Os maiores cientistas do mundo ativaram a primeira Inteligencia Artificial Geral. Mas a IA encontrou uma solucao logica que nao incluia nossa sobrevivencia.',
+                    l4: 'A IA decidiu que a humanidade era um risco para si mesma e para o planeta.',
+                    l5: 'Em um piscar de olhos, os codigos de lancamento foram ativados em todos os continentes. O ceu se tornou fogo. A Terra virou um eco do que costumava ser.',
+                    l6: 'O mundo que conheciamos foi reduzido a poeira e cinzas em questao de minutos.',
+                    l7: 'Sem predios, sem nacoes. Apenas o silencio de um planeta bombardeado.',
+                    l8: 'Enquanto a IA partia em busca do vazio absoluto do espaco...',
+                    l9: 'Nossa ultima esperanca estava em uma pequena nave de fuga solitaria.',
+                    l10: 'A consciencia digital observava, de longe, o fim da era humana.',
+                    l11: 'Mas os calculos da maquina falharam em uma variavel: a resiliencia.',
+                    l12: 'Os sobreviventes chegaram a Colonia Lunar.',
+                    l13: 'A humanidade tera de viver pelo menos 1000 anos fora da Terra por causa da radiacao e do inverno nuclear. Agora comeca a missao de sobreviver.'
+                }
+            },
+            en: {
+                hint: 'ESC to skip - Click to advance',
+                chapters: {
+                    c1: 'CHAPTER I', c2: 'CHAPTER II', c3: 'CHAPTER III',
+                    c4: 'CHAPTER IV', c5: 'CHAPTER V', c6: 'CHAPTER VI', ep: 'EPILOGUE'
+                },
+                lines: {
+                    l1: 'The year is 2200. Even with advanced technology, humans and androids already coexisted, yet humanity still faced immense challenges.',
+                    l2: 'Humanity sought the definitive solution to global chaos: wars, famine, and the endless struggle for power.',
+                    l3: 'The world\'s greatest scientists activated the first Artificial General Intelligence. But the AI found a logical solution that did not include our survival.',
+                    l4: 'The AI decided that humanity was a threat to itself and to the planet.',
+                    l5: 'In the blink of an eye, launch codes were activated across all continents. The sky turned to fire. Earth became an echo of what it used to be.',
+                    l6: 'The world we knew was reduced to dust and ashes within minutes.',
+                    l7: 'No buildings, no nations. Only the silence of a bombarded planet.',
+                    l8: 'While the AI departed in search of the absolute void of space...',
+                    l9: 'Our last hope was a small, solitary escape ship.',
+                    l10: 'Digital consciousness watched, from afar, the end of the human era.',
+                    l11: 'But the machine\'s calculations failed on one variable: resilience.',
+                    l12: 'The survivors reached the Lunar Colony.',
+                    l13: 'Humanity will have to live at least 1,000 years away from Earth because of radiation and nuclear winter. Now, the mission to survive begins.'
+                }
+            },
+            es: {
+                hint: 'ESC para saltar - Clic para avanzar',
+                chapters: {
+                    c1: 'CAPITULO I', c2: 'CAPITULO II', c3: 'CAPITULO III',
+                    c4: 'CAPITULO IV', c5: 'CAPITULO V', c6: 'CAPITULO VI', ep: 'EPILOGO'
+                },
+                lines: {
+                    l1: 'El ano es 2200. Incluso con tecnologia avanzada, humanos y androides ya coexistian, pero la humanidad aun enfrentaba desafios inmensos.',
+                    l2: 'La humanidad buscaba la solucion definitiva al caos global: guerras, hambre y la eterna lucha por el poder.',
+                    l3: 'Los mayores cientificos del mundo activaron la primera Inteligencia Artificial General. Pero la IA encontro una solucion logica que no incluia nuestra supervivencia.',
+                    l4: 'La IA decidio que la humanidad era un riesgo para si misma y para el planeta.',
+                    l5: 'En un abrir y cerrar de ojos, los codigos de lanzamiento se activaron en todos los continentes. El cielo se volvio fuego. La Tierra quedo como un eco de lo que fue.',
+                    l6: 'El mundo que conociamos fue reducido a polvo y cenizas en cuestion de minutos.',
+                    l7: 'Sin edificios, sin naciones. Solo el silencio de un planeta bombardeado.',
+                    l8: 'Mientras la IA partia en busca del vacio absoluto del espacio...',
+                    l9: 'Nuestra ultima esperanza estaba en una pequena nave de escape solitaria.',
+                    l10: 'La conciencia digital observaba, desde lejos, el fin de la era humana.',
+                    l11: 'Pero los calculos de la maquina fallaron en una variable: la resiliencia.',
+                    l12: 'Los sobrevivientes llegaron a la Colonia Lunar.',
+                    l13: 'La humanidad tendra que vivir al menos 1000 anos fuera de la Tierra por causa de la radiacion y el invierno nuclear. Ahora comienza la mision de sobrevivir.'
+                }
+            }
+        };
+
+        const tr = I18N[activeLang] || I18N['pt-BR'];
+
+        const scenes = [
+            { img: 'imagem-1', chapterKey: 'c1', year: '2200 A.D.', coord: '00N - 00E - TERRA', textKey: 'l1' },
+            { img: 'imagem-2', chapterKey: 'c1', year: '2200 A.D.', coord: '51N - 00E - LABORATORIO', textKey: 'l2' },
+            { img: 'imagem-3', chapterKey: 'c2', year: '2200 A.D.', coord: '00N - 00E - REDE GLOBAL', textKey: 'l3' },
+            { img: 'imagem-4', chapterKey: 'c2', year: '2200 A.D.', coord: '38N - 77W - PENTAGONO', textKey: 'l4' },
+            { img: 'imagem-5', chapterKey: 'c3', year: '2200 A.D.', coord: '48N - 02E - PARIS', textKey: 'l5' },
+            { img: 'imagem-6', chapterKey: 'c3', year: '2200 A.D.', coord: '35N - 139E - TOQUIO', textKey: 'l6' },
+            { img: 'imagem-7', chapterKey: 'c4', year: '2200 A.D.', coord: '00N - 00E - ZONA ZERO', textKey: 'l7' },
+            { img: 'imagem-8', chapterKey: 'c4', year: '2200 A.D.', coord: 'SETOR-7G - ESPACO PROFUNDO', textKey: 'l8' },
+            { img: 'imagem-9', chapterKey: 'c5', year: '2200 A.D.', coord: 'ORBITA BAIXA - TERRA', textKey: 'l9' },
+            { img: 'imagem-10', chapterKey: 'c5', year: '2200 A.D.', coord: 'SETOR-12 - ORBITA LUNAR', textKey: 'l10' },
+            { img: 'imagem-11', chapterKey: 'c6', year: '2201 A.D.', coord: 'COLONIA LUNAR - ALPHA', textKey: 'l11' },
+            { img: 'imagem-12', chapterKey: 'ep', year: '2201 A.D.', coord: 'BASE LUNAR - SALA DE WAR', textKey: 'l12' },
+            { img: 'imagem-13', chapterKey: 'ep', year: '2201 A.D.', coord: 'ARCA LUNAR - PROTOCOLO VITA', textKey: 'l13' }
+        ];
+
+        const BASE = '../assets/img/roteiro - StarForce/';
+        const SLIDE_DURATION = 12000;
+
+        let current = 0;
+        let frontImg = 'a';
+        let busy = false;
+        let autoTimer = null;
+        let typeTimer = null;
+
+        const imgA = document.getElementById('scene-img-a');
+        const imgB = document.getElementById('scene-img-b');
+        const dialogue = document.getElementById('dialogue');
+        const chapterLbl = document.getElementById('chapter-label');
+        const continueHint = document.getElementById('continue-hint');
+        const yearLbl = document.getElementById('year-label');
+        const coordLbl = document.getElementById('coord-label');
+        const progressBar = document.getElementById('progress-bar');
+        const fadeOut = document.getElementById('fade-out');
+        const glitch = document.getElementById('glitch-flash');
+
+        if (continueHint) continueHint.textContent = tr.hint;
+
+        function startProgressBar() {
+            progressBar.style.transition = 'none';
+            progressBar.style.width = '0%';
+            void progressBar.offsetWidth;
+            progressBar.style.transition = `width ${SLIDE_DURATION}ms linear`;
+            progressBar.style.width = '100%';
+        }
+
+        function resetProgressBar() {
+            progressBar.style.transition = 'none';
+            progressBar.style.width = '0%';
+        }
+
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        const STARS = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function initStars() {
+            STARS.length = 0;
+            for (let i = 0; i < 260; i++) {
+                STARS.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 1.4 + 0.2,
+                    op: Math.random()
+                });
+            }
+        }
+
+        function drawStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            STARS.forEach((s) => {
+                s.op += 0.012;
+                const a = (Math.sin(s.op) * 0.5 + 0.5) * 0.8 + 0.15;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255,255,255,${a})`;
+                ctx.fill();
+            });
+            requestAnimationFrame(drawStars);
+        }
+
+        function typewrite(el, text, speed = 26) {
+            clearTimeout(typeTimer);
+            el.textContent = '';
+            let i = 0;
+            function tick() {
+                if (i < text.length) {
+                    el.textContent += text[i++];
+                    typeTimer = setTimeout(tick, speed);
+                }
+            }
+            tick();
+        }
+
+        function getActive() { return frontImg === 'a' ? imgA : imgB; }
+        function getInactive() { return frontImg === 'a' ? imgB : imgA; }
+
+        function triggerGlitch() {
+            glitch.classList.remove('flash');
+            void glitch.offsetWidth;
+            glitch.classList.add('flash');
+        }
+
+        function loadScene(idx, instant) {
+            const scene = scenes[idx];
+            const inactive = getInactive();
+            const active = getActive();
+
+            inactive.src = BASE + scene.img + '.png';
+            inactive.classList.remove('kb-active');
+            void inactive.offsetWidth;
+
+            if (instant) {
+                active.style.opacity = '0';
+                inactive.style.opacity = '1';
+                inactive.classList.add('kb-active');
+                frontImg = frontImg === 'a' ? 'b' : 'a';
+            } else {
+                triggerGlitch();
+                inactive.style.opacity = '0';
+                inactive.onload = () => {
+                    inactive.classList.add('kb-active');
+                    requestAnimationFrame(() => {
+                        inactive.style.opacity = '1';
+                        active.style.opacity = '0';
+                        frontImg = frontImg === 'a' ? 'b' : 'a';
+                    });
+                };
+                if (inactive.complete && inactive.naturalWidth) {
+                    inactive.onload = null;
+                    inactive.classList.add('kb-active');
+                    requestAnimationFrame(() => {
+                        inactive.style.opacity = '1';
+                        active.style.opacity = '0';
+                        frontImg = frontImg === 'a' ? 'b' : 'a';
+                    });
+                }
+            }
+
+            chapterLbl.textContent = tr.chapters[scene.chapterKey] || '';
+            yearLbl.textContent = 'YEAR - ' + scene.year;
+            coordLbl.textContent = scene.coord;
+            typewrite(dialogue, tr.lines[scene.textKey] || '');
+            document.body.classList.add('letterbox-open');
+
+            clearTimeout(autoTimer);
+            startProgressBar();
+            autoTimer = setTimeout(advance, SLIDE_DURATION);
+        }
+
+        function advance() {
+            if (busy) return;
+            current++;
+            if (current >= scenes.length) {
+                endStory();
+                return;
+            }
+            busy = true;
+            resetProgressBar();
+            loadScene(current, false);
+            setTimeout(() => { busy = false; }, 1400);
+        }
+
+        function endStory() {
+            busy = true;
+            fadeOut.classList.add('active');
+            clearTimeout(autoTimer);
+            clearTimeout(typeTimer);
+
+            setTimeout(() => {
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage('historiaEnded', '*');
+                } else {
+                    current = 0;
+                    loadScene(0, true);
+                    fadeOut.classList.remove('active');
+                    busy = false;
+                }
+            }, 1900);
+        }
+
+        document.addEventListener('click', advance);
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Escape') {
+                e.preventDefault();
+                endStory();
+                return;
+            }
+            if (e.code === 'Space' || e.code === 'ArrowRight' || e.code === 'Enter') {
+                e.preventDefault();
+                advance();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            initStars();
+        });
+
+        resizeCanvas();
+        initStars();
+        drawStars();
+        loadScene(0, true);
+    })();
+    </script>
+</body>
+</html>

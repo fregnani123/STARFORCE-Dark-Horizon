@@ -5,17 +5,14 @@
   "main": "main.js",
   "author": "Fabiano Fregnani",
   "license": "MIT",
-
   "scripts": {
     "start": "electron .",
     "build": "electron-builder"
   },
-
   "devDependencies": {
     "electron": "^39.2.4",
     "electron-builder": "^24.13.3"
   },
-
   "build": {
     "appId": "com.starforce.darkhorizon",
     "productName": "Starforce - Dark Horizon",
@@ -35,5 +32,8 @@
       "allowElevation": false,
       "allowToChangeInstallationDirectory": true
     }
+  },
+  "dependencies": {
+    "sqlite3": "^6.0.1"
   }
 }

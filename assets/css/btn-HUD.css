@@ -1016,6 +1016,28 @@
     50% { transform: scale(1.05); opacity: 0.85; }
 }
 
+/* --- Efeito de Pulso Neon para o Botão Continuar --- */
+@keyframes neonPulseContinuar {
+    0% {
+        box-shadow: 0 0 5px rgba(0, 242, 255, 0.4), inset 0 0 2px rgba(0, 242, 255, 0.2);
+        border-color: rgba(0, 242, 255, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.8), inset 0 0 8px rgba(0, 242, 255, 0.4);
+        border-color: rgba(0, 242, 255, 1);
+    }
+    100% {
+        box-shadow: 0 0 5px rgba(0, 242, 255, 0.4), inset 0 0 2px rgba(0, 242, 255, 0.2);
+        border-color: rgba(0, 242, 255, 0.5);
+    }
+}
+
+.btn-continuar-pulse {
+    animation: neonPulseContinuar 1.5s infinite alternate !important;
+    opacity: 1 !important;
+    text-shadow: 0 0 10px rgba(0, 242, 255, 0.8);
+}
+
 /* Classe para esconder (se você estiver usando .hidden no JS) */
 .hidden {
     display: none !important;

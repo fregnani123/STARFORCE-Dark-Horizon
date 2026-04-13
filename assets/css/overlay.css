@@ -8,7 +8,7 @@
     background: radial-gradient(circle at center, #120200 0%, #000 85%);
     z-index: 99999999999 !important;
 
-    display: flex;
+    display: flex;   /* visível por padrão na inicialização — JS esconde após o loading */
     flex-direction: column;
     justify-content: center;
     align-items: center;

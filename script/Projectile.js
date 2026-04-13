@@ -66,9 +66,9 @@ export class Projectile extends GameObject {
     }
 
    draw(ctx) {
-        if (!this.isReady) return;
+        if (!this.isReady || !this.img) return;
 
-        const glowColor = this.owner === "player" ? "#00f2ff" : "#ff3366";
+        const glowColor = this.customGlowColor || (this.owner === "player" ? "#00f2ff" : "#ff3366");
 
         // --- 1. DESENHA O RASTRO (TRAIL) ---
         ctx.save();

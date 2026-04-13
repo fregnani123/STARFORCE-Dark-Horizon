@@ -1,0 +1,343 @@
+/* ============================================================
+   SETTINGS OVERLAY
+   ============================================================ */
+
+.settings-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9500;
+    background:
+        linear-gradient(rgba(0,0,14,0.82), rgba(0,0,14,0.82)),
+        url('../img/cenario-start/hangar.png') center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+
+.settings-overlay.hidden {
+    display: none !important;
+}
+
+/* ── Modal ── */
+.settings-modal {
+    width: min(98vw, 720px);
+    max-height: min(92vh, 780px);
+    background: linear-gradient(170deg, rgba(8,8,24,0.9) 0%, rgba(4,4,15,0.94) 100%);
+    border: 1px solid #00d4ff33;
+    border-radius: 16px;
+    box-shadow:
+        0 0 0 1px #00d4ff11,
+        0 0 60px #0022ff18;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ── HEADER ── */
+.settings-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 22px;
+    background: linear-gradient(90deg, #00080f 0%, #001020 60%, #00080f 100%);
+    border-bottom: 1px solid #00d4ff22;
+    position: relative;
+}
+
+.settings-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00d4ff, #0066ff, #00d4ff, transparent);
+    opacity: 0.7;
+}
+
+.settings-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    font-weight: 700;
+    color: #00d4ff;
+    letter-spacing: 3px;
+    text-shadow: 0 0 14px #00d4ff88;
+    flex: 1;
+}
+
+#btn-close-settings {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #ff5555;
+    background: transparent;
+    border: 1px solid #ff444466;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+#btn-close-settings:hover {
+    background: #ff2222;
+    color: #fff;
+    border-color: #ff2222;
+    box-shadow: 0 0 16px #ff222266;
+}
+
+/* ── BODY ── */
+.settings-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px 32px;
+    scrollbar-width: thin;
+    scrollbar-color: #00d4ff22 transparent;
+}
+
+.settings-body::-webkit-scrollbar { width: 5px; }
+.settings-body::-webkit-scrollbar-track { background: transparent; }
+.settings-body::-webkit-scrollbar-thumb { background: #00d4ff33; border-radius: 4px; }
+
+/* ── Seção ── */
+.settings-section {
+    margin-bottom: 28px;
+}
+
+.settings-section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    color: #00d4ff;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #00d4ff18;
+}
+
+/* ── Linha de controle ── */
+.settings-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid #ffffff06;
+}
+
+.settings-row:last-child {
+    border-bottom: none;
+}
+
+.settings-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.68rem;
+    color: #88aacc;
+    letter-spacing: 1px;
+    flex: 1;
+    min-width: 0;
+}
+
+.settings-label small {
+    display: block;
+    font-size: 0.52rem;
+    color: #445566;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+    font-family: sans-serif;
+    font-weight: normal;
+}
+
+/* ── Slider ── */
+.settings-slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.settings-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 160px;
+    height: 4px;
+    border-radius: 2px;
+    background: #00d4ff22;
+    outline: none;
+    cursor: pointer;
+}
+
+.settings-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #00d4ff;
+    box-shadow: 0 0 8px #00d4ff88;
+    cursor: pointer;
+}
+
+.settings-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #00d4ff;
+    box-shadow: 0 0 8px #00d4ff88;
+    cursor: pointer;
+    border: none;
+}
+
+.slider-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    color: #ffd700;
+    min-width: 36px;
+    text-align: right;
+}
+
+/* ── Toggle switch ── */
+.settings-toggle {
+    position: relative;
+    width: 46px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.settings-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.toggle-track {
+    position: absolute;
+    inset: 0;
+    background: #1a2233;
+    border: 1px solid #334455;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.toggle-track::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #445566;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.settings-toggle input:checked + .toggle-track {
+    background: #001833;
+    border-color: #00d4ff55;
+}
+
+.settings-toggle input:checked + .toggle-track::after {
+    transform: translateX(22px);
+    background: #00d4ff;
+    box-shadow: 0 0 8px #00d4ff88;
+}
+
+/* ── Select ── */
+.settings-select {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.62rem;
+    color: #aaddff;
+    background: #06061a;
+    border: 1px solid #00d4ff33;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    outline: none;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+}
+
+.settings-select:focus {
+    border-color: #00d4ff77;
+}
+
+/* ── Mapa de teclas ── */
+.keybind-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 20px;
+    margin-top: 4px;
+}
+
+.keybind-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.keybind-row span {
+    font-size: 0.62rem;
+    color: #6688aa;
+    letter-spacing: 0.5px;
+}
+
+.keybind-key {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem;
+    color: #00d4ff;
+    background: #001833;
+    border: 1px solid #00d4ff33;
+    border-radius: 4px;
+    padding: 3px 8px;
+    min-width: 28px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* ── Botão Salvar ── */
+.settings-save-bar {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 22px;
+    border-top: 1px solid #00d4ff11;
+    background: linear-gradient(90deg, #00080f 0%, #001020 60%, #00080f 100%);
+}
+
+.settings-saved-msg {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem;
+    color: #00d4ff;
+    opacity: 0;
+    transition: opacity 0.4s;
+    letter-spacing: 1px;
+}
+
+.settings-saved-msg.visible {
+    opacity: 1;
+}
+
+#btn-save-settings {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 10px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #00d4ff;
+    background: linear-gradient(90deg, #002a44, #004466);
+    border: 1px solid #00d4ff66;
+    transition: all 0.2s ease;
+}
+
+#btn-save-settings:hover {
+    background: linear-gradient(90deg, #003a55, #0066aa);
+    box-shadow: 0 0 16px #00d4ff44;
+    transform: translateY(-1px);
+}

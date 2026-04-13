@@ -7,8 +7,12 @@ import {
     enemies,
     score,
     BOSS_SCORE_TRIGGER,
-} from './globals.js'; // Assumindo que globals está no nível superior
+    currentMissionId,
+    currentMissionDifficulty,
+    maxEnemiesOnScreen,
+} from './globals.js';
 import { spawnBoss } from './spawnBoss.js';
+import { spawnBoss1 } from './spawnBoss1.js';
 
 
 // ==============================================================================
@@ -28,17 +32,26 @@ export function spawnRandomEnemy(player) {
         return;
     }
 
+    // Limite de inimigos simultâneos baseado na dificuldade da missão
+    if (enemies.length >= maxEnemiesOnScreen) return;
+
     // --- Verificação do Boss Trigger ---
     if (typeof BOSS_SCORE_TRIGGER !== 'undefined' && currentScore >= BOSS_SCORE_TRIGGER) {
-        // 🛑 CORREÇÃO: Não precisa passar o player se o Boss puder acessá-lo globalmente
-        spawnBoss();
+        if (currentMissionId === 1) {
+            spawnBoss1();
+        } else {
+            spawnBoss();
+        }
         return;
     }
+
+    // HP base escalado pela dificuldade da missão: dif.1=60, dif.5=140, dif.10=250
+    const BASE_ENEMY_HP = 40 + (currentMissionDifficulty * 21);
 
    const enemyTypes = [
         // TIPO 1: PARA E ATACA (weaponLevel: 3, Halo, Tilt)
         {
-            imagePath: "../assets/img/Enemy/inimigo3.png", width: 110, height: 80, maxHealth: 150, speed: 250, fireRate: 1500, damage: 20, projectileSpeed: 450,
+            imagePath: "../assets/img/Enemy/inimigo3.png", width: 110, height: 80, maxHealth: BASE_ENEMY_HP, speed: 250, fireRate: 1500, damage: 20, projectileSpeed: 450,
             projectileImgUM: "../assets/img/projectile/tiro-verde.png",
             projectileImgDois: "../assets/img/projectile/tiro-verde.png",
             projectileImgTres: null,
@@ -47,12 +60,11 @@ export function spawnRandomEnemy(player) {
             weaponLevel: 3,
             canStopToAttack: true,
             isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: true,
-            // 🚀 REDUZIDO: de 20x35 para 12x22
             projWidth: 12, projHeight: 22,
         },
         // TIPO 2: PASSA DIRETO (weaponLevel: 4, Tiro 360)
         {
-            imagePath: "../assets/img/Enemy/inimigo4.png", width: 110, height: 80, maxHealth: 150, speed: 200, fireRate: 1500, damage: 20, projectileSpeed: 350,
+            imagePath: "../assets/img/Enemy/inimigo4.png", width: 110, height: 80, maxHealth: BASE_ENEMY_HP, speed: 200, fireRate: 1500, damage: 20, projectileSpeed: 350,
             projectileImgUM: "../assets/img/projectile/tiro-espinho-amarelo.png",
             projectileImgDois: "../assets/img/projectile/espinho-verde.png",
             projectileImgTres: null,
@@ -61,12 +73,11 @@ export function spawnRandomEnemy(player) {
             weaponLevel: 4,
             canStopToAttack: false,
             isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: false,
-            // 🚀 REDUZIDO: de 35x35 para 18x18 (tiro tipo espinho)
             projWidth: 18, projHeight: 18,
         },
         // TIPO 3: Para e Ataca (Level 4, Tiro Roxo)
         {
-            imagePath: "../assets/img/Enemy/inimigo4.png", width: 110, height: 80, maxHealth: 150, speed: 250, fireRate: 1500, damage: 20, projectileSpeed: 300,
+            imagePath: "../assets/img/Enemy/inimigo4.png", width: 110, height: 80, maxHealth: BASE_ENEMY_HP, speed: 250, fireRate: 1500, damage: 20, projectileSpeed: 300,
             projectileImgUM: "../assets/img/projectile/tiro-espinho-roxo.png",
             projectileImgDois: "../assets/img/projectile/tiro-espinho-roxo.png",
             projectileImgTres: null,
@@ -75,12 +86,11 @@ export function spawnRandomEnemy(player) {
             weaponLevel: 4,
             canStopToAttack: true,
             isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: true,
-            // 🚀 REDUZIDO: de 35x35 para 18x18
             projWidth: 18, projHeight: 18,
         },
         // TIPO 4: Passa direto mais rápido (Level 1)
         {
-            imagePath: "../assets/img/Enemy/inimigo3.png", width: 110, height: 80, maxHealth: 150, speed: 350, fireRate: 1500, damage: 20, projectileSpeed: 600,
+            imagePath: "../assets/img/Enemy/inimigo3.png", width: 110, height: 80, maxHealth: BASE_ENEMY_HP, speed: 350, fireRate: 1500, damage: 20, projectileSpeed: 600,
             projectileImgUM: "../assets/img/projectile/tiro-verde.png",
             projectileImgDois: "../assets/img/projectile/tiro-verde.png",
             projectileImgTres: null,
@@ -89,7 +99,6 @@ export function spawnRandomEnemy(player) {
             weaponLevel: 3,
             canStopToAttack: false,
             isRotating: false, isPropulsor: false, isPlasmaHalo: true, enableTilt: true, attackDuration: 3000, shouldContinueDescending: true,
-            // 🚀 REDUZIDO: de 20x35 para 12x22
             projWidth: 12, projHeight: 22,
         },
     ];

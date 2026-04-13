@@ -7,9 +7,12 @@ import { playBGM, startShootSoundLoop, stopBGM } from './audio_game.js';
 import { gameLoop } from './gameLoop.js';
 import {
     playerShip, lastTime, CANVAS_WIDTH, CANVAS_HEIGHT,
-    setLastTime, setPlayerShip, gameBackgrounds, isPaused, setPause
+    setLastTime, setPlayerShip, gameBackgrounds, isPaused, setPause, resetMissionState,
+    setShipSpeed, CRUISE_SPEED, setMissionDifficulty, setCurrentMissionId, setBossScoreTrigger
 } from './globals.js';
 import { MISSIONS } from './gameLevel/missao_construtor.js';
+import { getPlayerData, hasSavedGame, savePlayerData, getCurrentShip, getUpgradeLevels } from './saveSystem.js';
+import { updateUI } from './gameLevel/level_designer.js';
 
 // ======================================================
 // ESTADO INTERNO E CONFIGURAÇÕES
@@ -18,24 +21,36 @@ let CURRENT_MISSION = null;
 let MULTI_BACKGROUND_IMAGES = [];
 let SCROLL_SPEED;
 let isGameLoopRunning = false;
-const MIN_LOADING_TIME_MS = 1500;
-const DEFAULT_IMAGES = ["../assets/img/nave-player/nave-player.png"];
+const MIN_LOADING_TIME_MS = 2500;  // 🆙 Aumentado de 1500ms para 2500ms - Loading screen mais visível
+const DEFAULT_IMAGES = ["../assets/img/nave-player/nave-metal.png"];  // 🆙 Mudado para nave-metal
 let IMAGES_TO_LOAD = [...DEFAULT_IMAGES];
 
 // Referências do DOM
 const btnNovoJogo = document.getElementById('novo-jogo');
+const btnContinuar = document.getElementById('continuar');
 const creationOverlay = document.getElementById('playerCreationOverlay');
 const btnConfirmar = document.getElementById('confirmarPlayer');
 const playerNameInput = document.getElementById('playerNameInput');
 const cutsceneContainer = document.getElementById('cutsceneContainer');
-const historyVideo = document.getElementById('historyVideo');
-const timerEl = document.getElementById('videoTimer');
+const historiaFrame = document.getElementById('historiaFrame');
 const divIniciar = document.getElementById('div-index');
 const divLevel = document.getElementById('container_levelGame');
 const startScreen = document.getElementById('startScreen');
 const loadingOverlay = document.getElementById('loadingOverlay');
 
-let timerInterval;
+function getUiLanguage() {
+    const rawLang = localStorage.getItem('sf_language') || 'pt-BR';
+    if (rawLang.startsWith('pt')) return 'pt-BR';
+    if (rawLang.startsWith('es')) return 'es';
+    return 'en';
+}
+
+function formatProgressDetails(data) {
+    const lang = getUiLanguage();
+    if (lang === 'en') return `Level ${data.currentMission}, ${data.totalStars} Stars`;
+    if (lang === 'es') return `Nivel ${data.currentMission}, ${data.totalStars} Estrellas`;
+    return `Nivel ${data.currentMission}, ${data.totalStars} Estrelas`;
+}
 
 // ======================================================
 // 1. FLUXO DE CRIAÇÃO E CUTSCENE (HISTÓRIA)
@@ -43,17 +58,56 @@ let timerInterval;
 
 if (btnNovoJogo) {
     btnNovoJogo.addEventListener('click', () => {
-        creationOverlay.classList.remove('hidden');
-        setTimeout(() => playerNameInput.focus(), 100);
+        // Verificar se já existe um jogo salvo
+        if (hasSavedGame()) {
+            const data = getPlayerData();
+            // Mostrar modal de confirmação
+            const confirmOverlay = document.getElementById('confirmNewGameOverlay');
+            const progressDetails = document.getElementById('progressDetails');
+            progressDetails.textContent = formatProgressDetails(data);
+            confirmOverlay.classList.remove('hidden');
+        } else {
+            // Se não há jogo salvo, ir direto para criação
+            creationOverlay.classList.remove('hidden');
+            setTimeout(() => playerNameInput.focus(), 100);
+        }
     });
 }
 
-function handleConfirmPlayer() {
+if (btnContinuar) {
+    btnContinuar.addEventListener('click', () => {
+        if (hasSavedGame()) {
+            const data = getPlayerData();
+            console.log(`Bem-vindo de volta, Comandante ${data.pilotName}.`);
+            // Não para a música — ela continua tocando no tabuleiro
+            updateUI();
+            finishCutscene();
+        }
+    });
+}
+
+async function handleConfirmPlayer() { // Make it async
     const name = playerNameInput.value.trim().toUpperCase();
     if (name !== "") {
         if (typeof stopBGM === 'function') stopBGM();
-        localStorage.setItem('currentPlayerName', name);
+        // Reset completo: zera tudo incluindo upgrades, estrelas e naves
+        await savePlayerData({
+            pilotName: name,
+            currentMission: 1,
+            totalStars: 0,
+            unlockedLevels: [1],
+            missionStars: {},
+            currentShip: 'metal',
+            unlockedShips: ['metal'],
+            weaponLevel: 1,
+            hullLevel: 1,
+            engineLevel: 1,
+            superLaserUnlocked: false,
+            wingmanUnlocked: false
+        });
+        updateUI();
         creationOverlay.classList.add('hidden');
+        playerNameInput.value = '';
         startStoryCutscene();
     } else {
         playerNameInput.style.borderColor = "red";
@@ -61,42 +115,89 @@ function handleConfirmPlayer() {
     }
 }
 
+// Botão Cancelar - Voltar para Menu
+document.getElementById('cancelarPlayer')?.addEventListener('click', () => {
+    creationOverlay.classList.add('hidden');
+    playerNameInput.value = ''; // Limpar input
+});
+
+// Botão Confirmar Reset - Apagar e começar novo jogo
+document.getElementById('confirmarReset')?.addEventListener('click', async () => {
+    const confirmOverlay = document.getElementById('confirmNewGameOverlay');
+    confirmOverlay.classList.add('hidden');
+    
+    // Mostrar overlay de criação
+    creationOverlay.classList.remove('hidden');
+    playerNameInput.value = ''; // Limpar
+    playerNameInput.focus();
+});
+
+// Botão Cancelar Reset - Voltar
+document.getElementById('cancelarReset')?.addEventListener('click', () => {
+    document.getElementById('confirmNewGameOverlay').classList.add('hidden');
+});
+
+// ESC para cancelar (em ambas as telas)
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        e.preventDefault();
+        
+        // Se está no modal de confirmação, fechar
+        const confirmOverlay = document.getElementById('confirmNewGameOverlay');
+        if (confirmOverlay && !confirmOverlay.classList.contains('hidden')) {
+            confirmOverlay.classList.add('hidden');
+            return;
+        }
+        
+        // Se está na criação de piloto, fechar e voltar ao menu
+        if (creationOverlay && !creationOverlay.classList.contains('hidden')) {
+            creationOverlay.classList.add('hidden');
+            playerNameInput.value = '';
+            return;
+        }
+    }
+});
+
 if (btnConfirmar) btnConfirmar.addEventListener('click', handleConfirmPlayer);
 playerNameInput?.addEventListener('keydown', (e) => e.key === 'Enter' && handleConfirmPlayer());
 
 function startStoryCutscene() {
-    if (!cutsceneContainer || !historyVideo) return finishCutscene();
+    if (!cutsceneContainer) return finishCutscene();
     cutsceneContainer.classList.remove('hidden');
-    historyVideo.muted = false;
-    historyVideo.play()
-        .then(() => startVideoTimer())
-        .catch(() => finishCutscene());
-    historyVideo.onended = () => finishCutscene();
-}
+    cutsceneContainer.style.display = 'flex';
 
-function startVideoTimer() {
-    let totalSeconds = 0;
-    if (timerEl) timerEl.textContent = "00:00:00";
-    clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        totalSeconds++;
-        const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-        const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-        const secs = String(totalSeconds % 60).padStart(2, '0');
-        if (timerEl) timerEl.textContent = `${hrs}:${mins}:${secs}`;
-    }, 1000);
-}
+    const rawLang = localStorage.getItem('sf_language') || 'pt-BR';
+    const lang = rawLang.startsWith('pt') ? 'pt-BR' : (rawLang.startsWith('es') ? 'es' : 'en');
+    const storyUrl = `historia.html?lang=${encodeURIComponent(lang)}&t=${Date.now()}`;
 
-// 🚀 FUNÇÃO CORRIGIDA: Abre o menu de fases após o vídeo
-function finishCutscene() {
-    clearInterval(timerInterval);
-    if (historyVideo) {
-        historyVideo.pause();
-        historyVideo.currentTime = 0;
+    // Carrega historia.html no iframe e força refresh para evitar cache antigo.
+    if (historiaFrame) {
+        historiaFrame.src = 'about:blank';
+        requestAnimationFrame(() => {
+            historiaFrame.src = storyUrl;
+        });
+    } else {
+        // Fallback de segurança caso o iframe não exista no DOM.
+        window.location.href = storyUrl;
     }
+}
 
-    // Esconde o container do vídeo e a tela de criação
+// Escuta a mensagem do iframe quando a história terminar
+window.addEventListener('message', (e) => {
+    if (e.data === 'historiaEnded') finishCutscene();
+});
+
+function startVideoTimer() { /* legado — substituído pelo iframe */ }
+
+
+// 🚀 FUNÇÃO CORRIGIDA: Abre o menu de fases após a história
+function finishCutscene() {
+    // Descarrega o iframe para libertar memória
+    if (historiaFrame) historiaFrame.src = '';
+
+    // Esconde o container da história e a tela de criação
     cutsceneContainer.classList.add('hidden');
+    cutsceneContainer.style.display = '';
     creationOverlay.classList.add('hidden');
 
     // MOSTRA O MENU DE FASES
@@ -112,34 +213,7 @@ window.addEventListener('keydown', (e) => {
     if (e.key === "Escape" && !cutsceneContainer.classList.contains('hidden')) finishCutscene();
 });
 
-// ======================================================
-// 2. LÓGICA DE CARREGAMENTO INICIAL (LOGO)
-// ======================================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    const logoVideo = document.getElementById('logoVideo');
-    const startVideo = document.getElementById('startVideo');
-
-    const hideLogoAndShowStart = () => {
-        if (logoVideo) { logoVideo.pause(); logoVideo.classList.add('hidden'); }
-        if (startVideo) { startVideo.classList.remove('hidden'); startVideo.play().catch(() => { }); }
-        if (startScreen) startScreen.classList.remove('hidden');
-        if (divIniciar) divIniciar.style.display = 'flex';
-    };
-
-    setTimeout(() => {
-        if (loadingOverlay) loadingOverlay.classList.add('hidden');
-        if (logoVideo) {
-            logoVideo.classList.remove('hidden');
-            logoVideo.muted = false;
-            logoVideo.play().catch(hideLogoAndShowStart);
-            logoVideo.onended = hideLogoAndShowStart;
-            setTimeout(hideLogoAndShowStart, 8000);
-        } else {
-            hideLogoAndShowStart();
-        }
-    }, 2000);
-});
+// Startup orchestration handled by init.js → tela_logo_video.js
 
 // ======================================================
 // 3. CORE DO JOGO (START E INIT)
@@ -153,40 +227,72 @@ export function loadMission(id) {
     IMAGES_TO_LOAD = [...DEFAULT_IMAGES, ...MULTI_BACKGROUND_IMAGES];
     SCROLL_SPEED = mission.scrollSpeed;
     if (mission.music) playBGM(mission.music, 1);
+    // Configura dificuldade global (spawn rate, max inimigos, HP base)
+    setMissionDifficulty(mission.enemyConfig?.difficulty || 1);
+    // Configura missão atual e trigger do boss
+    setCurrentMissionId(mission.id);
+    setBossScoreTrigger(mission.bossScoreTrigger || 3000);
 }
 
 export function startGame() {
     const mainWrapper = document.getElementById("main-wrapper");
+    const gameContainer = document.getElementById("gameContainer");
     const canvasOverlay = document.getElementById("canvasOverlay");
+    const loadingOverlay = document.getElementById("loadingOverlay");
 
+    // 🔴 RESETAR TUDO DA MISSÃO ANTES DE COMEÇAR
+    resetMissionState();
+    
     setPause(false);
     if (!CURRENT_MISSION) loadMission(1);
 
+    // 1️⃣ PRIMEIRO: ESCONDER TELA ANTERIOR
     if (startScreen) startScreen.classList.add('hidden');
-    if (canvasOverlay) canvasOverlay.style.display = "flex";
-    if (loadingOverlay) loadingOverlay.classList.remove('hidden');
+    
+    // 2️⃣ SEGUNDO: MOSTRAR LOADING OVERLAY IMEDIATAMENTE (sem hidden class)
+    if (loadingOverlay) {
+        loadingOverlay.classList.remove('hidden');
+        loadingOverlay.style.display = "flex";  // 📍 Garantir display visível
+        loadingOverlay.style.zIndex = "99999999";  // 📍 Z-index altíssimo
+    }
+    
+    // 3️⃣ TERCEIRO: ESCONDER OS CONTAINERS DO JOGO ANTERIOR
+    if (mainWrapper) mainWrapper.style.display = "none";
+    if (gameContainer) gameContainer.style.display = "none";
+    if (canvasOverlay) canvasOverlay.style.display = "none";
 
     Promise.all([
         preloadImages(IMAGES_TO_LOAD),
-        new Promise(res => setTimeout(res, MIN_LOADING_TIME_MS))
+        new Promise(res => setTimeout(res, MIN_LOADING_TIME_MS))  // ⏱️ Esperar 2.5s mínimo
     ])
     .then(async () => {
         await waitCanvasReady();
         initGame();
         await waitCanvasReady();
 
-        if (loadingOverlay) loadingOverlay.classList.add('hidden');
+        // 📍 Adicionar delay extra antes de fechar o loading
+        await new Promise(res => setTimeout(res, 800));
+
+        // 4️⃣ AGORA SIM: FECHAR LOADING
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('hidden');
+            loadingOverlay.style.display = "none";
+        }
+        
+        // 5️⃣ MOSTRAR JOGO NOVO (LIMPO)
+        if (canvasOverlay) canvasOverlay.style.display = "flex";
         if (mainWrapper) {
             mainWrapper.style.display = "flex";
             mainWrapper.classList.remove('hidden');
         }
+        if (gameContainer) gameContainer.style.display = "flex";
 
         const bgVideo = document.getElementById("bgVideo");
         if (bgVideo) bgVideo.play().catch(() => { });
 
         setTimeout(() => {
             if (typeof startShootSoundLoop === 'function') startShootSoundLoop();
-        }, 1000);
+        }, 2500); // Aguarda a intro da nave terminar (introDuration = 2000ms) + margem
 
         if (!isGameLoopRunning) {
             isGameLoopRunning = true;
@@ -196,20 +302,38 @@ export function startGame() {
     })
     .catch(err => {
         console.error("Erro ao iniciar jogo:", err);
-        if (loadingOverlay) loadingOverlay.classList.add('hidden');
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('hidden');
+            loadingOverlay.style.display = "none";
+        }
     });
 }
 
 export function initGame() {
     const SHIP_WIDTH = 70;
     const SHIP_HEIGHT = 80;
+
+    const shipId  = getCurrentShip() || 'metal';
+    const shipImg = shipId === 'dark'
+        ? `../assets/img/nave-player/nave-player-dark.png`
+        : `../assets/img/nave-player/nave-${shipId}.png`;
+
+    const { weaponLevel, hullLevel, engineLevel } = getUpgradeLevels();
+    const HULL_HP = [700, 800, 900, 1000, 1200];
+    const maxHealth = HULL_HP[(hullLevel || 1) - 1] || 700;
+
+    // Aplicar bônus de velocidade do motor
+    const ENGINE_SPEED_BONUS = [0, 0, 0.10, 0.20];  // +0%, +10%, +20%
+    const speedBonus = ENGINE_SPEED_BONUS[(engineLevel || 1) - 1] || 0;
+    setShipSpeed(Math.round(CRUISE_SPEED * (1 + speedBonus)));
+
     gameBackgrounds.length = 0;
     gameBackgrounds.push(new Background(MULTI_BACKGROUND_IMAGES, SCROLL_SPEED));
     setPlayerShip(new Player(
         (CANVAS_WIDTH / 2) - (SHIP_WIDTH / 2),
         CANVAS_HEIGHT - SHIP_HEIGHT - 50,
         SHIP_WIDTH, SHIP_HEIGHT,
-        "../assets/img/nave-player/nave-player.png", 700
+        shipImg, maxHealth, weaponLevel || 1
     ));
     setLastTime(performance.now());
 }

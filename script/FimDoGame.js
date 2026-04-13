@@ -1,7 +1,9 @@
 // ======================================================
 // IMPORTS OBRIGATÓRIOS
 // ======================================================
-import { playerShip } from './globals.js'; // Importa a instância do Player
+import { playerShip, currentMissionId } from './globals.js';
+import { updateMissionProgress, addStars, getPlayerData } from './saveSystem.js';
+import { stopShootSoundLoop } from './audio_game.js';
 
 
 // ==============================================================================

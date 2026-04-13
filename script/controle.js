@@ -6,19 +6,26 @@ import {
     CANVAS_WIDTH, 
     CANVAS_HEIGHT, 
     isPaused, 
-    lastTime,       // Necessário para ajustar o tempo ao despausar
-    score,          // Necessário para atualizar o HUD
-    nextWeaponUpgradeCost, // Necessário para calcular o progresso do upgrade no HUD
-   currentShipSpeed, setShipSpeed, CRUISE_SPEED, SOUND_SPEED, setPause, setLastTime,  
-} from './globals.js'; 
+    lastTime,
+    score,
+    nextWeaponUpgradeCost,
+   currentShipSpeed, setShipSpeed, CRUISE_SPEED, SOUND_SPEED, setPause, setLastTime, resetMissionState,
+   updateScore,
+   currentWingman, setCurrentWingman,
+} from './globals.js';
 
+import { getPlayerData } from './saveSystem.js';
 import { trySuperLaser, tryUpgradeWeapon } from './btnUpdate.js';
-import { gameLoop } from './gameLoop.js'; // Necessário para reiniciar o loop após a pausa
+import { gameLoop } from './gameLoop.js';
+import { WingmanShip, WINGMAN_COOLDOWN_MS } from './WingmanShip.js';
 
  
 // ======================================================
 // ESTADO INTERNO DO MÓDULO DE CONTROLE
 // ======================================================
+
+// Cooldown do wingman
+let wingmanLastUsed = -Infinity;
 
 // Mapeamento de teclas (PC)
 const KEY_MAP = {
@@ -109,8 +116,25 @@ export function updateFictionalStats() {
 /**
  * Calcula o vetor de movimento para o player (chamada do gameLoop).
  */
+// Acumulador de score por movimento (5 pts a cada 3 segundos de jogo)
+let _movScoreLast = 0;
+let _movScoreTimer = 0;
+
 export function updatePlayerMovement() {
     if (!playerShip) return;
+
+    // Score por movimento/tempo (ativo enquanto jogando)
+    const now = Date.now();
+    if (_movScoreLast === 0) _movScoreLast = now;
+    const elapsed = now - _movScoreLast;
+    _movScoreLast = now;
+    if (!isPaused && playerShip.isAlive && !playerShip.inIntro) {
+        _movScoreTimer += elapsed;
+        if (_movScoreTimer >= 3000) {
+            updateScore(5);
+            _movScoreTimer -= 3000;
+        }
+    }
 
     const SMOOTH_FACTOR = 0.25;
     const THRESHOLD = 2;
@@ -212,6 +236,13 @@ export function updateHTMLHUD() {
     const scoreValueShow = document.getElementById('scoreValue');
     if (scoreValueShow) {
         scoreValueShow.textContent = Math.floor(score); 
+    }
+
+    // 1.1 ATUALIZAÇÃO DE ESTRELAS NO HUD
+    const starCountEl = document.getElementById('starCount');
+    if (starCountEl) {
+        const data = getPlayerData();
+        starCountEl.textContent = data ? data.totalStars : 0;
     }
 
     // 2. SELEÇÃO DE ELEMENTOS
@@ -365,8 +396,23 @@ export function setupInputListeners() {
 
         if (keyName && keys[keyName] !== undefined) keys[keyName] = true;
 
-        if (e.key === 'q' || e.key === 'Q') trySuperLaser();
+        if (e.key === 'q' || e.key === 'Q') {
+            const sd = getPlayerData();
+            if (sd && sd.superLaserUnlocked) trySuperLaser();
+        }
         if (e.key === 'e' || e.key === 'E') tryUpgradeWeapon();
+
+        // Tecla F — ativa nave parceira (wingman)
+        if (e.key === 'f' || e.key === 'F') {
+            const sd = getPlayerData();
+            const now = Date.now();
+            if (sd && sd.wingmanUnlocked && !currentWingman && playerShip && playerShip.isAlive && !playerShip.inIntro) {
+                if (now - wingmanLastUsed >= WINGMAN_COOLDOWN_MS) {
+                    wingmanLastUsed = now;
+                    setCurrentWingman(new WingmanShip(playerShip.x, playerShip.y));
+                }
+            }
+        }
     });
 
     window.addEventListener('keyup', (e) => {
@@ -429,5 +475,52 @@ export function setupInputListeners() {
         // Se a inicialização for feita aqui, removemos a lógica duplicada do DOMContentLoaded.
         upgradeButton.addEventListener('click', upgradeAction);
         upgradeButton.addEventListener('touchstart', upgradeAction);
+    }
+
+    // ===== PAUSE MENU BUTTONS =====
+    const pauseContinueBtn = document.getElementById('pauseContinueBtn');
+    if (pauseContinueBtn) {
+        pauseContinueBtn.addEventListener('click', togglePause);
+    }
+
+    // Botão SAIR DA MISSÃO
+    const pauseExitBtn = document.getElementById('pauseExitBtn');
+    if (pauseExitBtn) {
+        pauseExitBtn.addEventListener('click', () => {
+            // 1. PRIMEIRO: Esconder canvas IMEDIATAMENTE (sem delay visual)
+            const mainWrapper = document.getElementById('main-wrapper');
+            const gameContainer = document.getElementById('gameContainer');
+            if (mainWrapper) mainWrapper.style.display = 'none';
+            if (gameContainer) gameContainer.style.display = 'none';
+            
+            // 2. RESETAR TUDO DA MISSÃO (sem aparecer na tela)
+            resetMissionState();
+            
+            // 3. Parar todos os sons
+            pauseAllSounds();
+            
+            // 4. Parar vídeos do jogo
+            const bgVideo = document.getElementById('bgVideo');
+            if (bgVideo) bgVideo.pause();
+            
+            const videoBackground = document.getElementById('video-background');
+            if (videoBackground) videoBackground.pause();
+            
+            // 5. Fecha overlay de pausa
+            const pauseOverlay = document.getElementById('pauseOverlay');
+            if (pauseOverlay) pauseOverlay.classList.add('hidden');
+            
+            // 6. Mostrar tela de missões
+            const levelContainer = document.getElementById('container_levelGame');
+            if (levelContainer) levelContainer.style.display = 'flex';
+            
+            // 7. Resetar estado de pausa
+            setPause(false);
+            
+            // 8. Reset do loop do jogo
+            if (playerShip && playerShip.isAlive) {
+                playerShip.isAlive = false;
+            }
+        });
     }
 }

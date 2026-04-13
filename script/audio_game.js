@@ -2,10 +2,33 @@
 // VARIÁVEIS DE ESTADO (Exportadas com 'let' para leitura/escrita)
 // ======================================================
 
+export let isMusicPlaying = false;
 
-export let isMusicPlaying = false; 
+// Configurações de áudio aplicadas pelas settings
+let _musicVolume = 1.0;
+let _sfxVolume   = 1.0;
+let _musicEnabled = true;
+let _sfxEnabled   = true;
 
+export function applyAudioSettings(settings) {
+    _musicVolume  = settings.musicVolume  ?? 1.0;
+    _sfxVolume    = settings.sfxVolume    ?? 1.0;
+    _musicEnabled = settings.musicEnabled ?? true;
+    _sfxEnabled   = settings.sfxEnabled   ?? true;
 
+    // Aplica imediatamente na música em toco
+    if (currentBGM) {
+        currentBGM.volume = _musicEnabled ? _musicVolume : 0;
+    }
+    if (loopingShootSound) {
+        loopingShootSound.volume = _sfxEnabled ? Math.min(_sfxVolume * 0.06, 1) : 0;
+    }
+}
+
+export function getMusicVolume()  { return _musicVolume; }
+export function getSfxVolume()    { return _sfxVolume; }
+export function isMusicEnabled()  { return _musicEnabled; }
+export function isSfxEnabled()    { return _sfxEnabled; }
 
 export function stopBGM() {
     if (currentBGM) {
@@ -21,13 +44,14 @@ export function stopBGM() {
 // Armazene a referência da música atual
 let currentBGM = null;
 
-// Exemplo de como sua função playBGM deve guardar a referência
 export function playBGM(path, volume = 1) {
     if (currentBGM) currentBGM.pause();
+    if (!_musicEnabled) return;
     currentBGM = new Audio(path);
     currentBGM.loop = true;
-    currentBGM.volume = volume;
+    currentBGM.volume = _musicVolume * volume;
     currentBGM.play();
+    isMusicPlaying = true;
 }
 
 export function pauseAllSounds() {
@@ -62,15 +86,16 @@ export function resumeAllSounds() {
 // ======================================================
 
 export function playCoinSound() {
-    // Usa 'const' pois a referência 'sound' só existe dentro desta função
+    if (!_sfxEnabled) return;
     const sound = new Audio("../assets/audio/moeda.mp3"); 
-    sound.volume = 1;
+    sound.volume = _sfxVolume;
     sound.play().catch(() => { }); 
 }
 
 export function playExplosionSound() {
+    if (!_sfxEnabled) return;
     const sound = new Audio("../assets/audio/explosion-inimigo.mp3"); 
-    sound.volume = 1;
+    sound.volume = _sfxVolume;
     sound.play().catch(() => { }); 
 }
 
@@ -82,19 +107,15 @@ export function playExplosionSound() {
 let loopingShootSound = null; 
 
 export function startShootSoundLoop() {
-    // Se já estiver tocando, ignora
     if (loopingShootSound) return; 
+    if (!_sfxEnabled) return;
 
     const shootSound = new Audio("../assets/audio/laser3.mp3"); 
     shootSound.loop = true; 
     shootSound.playbackRate = 1.6; 
-    shootSound.volume = 0.06; 
+    shootSound.volume = _sfxVolume * 0.06; 
     
-    shootSound.play().catch(() => {
-        // Ignora erros
-    });
-    
-    // Armazena a referência para que possa ser parada
+    shootSound.play().catch(() => {});
     loopingShootSound = shootSound;
 }
 

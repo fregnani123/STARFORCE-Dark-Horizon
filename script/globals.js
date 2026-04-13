@@ -1,10 +1,13 @@
+import { addStars } from './saveSystem.js';
+
 // =========================================================================
 // 1. VARIÁVEIS DE CONFIGURAÇÃO E CONSTANTES FIXAS
 // =========================================================================
 
-export const BOSS_SCORE_TRIGGER = 3000;
+export let BOSS_SCORE_TRIGGER = 3000;
+export let currentMissionId = 1;
 export const MAX_DELTA_TIME_MS = 100;
-export const ENEMY_SPAWN_INTERVAL = 1000;
+export let ENEMY_SPAWN_INTERVAL = 1000;
 export const SUPER_LASER_REQUIREMENT = 100;
 
 export const HEALTH_PICKUP_VALUE = 100;
@@ -28,20 +31,28 @@ export function setShipSpeed(value) {
     currentShipSpeed = value;
 }
 
+export let currentMissionDifficulty = 1;  // dificuldade da missão atual (1-10)
+export let maxEnemiesOnScreen = 6;        // limite de inimigos simultâneos
+
+export function setMissionDifficulty(difficulty) {
+    currentMissionDifficulty = Math.max(1, Math.min(10, difficulty));
+    // Ajusta intervalo de spawn: missão 1 = 2800ms, missão 10 = 700ms
+    ENEMY_SPAWN_INTERVAL = Math.max(700, 3000 - (currentMissionDifficulty * 230));
+    // Ajusta máximo de inimigos na tela: missão 1 = 3, missão 10 = 8
+    maxEnemiesOnScreen = Math.min(8, 2 + currentMissionDifficulty);
+}
+
 // =========================================================================
 // 2. VARIÁVEIS ÍTENS STARS
 // =========================================================================
 
 export let playerStars = 0;
 
-export function updatePlayerStars(value) {
+export async function updatePlayerStars(value) { // Make it async
     playerStars += value;
     
-    // Atualiza o texto na tela (HUD) automaticamente
-    const starElement = document.getElementById('starCount');
-    if (starElement) {
-        starElement.textContent = playerStars;
-    }
+    // Sincroniza com o banco de dados local
+    await addStars(value); // Await the async call
 }
 
 // Simulação de oscilação fictícia
@@ -96,6 +107,8 @@ export let currentBoss = null;
 export let bossDefeated = false; 
 export let lastTime = 0; 
 export let isPaused = false; 
+export let currentWingman = null;
+export function setCurrentWingman(w) { currentWingman = w; }
 
 // Arrays mutáveis
 export const enemies = []; 
@@ -144,12 +157,51 @@ export function setSuperLaserAvailable(state) { superLaserAvailable = state; }
 export function setRequiredScoreForNextLaser(val) { requiredScoreForNextLaser = val; }
 export function setSuperLaserUsed(state) { superLaserUsed = state; }
 export function setMagnetActive(state) { magnetActive = state; }
+export function setCurrentMissionId(id) { currentMissionId = id; }
+export function setBossScoreTrigger(val) { BOSS_SCORE_TRIGGER = val; }
 
 export function updateScore(points) { score += points; }
 export function updateUpgradePoints(points) { upgradePoints += points; }
+
+// =========================================================================
+// 5. FUNÇÃO PARA RESETAR TUDO DA MISSÃO
+// =========================================================================
+
+export function resetMissionState() {
+    // Limpar todos os inimigos
+    enemies.length = 0;
+    
+    // Limpar todos os projéteis dos inimigos
+    enemyProjectiles.length = 0;
+    
+    // Limpar partículas
+    particles.length = 0;
+    
+    // Limpar pickups
+    pickups.length = 0;
+    
+    // Resetar backgrounds
+    gameBackgrounds.length = 0;
+    
+    // Resetar variáveis de estado
+    score = 0;
+    upgradePoints = 0;
+    playerStars = 0;
+    enemySpawnTimer = 0;
+    superLaserCharge = 0;
+    bossDefeated = false;
+    currentBoss = null;
+    superLaserAvailable = true;
+    superLaserUsed = false;
+    requiredScoreForNextLaser = 0;
+    nextHealthPickupScore = 50;
+    nextWeaponUpgradeCost = 200;
+    magnetActive = true;
+    
+    console.log('✅ Estado da missão resetado completamente');
+}
 
 export function setLogoVideoPlayed(state) {
     hasPlayedLogoVideo = state;
     sessionStorage.setItem('logoVideoPlayed', state);
 }
-

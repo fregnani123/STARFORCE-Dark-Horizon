@@ -4,6 +4,7 @@
 import { CONFIG, NODE_IMAGES, NOME_FASES } from './missao_construtor.js'; 
 import { loadMission, startGame } from '../start_game.js'; // Funções para iniciar a missão
 import {openCustomizeHull,closeDiv} from './customize.js';
+import { getPlayerData, updateMissionProgress, getCurrentShip } from '../saveSystem.js';
 // NOTA: O console.error no topo do código original deve ser movido para a função de inicialização.
 
 
@@ -50,10 +51,12 @@ function buildNodes(n){
             node.style.backgroundImage = `url('${NODE_IMAGES[arrayIndex]}')`;
         }
         
-        // Ação de click: tenta navegar e, se for o nó atual/próximo, inicia a missão
+        // Ação de click: verifica se está bloqueado antes de agir
         node.addEventListener('click', ()=> {
+            // Bloqueia interação em nós futuros não desbloqueados
+            if (i > 1 && !completedNodes[i - 2] && i !== current) return;
+
             if (i === current) {
-                // Se clicar no nó atual (ou no próximo, se permitido), inicia a missão
                 loadMission(i);
                 startGame();
             }
@@ -105,10 +108,19 @@ export function updateUI() {
     const fillHeight = (current - 1) * nodeSpacing;
     fillEl.style.height = `${fillHeight}px`;
 
-    // --- 4. Posiciona o PLAYER ---
+    // --- 4. Posiciona o PLAYER e atualiza imagem da nave selecionada ---
     const playerCenterY = INFO_PANEL_PADDING_BOTTOM + (allNodes[0].offsetHeight / 4);
     const playerBottom = playerCenterY + ((current - 1) * nodeSpacing);
     playerEl.style.bottom = `${playerBottom}px`;
+
+    const shipId = getCurrentShip() || 'metal';
+    const shipImgPath = shipId === 'dark'
+        ? '../assets/img/nave-player/nave-player-dark.png'
+        : `../assets/img/nave-player/nave-${shipId}.png`;
+    const playerImg = playerEl.querySelector('img');
+    if (playerImg && playerImg.src !== shipImgPath) {
+        playerImg.src = shipImgPath;
+    }
 
 
     // --- 5. Scroll automático ---
@@ -123,6 +135,18 @@ export function updateUI() {
     const xp = (current % 2) * 50;
     document.getElementById('xp').textContent = `${xp}/100`;
     document.getElementById('cp').textContent = completedNodes.filter(c => c).length;
+
+    // --- 7. Atualiza o nome do piloto ---
+    const data = getPlayerData();
+    if (data && data.pilotName) {
+        document.getElementById('pilotNameDisplay').textContent = data.pilotName;
+    }
+
+    // --- 8. Atualiza o contador de estrelas global na tela de missões ---
+    const starDisplay = document.getElementById('starCountMissions');
+    if (starDisplay && data) {
+        starDisplay.textContent = data.totalStars;
+    }
 }
 
 /**
@@ -152,11 +176,13 @@ function goTo(step){
 /**
  * Marca a fase atual como concluída e avança para a próxima (Chamada após a vitória).
  */
-export function completeCurrentNode() {
+export async function completeCurrentNode() { // Make it async
     if (current > CONFIG.nodes) return; 
     
     completedNodes[current - 1] = true;
-    goTo(current + 1);
+    const nextLevel = current + 1;
+    await updateMissionProgress(nextLevel); // Await the update
+    goTo(nextLevel);
 }
 
 
@@ -237,6 +263,13 @@ export function initLevelDesigner() {
         return;
     }
 
+    // Sincroniza estado interno com o progresso salvo
+    const data = getPlayerData();
+    if (data && data.pilotName !== "") {
+        current = data.currentMission || 1;
+        completedNodes = completedNodes.map((_, idx) => (idx + 1) < current);
+    }
+
     // 3. Constrói a UI
     buildNodes(CONFIG.nodes);
     
@@ -247,6 +280,39 @@ export function initLevelDesigner() {
         current = 1;
         updateUI();
     });
+
+    // Botão Menu - Volta para menu inicial
+    const menuBtn = document.getElementById('menuBtnFases');
+    if (menuBtn) {
+        menuBtn.addEventListener('click', () => {
+            // Parar música do jogo se estiver tocando
+            const bgVideo = document.getElementById('bgVideo');
+            if (bgVideo) bgVideo.pause();
+            
+            // Parar vídeo de background do jogo
+            const videoBackground = document.getElementById('video-background');
+            if (videoBackground) videoBackground.pause();
+            
+            // Esconder tela de missões
+            const levelContainer = document.getElementById('container_levelGame');
+            if (levelContainer) levelContainer.style.display = 'none';
+            
+            // Mostrar menu inicial
+            const divIndex = document.getElementById('div-index');
+            if (divIndex) divIndex.style.display = 'flex';
+            
+            // Parar vídeo do menu se ele estiver tocando (pode estar pausado)
+            const videoFundo = document.getElementById('video-fundo');
+            if (videoFundo) {
+                videoFundo.currentTime = 0; // Reinicia do começo
+            }
+            
+            // Retomar música do menu
+            if (typeof window.playBGM === 'function') {
+                window.playBGM('../assets/audio/musicaGameBR.mp3', 1);
+            }
+        });
+    }
 
     // 5. Configura o scroll por arrasto
     setupDragScroll();

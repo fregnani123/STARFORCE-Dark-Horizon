@@ -14,7 +14,8 @@ import {
     updateScore,
     updateSuperLaserCharge,
     // 🛑 CORREÇÃO CRÍTICA: Adicionar o setter de Health Pickup
-    setNextHealthPickupScore
+    setNextHealthPickupScore,
+    currentWingman, setCurrentWingman,
 } from './globals.js'; 
 
 // Importa funções de utilidade e controle
@@ -27,6 +28,8 @@ import { playExplosionSound, playCoinSound } from './audio_game.js';
 
 // Variável local para o deslocamento do background neste frame
 let BACKGROUND_SPEED_Y = 0; 
+// Acumulador para score por movimento
+let movementScoreAccumulator = 0;
 // --------------------------------------------------------------------------------------------------
 
 /**
@@ -64,7 +67,7 @@ export function gameLoop(timestamp) {
     // ---------------------------------------------
    // ---------------------------------------------
     // BACKGROUND & LIMPEZA DE TELA
-    // ---------------------------------------------
+
     BACKGROUND_SPEED_Y = 0; 
 
     // 🛑 CORREÇÃO DEFINITIVA DO RASTRO (FLASH) 🛑
@@ -99,9 +102,58 @@ export function gameLoop(timestamp) {
     }
 
     // ---------------------------------------------
-    // PLAYER & SPAWN
+    
+
+
+
+
     // ---------------------------------------------
-    if (playerShip && playerShip.isAlive) {
+    // PLAYER & SPAWN
+    // ---------------------------------------------
+    // ---------------------------------------------
+    // WINGMAN (nave parceira — tecla F)
+    // ---------------------------------------------
+    if (currentWingman) {
+        try {
+            if (playerShip && playerShip.isAlive) {
+                currentWingman.update(deltaTime, playerShip.x, playerShip.y, enemies);
+
+                for (let wi = currentWingman.projectiles.length - 1; wi >= 0; wi--) {
+                    const wp = currentWingman.projectiles[wi];
+                    if (!wp || !wp.isAlive) { currentWingman.projectiles.splice(wi, 1); continue; }
+
+                    let hit = false;
+                    for (let ei = enemies.length - 1; ei >= 0; ei--) {
+                        const enemy = enemies[ei];
+                        if (!enemy || !enemy.isAlive || enemy.isExploding) continue;
+                        if (checkCollision(wp, enemy)) {
+                            enemy.takeDamage(wp.damage, particles);
+                            wp.isAlive = false;
+                            currentWingman.projectiles.splice(wi, 1);
+                            if (enemy.isExploding) spawnStarPickups(enemy);
+                            hit = true;
+                            break;
+                        }
+                    }
+                    if (!hit && wp.isAlive && currentBoss && currentBoss.isAlive) {
+                        if (checkCollision(wp, currentBoss)) {
+                            currentBoss.takeDamage(wp.damage, particles);
+                            wp.isAlive = false;
+                            currentWingman.projectiles.splice(wi, 1);
+                        }
+                    }
+                }
+            }
+            if (!currentWingman.isAlive) setCurrentWingman(null);
+        } catch (err) {
+            console.error('[Wingman] erro:', err);
+            setCurrentWingman(null);
+        }
+    }
+
+    // ---------------------------------------------
+    // PLAYER & SPAWN--------------------------------------
+    if (playerShip && playerShip.isAlive) {
 
         // Spawn inimigos e pickups
         if (!playerShip.inIntro && !playerShip.superLaserActive) {
@@ -281,7 +333,9 @@ export function gameLoop(timestamp) {
         playerShip.draw(ctx);
     }
 
-    particles.forEach(p => p.draw(ctx)); 
+    
+    if (currentWingman) currentWingman.draw(ctx);
+    particles.forEach(p => p.draw(ctx)); 
 
     updateHTMLHUD(); 
     updateUpgradeButton(); 

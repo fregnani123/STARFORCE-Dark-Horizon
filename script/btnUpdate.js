@@ -13,6 +13,7 @@ import {
     updateScore // Adicionado preventivamente, caso `tryUpgradeWeapon` precise dele.
 } from './globals.js'; 
 
+import { getPlayerData } from './saveSystem.js';
 
 // ------------------------------------------------------------------
 // 🛠️ FUNÇÃO PARA ATUALIZAR O BOTÃO DE UPGRADE (EXPORTADA)

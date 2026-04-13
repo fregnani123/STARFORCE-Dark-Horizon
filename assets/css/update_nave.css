@@ -126,81 +126,137 @@
     box-shadow: 0 0 10px var(--primary-yellow);
 }
 
-.display-box {
+
+
+/* ── HEADER FIXO — Hull & Hangar Mods ── */
+.hull-header {
+    flex-shrink: 0;
     display: flex;
-    justify-content: center;
     align-items: center;
- 
-}
-h2 {
-    /* Ativa o alinhamento flexível */
-    display: flex;
-    justify-content: space-between; /* Empurra o span para a esquerda e o botão para a direita */
-    align-items: center; /* Centraliza verticalmente o texto e o botão */
-    color: var(--primary-yellow);
-    width: 100%;
-    position: fixed;
-    background: rgba(0, 0, 0, 0.653);
-    z-index: 9999;
-    top: 0;
-    left: 0; /* Ajustado de -.5% para 0 para evitar desalinhamento */
-    margin: 0;
-    padding: 1rem 3rem; /* 1rem em cima/baixo e 3rem nas laterais */
-    box-sizing: border-box; /* Garante que o padding não aumente o tamanho da barra */
-    border-bottom: 1px solid rgba(0, 195, 255, 0.3); /* Linha fina azul LED para combinar com sua nave */
+    gap: 16px;
+    padding: 14px 22px;
+    background: linear-gradient(90deg, #00080f 0%, #001020 60%, #00080f 100%);
+    border-bottom: 1px solid #00d4ff22;
+    position: relative;
+    z-index: 10;
 }
 
-/* Ajuste opcional para o botão de fechar ficar bonito */
+.hull-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ffd700, #ffaa00, #ffd700, transparent);
+    opacity: 0.7;
+}
+
+.hull-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.hull-header-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(0.85rem, 2vw, 1.2rem);
+    font-weight: 700;
+    color: #ffd700;
+    letter-spacing: 3px;
+    text-shadow: 0 0 14px #ffd70088, 0 0 30px #ffaa0044;
+    white-space: nowrap;
+}
+
+.hull-pilot-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hull-tag-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.55rem;
+    color: #446644;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+#hull-pilot-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    color: #ccee88;
+    letter-spacing: 1px;
+}
+
+.hull-header-center {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.hull-stat-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: #ffffff08;
+    border: 1px solid #ffd7001a;
+    border-radius: 8px;
+    padding: 6px 18px;
+    min-width: 100px;
+}
+
+.hull-chip-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.5rem;
+    color: #557755;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.hull-chip-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffd700;
+    text-shadow: 0 0 8px #ffd70066;
+}
+
+.hull-chip-mission {
+    color: #00d4ff;
+    text-shadow: 0 0 8px #00d4ff66;
+}
+
+.hull-header-right {
+    flex-shrink: 0;
+}
+
 #btn-close-customize {
-    background: transparent;
-    border: 1px solid var(--primary-yellow);
-    color: var(--primary-yellow);
-    padding: 5px 15px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 10px 20px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    color: #ff5555;
+    background: transparent;
+    border: 1px solid #ff444466;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    height: auto;
 }
 
 #btn-close-customize:hover {
-    background: var(--primary-yellow);
-    color: #000;
-    box-shadow: 0 0 10px var(--primary-yellow);
-}h2 {
-    /* Ativa o alinhamento flexível */
-    display: flex;
-    justify-content: space-between; /* Empurra o span para a esquerda e o botão para a direita */
-    align-items: center; /* Centraliza verticalmente o texto e o botão */
-
-    color: var(--primary-yellow);
-    width: 100%;
-    position: fixed;
-    background: rgba(0, 0, 0, 0.653);
-    z-index: 9999;
-    top: 0;
-    left: 0; /* Ajustado de -.5% para 0 para evitar desalinhamento */
-    margin: 0;
-    padding: 1rem 3rem; /* 1rem em cima/baixo e 3rem nas laterais */
-    box-sizing: border-box; /* Garante que o padding não aumente o tamanho da barra */
-    border-bottom: 1px solid rgba(0, 195, 255, 0.3); /* Linha fina azul LED para combinar com sua nave */
+    background: #ff2222;
+    color: #fff;
+    border-color: #ff2222;
+    box-shadow: 0 0 16px #ff222266;
 }
 
-/* Ajuste opcional para o botão de fechar ficar bonito */
-#btn-close-customize {
-    background: transparent;
-    border: 1px solid var(--primary-yellow);
-    color: var(--primary-yellow);
-    padding: 5px 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
 
-#btn-close-customize:hover {
-    background: var(--primary-yellow);
-    color: #000;
-    box-shadow: 0 0 10px var(--primary-yellow);
-}
- 
-
-/* Overlay de Fundo */
 .customize-overlay {
     position: fixed;
     z-index: 999999;
@@ -241,591 +297,366 @@ h2 {
     font-weight: 700;
 }
 
-#btn-close-customize{
-    height: 2rem;
-}
+/* ================================================
+   OVERLAY PRINCIPAL — tela cheia fixa, sem scroll
+   ================================================ */
 .customize-hull-overlay {
-    position: absolute;
-    padding-top: 5rem;
-    left: 0;
-    top: 0;
+    position: fixed;
+    inset: 0;
     z-index: 10000000;
-    display: none
-    ;
-    flex-wrap: wrap;
-    width: 100%;
-    height: 100vh;
-    justify-content: center;
-    overflow-y: auto;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
 
-    /* Adicionando a Imagem de Fundo */
     background-image: url('../img/cenario-start/hangar.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-attachment: fixed;
-    /* Opcional: mantém o fundo parado ao rolar */
 }
 
-/* Estrutura de Conteúdo */
+/* ─── ÁREA PRINCIPAL (abaixo do header fixo de 68px) ─── */
 .customize-hull-div {
+    flex: 1;
     display: flex;
-    flex-wrap: wrap;
-    padding: 20px;
-    gap: 20px;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
 }
 
+/* ─── LINHA SUPERIOR: preview (esquerda) + info (direita) ─── */
+.hull-top-row {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+    padding: 1rem 2rem;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* ─── PREVIEW BOX (esquerda) ─── */
+.display-box {
+    flex: 0 0 45%;
+    display: flex;
+    justify-content: flex-end;   /* empurra a nave para a direita, próxima ao card */
+    align-items: flex-start;     /* empurra a nave para cima */
+    height: 100%;
+    padding: 0.5rem 1rem 0.5rem 2rem;
+}
 
 #ship-preview-img {
-    max-width: 50%;
-    padding: 1rem;
-    /* O segredo está em acumular sombras com diferentes raios de expansão */
-    filter: 
-        drop-shadow(0 0 10px #fff)          /* Núcleo branco (calor máximo) */
-        drop-shadow(0 0 30px var(--primary-yellow)) /* Brilho médio */
-        drop-shadow(0 0 70px var(--primary-yellow)) /* Brilho de longo alcance */
-        drop-shadow(0 0 120px rgba(255, 215, 0, 0.4)); /* Aura final */
-    
+    max-height: 52vh;
+    max-width: 100%;
+    object-fit: contain;
+    margin-top: -150px !important;   
+    margin-right: -120px !important;          /* afasta levemente do header */
+    filter:
+        drop-shadow(0 0 10px #fff)
+        drop-shadow(0 0 30px var(--primary-yellow))
+        drop-shadow(0 0 70px var(--primary-yellow));
     animation: float 4s ease-in-out infinite, hyperGlow 2s ease-in-out infinite alternate;
 }
 
 @keyframes hyperGlow {
     from {
-        filter: 
+        filter:
             drop-shadow(0 0 5px #fff)
             drop-shadow(0 0 20px var(--primary-yellow))
             drop-shadow(0 0 50px var(--primary-yellow));
     }
     to {
-        filter: 
+        filter:
             drop-shadow(0 0 15px #fff)
             drop-shadow(0 0 40px var(--primary-yellow))
-            drop-shadow(0 0 100px var(--primary-yellow))
-            drop-shadow(0 0 150px var(--primary-yellow));
+            drop-shadow(0 0 100px var(--primary-yellow));
     }
 }
 
-/* Direita: Status */
-.stats-container {
+/* ─── PAINEL DIREITO: info + stats + botão ─── */
+.hull-info-panel {
     flex: 1;
-    min-width: 250px;
- 
-    padding: 15px;
-    border-left: 3px solid var(--primary-yellow);
-}
-
-.stat-row {
-    margin-bottom: 18px;
-    width: 50%;
-}
-
-.stat-label {
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 230, 0, 0.3);
+    border-radius: 14px;
+    padding: 1.5rem 2rem;
     display: flex;
-    justify-content: space-between;
-    color: var(--text-light);
-    font-weight: bold;
+    flex-direction: column;
+    gap: 0.6rem;
+    overflow-y: auto;
+    max-height: 100%;
+    box-shadow: 0 0 40px rgba(0,0,0,0.7);
+}
+
+.hull-info-panel::before {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #ffe600, transparent);
+    margin-bottom: 4px;
+}
+
+.hull-ship-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.4rem;
+    color: #ffd700;
     text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+.hull-rarity {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin: 0;
+    padding: 2px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid currentColor;
+    width: fit-content;
+}
+
+.hull-desc {
     font-size: 0.85rem;
-    margin-bottom: 5px;
+    color: #ccc;
+    line-height: 1.5;
+    margin: 0;
 }
 
-.bar {
-  width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  overflow: hidden;
-
-  /* MUITO IMPORTANTE */
-  padding: 0;
-  position: relative;
+/* Stats superiores (velocity / health / energy) */
+.hull-stats-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
 }
 
+.hull-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
 
-.bar div {
+.hull-stat-item label {
+    font-size: 0.65rem;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.hull-stat-item .hull-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.hull-stat-item .hull-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #ccaa00, var(--primary-yellow));
-    box-shadow: 0 0 8px var(--primary-yellow);
+    border-radius: 10px;
+    background: linear-gradient(90deg, #ccaa00, #ffe600);
+    box-shadow: 0 0 6px #ffe600;
+    transition: width 0.4s ease;
 }
 
-/* Inferior: Carrossel de Chassis */
-/* ================================
-   SEÇÃO PRINCIPAL
-================================ */
-.selection-section {
-  width: 100%;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 0, 0.4);
+/* Stats chassi */
+.hull-stats-chassi {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 0.4rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
 }
 
-.selection-section h4 {
-  text-align: center;
-  color: var(--text-light);
-  font-family: 'Orbitron', sans-serif;
-  font-size: 1.7rem;
-  margin-bottom: 30px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
+.chassi-stat-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-/* ================================
-   LAYOUT GERAL
-================================ */
-.selection-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0px;
-  align-items: center;
-  padding: 6rem;
+.chassi-stat-row span {
+    font-size: 0.65rem;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
-
-/* ================================
-   SELETOR DE NAVES
-================================ */
-.ship-selector {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-   
-}
-
-/* GRID DAS NAVES (REFERÊNCIA DAS SETAS) */
-.ship-grid {
-  position: relative;
-  display: flex;
-  gap: 0px;
-}
-
-/* ================================
-   SETAS (COLADAS NA NAVE)
-================================ */
- 
-/* CONTAINERS DAS SETAS */
-.nav-arrow-1,
-.nav-arrow-2 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 20;
-}
-
-/* margem negativa */
-.nav-arrow-1 {
-  margin-right: -30px;
-}
-
-.nav-arrow-2 {
-  margin-left: -30px;
-}
-
-/* IMAGEM */
-.nav-arrow-1 img,
-.nav-arrow-2 img {
-  width: 42px;
-  cursor: pointer;
-  opacity: 0.9;
-  transition: transform 0.25s ease, opacity 0.25s ease;
-  will-change: transform;
-}
-
-/* HOVER SEM EMPURRAR */
-.nav-arrow-1 img:hover,
-.nav-arrow-2 img:hover {
-  opacity: 1;
-  transform: scale(1.15); /* cresce visualmente */
-}
-
-
-/* ================================
-   CARD DA NAVE
-================================ */
-.ship-item {
-  width: 160px;
-  height: 160px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-}
-
-.ship-item-img {
-  width: 85%;
-}
-
-/* NAVE ATIVA */
-.ship-item.active {
-  border: 5px solid #ffe600;
-  animation: pulseGlow 2s infinite;
-}
-
-
-/* ================================
-   PAINEL DE INFORMAÇÕES (HUD)
-================================ */
-.ship-info {
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(6px);
-  padding: 25px 28px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 0, 0.25);
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
-  color: var(--text-light);
-   box-sizing: border-box;
-}
-
-/* detalhe tech */
-.ship-info::before {
-  content: "";
-  display: block;
-  width: 80px;
-  height: 3px;
-  background: linear-gradient(90deg, #ffe600, transparent);
-  margin-bottom: 15px;
-}
-
-/* TÍTULO INFO */
-.ship-info h3 {
-  font-family: 'Orbitron', sans-serif;
-  color: #ffe600;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-bottom: 10px;
-}
-
-/* DESCRIÇÃO */
-.ship-info .desc {
-  font-size: 0.95rem;
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
-
-/* ================================
-   STATS (ALINHADAS À ESQUERDA)
-================================ */
-.ship-stats {
-  margin-bottom: 20px;
-      margin-left: 5rem;
-}
-
-.stat {
-  margin-bottom: 16px;
-  text-align: left;
-}
-
-.stat span {
-  font-size: 0.8rem;
-  letter-spacing: 1px;
-  display: block;
-  margin-bottom: 6px;
-  color: #ccc;
-  padding-left: 0;
-  margin-left: 0;
-
-}
-
-/* ================================
-   STATS
-================================ */
-.ship-stats {
-  margin-bottom: 20px;
-}
-
-.stat {
-  margin-bottom: 16px;
-}
-
-.stat span {
-  font-size: 0.8rem;
-  letter-spacing: 1px;
-  display: block;
-  margin-bottom: 6px;
-  color: #ccc;
-}
-
-/* ================================
-   BARRA BASE
-================================ */
-.bar {
-  width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  overflow: hidden;
-  position: relative;
-}
-
-/* ================================
-   PREENCHIMENTO
-================================ */
-.fill {
-  height: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-
-  border-radius: 10px 0 0 10px;
-  box-sizing: border-box;
-}
-
-/* brilho inicial HUD */
-.fill::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-
-  width: 4px;
-  height: 100%;
-
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 8px rgba(255,255,255,0.9);
-  pointer-events: none;
-}
-
-/* ================================
-   VALORES
-================================ */
-.stat {
-  width: 100%;
-}
-
-/* BLINDAGEM */
-.fill.armor {
-  width: 88%; /* visualmente ≈ 80% */
-  background: linear-gradient(90deg, #00e5ff, #007bff);
-}
-
-/* VELOCIDADE */
-.fill.speed {
-  width: 100%; /* visualmente ≈ 65% */
-  background: linear-gradient(90deg, #00ff99, #00cc66);
-}
-
-/* ================================
-   SLOTS DE ARMAS
-================================ */
-.slots {
-  display: flex;
-  gap: 8px;
-}
-
-.slot {
-  width: 16px;
-  height: 16px;
-  border: 1px solid #ffe600;
-  opacity: 0.3;
-}
-
-.slot.active {
-  background: #ffe600;
-  box-shadow: 0 0 8px rgba(255,230,0,0.8);
-  opacity: 1;
-}
-
-/* ================================
-   PREÇO E BOTÃO
-================================ */
-.price {
-  font-weight: bold;
-  margin: 18px 0;
-  color: #ffd700;
-}
-
-/* BOTÃO COMPRAR */
-.btn-buy {
-  width: 100%;
-  padding: 16px 40px;
-  background: linear-gradient(90deg, #ffe600, #ffb700);
-  border: none;
-  border-radius: 10px;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 1rem;
-  letter-spacing: 1px;
-  cursor: pointer;
-  box-shadow: 0 0 30px rgba(255,230,0,0.85);
-  transition: all 0.25s ease;
-}
-
-.btn-buy:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 40px rgba(255,230,0,1);
-}
-
-.btn-buy:active {
-  transform: scale(0.98);
-}
-/* ===============================
-   BARRAS DO CHASSI (ISOLADAS)
-================================ */
 
 .chassi-bar {
-  width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.18);
-  border-radius: 10px;
-  overflow: hidden;
-  position: relative;
-  margin-top: 6px;
+    width: 100%;
+    height: 7px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
 }
 
 .chassi-fill {
-  height: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-  border-radius: 10px 0 0 10px;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 10px;
+    transition: width 0.4s ease;
 }
 
-/* brilho HUD */
-.chassi-fill::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 6px;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 8px rgba(255,255,255,0.9);
+.chassi-fill.armor  { background: linear-gradient(90deg, #00e5ff, #007bff); }
+.chassi-fill.speed  { background: linear-gradient(90deg, #00ff99, #00cc66); }
+
+.slots {
+    display: flex;
+    gap: 6px;
+    margin-top: 2px;
 }
 
-/* ===============================
-   VALORES REAIS (AGORA FUNCIONAM)
-================================ */
-
-/* BLINDAGEM */
-.chassi-fill.armor {
-  width: 80%;
-  background: linear-gradient(90deg, #00e5ff, #007bff);
+.slot {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #ffe600;
+    border-radius: 2px;
+    opacity: 0.3;
 }
 
-/* VELOCIDADE */
-.chassi-fill.speed {
-  width: 65%;
-  background: linear-gradient(90deg, #00ff99, #00cc66);
+.slot.active {
+    background: #ffe600;
+    box-shadow: 0 0 6px rgba(255,230,0,0.8);
+    opacity: 1;
 }
 
-/* ================================
-   RESPONSIVO
-================================ */
-@media (max-width: 768px) {
-  .selection-content {
-    grid-template-columns: 1fr;
+/* Preço e Botão */
+.hull-price {
+    font-weight: bold;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    color: #ffd700;
+    margin: 0;
+}
+
+.btn-buy {
+    width: 100%;
+    padding: 12px 20px;
+    background: linear-gradient(90deg, #ffe600, #ffb700);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(255,230,0,0.7);
+    transition: all 0.25s ease;
+    color: #000;
+    font-weight: bold;
+}
+
+.btn-buy:hover:not(:disabled) {
+    transform: scale(1.03);
+    box-shadow: 0 0 35px rgba(255,230,0,1);
+}
+
+.btn-buy:disabled {
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* ─── CARROSSEL (rodapé da tela) ─── */
+.hull-carousel-section {
+    flex-shrink: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255,230,0,0.25);
+    padding: 0.6rem 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    overflow: hidden;
+}
+
+.hull-carousel-section h4 {
     text-align: center;
-  }
+    color: #e0e0e0;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin: 0;
+}
 
-  .ship-info {
-    text-align: center;
-  }
-
-  .ship-grid {
-    flex-wrap: wrap;
+.ship-selector {
+    display: flex;
+    align-items: flex-end;
     justify-content: center;
-  }
-
-  .nav-arrow:first-child {
-    left: -30px;
-  }
-
-  .nav-arrow:last-child {
-    right: -30px;
-  }
+    gap: 0;
+    padding-top: 14px;   /* espaço para o card ativo flutuar sem clipar */
 }
-
 
 .ship-grid {
     display: flex;
-    align-items: center;
+    gap: 12px;
+    align-items: flex-end;
     justify-content: center;
-    gap: 15px;
-    padding-left: 5rem;
-    padding-right: 5rem;
+    padding: 0 1rem;
 }
 
+/* ─── CARDS DAS NAVES ─── */
 .ship-item {
-    background: var(--dark-bg);
-    border: 1px solid var(--border-gray);
+    width: 110px;
+    height: 110px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 2px solid rgba(255,255,255,0.1);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: 0.2s;
-    display: none;
-}
-
-.ship-item {
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
     position: relative;
     overflow: hidden;
-    border: 2px solid transparent;
-}
-.ship-item:hover,
-.ship-item.active {
-    margin-top: 2rem;
-    border-color: #fff;
-    transform: translateY(-8px);
-    border: 3px solid var(--primary-yellow);
-    /* Fundo em tons de branco e cinza futurista */
-    background: radial-gradient(circle, #ffffff 0%, #e0e0e0 50%, #bcbcbc 100%);
-    border-radius: 10px;
 }
 
+.ship-item:hover {
+    border-color: rgba(255,230,0,0.5);
+    background: rgba(255,230,0,0.07);
+    transform: translateY(-4px);
+}
 
 .ship-item.active {
-    display: flex;
-    width: 350px;
-    height: 350px;
+    border: 2px solid #ffe600;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(188,188,188,0.08) 100%);
+    box-shadow: 0 0 22px rgba(255,230,0,0.6), 0 -6px 18px rgba(255,230,0,0.3);
+    transform: translateY(-14px);  /* flutua dentro do padding-top:14px do ship-selector */
 }
 
 .ship-item-img {
-    max-width: 90%;
-    max-height: 90%;
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
 }
 
 /* Setas */
-.nav-arrow {
-    font-size: 2rem;
-    color: var(--text-light);
+.nav-arrow-1,
+.nav-arrow-2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    padding: 0 15px;
-    user-select: none;
-    transition: 0.3s;
+    padding: 0 6px;
+    z-index: 20;
 }
 
-.nav-arrow:hover {
-    transform: scale(1.3);
-      color: var(--text-light);
-}
-.nav-arrow img{
-    width: 3rem;
-}
-/* Animação */
-@keyframes float {
-
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-15px);
-    }
+.nav-arrow-1 img,
+.nav-arrow-2 img {
+    width: 36px;
+    opacity: 0.8;
+    transition: all 0.2s;
 }
 
-/* Responsividade */
-@media (max-width: 700px) {
-    .customize-hull-div {
-        flex-direction: column;
-    }
-
-    .preview-section {
-        height: 200px;
-    }
-
-    .ship-grid {
-        overflow-x: auto;
-        padding-bottom: 10px;
-    }
+.nav-arrow-1 img:hover,
+.nav-arrow-2 img:hover {
+    opacity: 1;
+    transform: scale(1.2);
 }

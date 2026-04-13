@@ -1,27 +1,29 @@
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from './globals.js'; 
 
 export class Background {
-    constructor(imagePaths, baseSpeed) {
+    constructor(layersConfig, baseSpeed) {
         this.canvasWidth = CANVAS_WIDTH;
         this.canvasHeight = CANVAS_HEIGHT;
         this.baseSpeed = baseSpeed;
         
-        this.layers = imagePaths.map((path, index) => {
+        // layersConfig agora recebe o array de objetos da missão [{path, factor, oneShot?, startY?, scale?, x?}, ...]
+        this.layers = layersConfig.map((config) => {
             const img = new Image();
-            img.src = path;
-
-            // 🚀 AJUSTE DE VELOCIDADE:
-            let factor = 1.0; 
-            if (index === 0) factor = 0.02; // Fundo Profundo (mais lento)
-            else if (index === 1) factor = 0.05; // Camada 2 (Estrelas) - Mais rápida que a anterior, mas ainda suave
-            else factor = 0.15; // Restante (Cenário principal)
+            img.src = config.path;
 
             return {
                 img: img,
                 y: 0,
                 isReady: false,
                 scaledHeight: 0,
-                speedFactor: factor 
+                speedFactor: config.factor || 0.1,
+                oneShot: config.oneShot === true,
+                startYFraction: config.startY !== undefined ? config.startY : null,
+                // scale: fração do tamanho original (1.0 = ocupa toda a largura, 0.3 = 30%)
+                scale: config.scale !== undefined ? config.scale : 1.0,
+                // x: posição horizontal em fração da largura (0 = esquerda, 0.5 = centro, 1 = direita)
+                xFraction: config.x !== undefined ? config.x : 0,
+                done: false
             };
         });
 
@@ -30,11 +32,26 @@ export class Background {
 
     initLayers() {
         this.layers.forEach(layer => {
+            if (!layer.img.src || layer.img.src.endsWith('/') || layer.img.src.includes('undefined')) return;
+
             layer.img.onload = () => {
                 layer.isReady = true;
                 const ratio = this.canvasWidth / layer.img.width;
-                layer.scaledHeight = layer.img.height * ratio;
-                layer.y = this.canvasHeight - layer.scaledHeight;
+                // scaledHeight considera o scale da camada
+                layer.scaledHeight = layer.img.height * ratio * layer.scale;
+                layer.scaledWidth  = this.canvasWidth * layer.scale;
+
+                if (layer.oneShot) {
+                    if (layer.startYFraction !== null) {
+                        // startY explícito (lua, nave-mãe etc.)
+                        layer.y = layer.startYFraction * this.canvasHeight;
+                    } else {
+                        // Sem startY: começa na mesma posição de uma layer normal (fundo da tela)
+                        layer.y = this.canvasHeight - layer.scaledHeight;
+                    }
+                } else {
+                    layer.y = this.canvasHeight - layer.scaledHeight;
+                }
             };
         });
     }
@@ -42,40 +59,46 @@ export class Background {
     update(deltaTime) {
         const deltaFraction = deltaTime / 1000;
         this.layers.forEach(layer => {
-            if (!layer.isReady) return;
+            if (!layer.isReady || layer.done) return;
+
             layer.y += (this.baseSpeed * layer.speedFactor) * deltaFraction;
-            if (layer.y >= layer.scaledHeight) {
-                layer.y -= layer.scaledHeight;
+
+            if (layer.oneShot) {
+                // Para de desenhar quando a imagem saiu completamente pela parte de baixo
+                if (layer.y > this.canvasHeight) {
+                    layer.done = true;
+                }
+            } else {
+                // Loop infinito normal
+                if (layer.y >= layer.scaledHeight) {
+                    layer.y -= layer.scaledHeight;
+                }
             }
         });
     }
 
-   draw(ctx) {
+    draw(ctx) {
         this.layers.forEach((layer, index) => {
-            if (!layer.isReady) return;
+            if (!layer.isReady || layer.done) return;
 
             ctx.save();
-            
-            // Camada 0 e Camada 2+: Padrão
-            ctx.globalAlpha = 1.0;
-            ctx.filter = "none";
 
-            // 🚀 EFEITO DE BRILHO PARA A CAMADA 2 (Terra, Lua e Nave)
-            if (index === 1) {
-                // Adiciona um brilho sutil amarelado/branco para simular o reflexo do sol
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = "rgba(255, 255, 200, 0.4)"; // Amarelo bem clarinho
-                
-                // Opcional: 'lighter' faz as cores brilharem mais onde houver luz na imagem
-                // Se ficar forte demais, pode remover a linha abaixo
-                ctx.globalCompositeOperation = "source-over"; 
+            if (layer.oneShot) {
+                // Sem tiling — tamanho e posição X controlados por scale/xFraction
+                const w = layer.scaledWidth  || this.canvasWidth;
+                const h = layer.scaledHeight || this.canvasWidth; // fallback
+                const x = layer.xFraction * (this.canvasWidth - w);
+                ctx.drawImage(layer.img, x, layer.y, w, h);
+            } else {
+                // Camada 1 (loop) mantém brilho sutil
+                if (index === 1) {
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = "rgba(255, 255, 200, 0.4)";
+                }
+                // Tiling infinito: tile atual + cópia acima
+                ctx.drawImage(layer.img, 0, layer.y, this.canvasWidth, layer.scaledHeight);
+                ctx.drawImage(layer.img, 0, layer.y - layer.scaledHeight, this.canvasWidth, layer.scaledHeight);
             }
-
-            // 1. Imagem descendo
-            ctx.drawImage(layer.img, 0, layer.y, this.canvasWidth, layer.scaledHeight);
-
-            // 2. Cópia acima (Loop Infinito)
-            ctx.drawImage(layer.img, 0, layer.y - layer.scaledHeight, this.canvasWidth, layer.scaledHeight);
 
             ctx.restore();
         });

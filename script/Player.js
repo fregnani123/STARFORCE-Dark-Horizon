@@ -8,7 +8,7 @@ import {
         CANVAS_WIDTH,
         CANVAS_HEIGHT
 } from './globals.js';
-import { endGamePlayer } from './FimDoGame.js';
+import { endGamePlayer } from './FimDoGame_NEW.js';
 
 
 // Função de easing 
@@ -18,7 +18,7 @@ export function easeOutQuad(t) {
 
 
 export class Player extends GameObject {
-        constructor(x, y, width, height, imagePath, maxHealth = 100) {
+        constructor(x, y, width, height, imagePath, maxHealth = 700, weaponLevel = 1) {
                 // Usa as constantes importadas para calcular a posição inicial
                 const dynamicTargetX = (CANVAS_WIDTH / 2) - (width / 2);
                 const dynamicTargetY = CANVAS_HEIGHT * 0.8;
@@ -41,7 +41,7 @@ export class Player extends GameObject {
                 this.updateHullDisplay();
 
                 // Propriedades de Arma e Laser
-                this.weaponLevel = 4;
+                this.weaponLevel = weaponLevel;
                 this.maxWeaponLevel = 4;
                 this.superLaserActive = false;
                 this.superLaserDuration = 500;
