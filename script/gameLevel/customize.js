@@ -13,6 +13,138 @@ let currentPage = 0;
 const SHIPS_PER_PAGE = 4;
 let selectedShipId = null;
 
+const CUSTOMIZE_I18N = {
+    'pt-BR': {
+        title: '🚀 HULL & HANGAR MODS',
+        pilot: 'PILOTO',
+        resources: '⭐ RECURSOS',
+        mission: '📡 MISSÃO',
+        close: '✕ SAIR',
+        speed: 'Velocidade',
+        resistance: 'Resistência',
+        energy: 'Energia',
+        armor: 'BLINDAGEM',
+        speedCaps: 'VELOCIDADE',
+        slots: 'SLOTS DE ARMAS',
+        selectHull: 'Selecione o Chassi',
+        inUse: '✅ CHASSI EM USO',
+        inUseBtn: 'EM USO',
+        unlockGift: '🏆 <span style="color:#ff9900">BRINDE — Complete o jogo uma vez para desbloquear</span>',
+        unlockGameBtn: '🏆 COMPLETE O JOGO',
+        readyUse: '✅ DESBLOQUEADO — Pronto para uso',
+        useHull: 'USAR ESTE CHASSI',
+        costPrefix: 'CUSTO',
+        youHave: 'Você tem',
+        acquire: 'ADQUIRIR',
+        insufficient: '⭐ INSUFICIENTES',
+        unlockAlienHint: '🏆 Complete o jogo para desbloquear a Nave Alien!',
+        activated: 'ativada',
+        acquired: 'adquirida',
+        lockCard: '🏆 COMPLETE\nO JOGO',
+        inUseTag: 'EM USO'
+    },
+    en: {
+        title: '🚀 HULL & HANGAR MODS',
+        pilot: 'PILOT',
+        resources: '⭐ RESOURCES',
+        mission: '📡 MISSION',
+        close: '✕ EXIT',
+        speed: 'Speed',
+        resistance: 'Resistance',
+        energy: 'Energy',
+        armor: 'ARMOR',
+        speedCaps: 'SPEED',
+        slots: 'WEAPON SLOTS',
+        selectHull: 'Select Hull',
+        inUse: '✅ HULL IN USE',
+        inUseBtn: 'IN USE',
+        unlockGift: '🏆 <span style="color:#ff9900">REWARD — Beat the game once to unlock</span>',
+        unlockGameBtn: '🏆 BEAT THE GAME',
+        readyUse: '✅ UNLOCKED — Ready to use',
+        useHull: 'USE THIS HULL',
+        costPrefix: 'COST',
+        youHave: 'You have',
+        acquire: 'ACQUIRE',
+        insufficient: '⭐ NOT ENOUGH',
+        unlockAlienHint: '🏆 Beat the game to unlock Alien Ship!',
+        activated: 'activated',
+        acquired: 'acquired',
+        lockCard: '🏆 BEAT\nTHE GAME',
+        inUseTag: 'IN USE'
+    },
+    es: {
+        title: '🚀 MODS DE CASCO Y HANGAR',
+        pilot: 'PILOTO',
+        resources: '⭐ RECURSOS',
+        mission: '📡 MISIÓN',
+        close: '✕ SALIR',
+        speed: 'Velocidad',
+        resistance: 'Resistencia',
+        energy: 'Energía',
+        armor: 'BLINDAJE',
+        speedCaps: 'VELOCIDAD',
+        slots: 'SLOTS DE ARMAS',
+        selectHull: 'Selecciona el casco',
+        inUse: '✅ CASCO EN USO',
+        inUseBtn: 'EN USO',
+        unlockGift: '🏆 <span style="color:#ff9900">RECOMPENSA — Completa el juego una vez para desbloquear</span>',
+        unlockGameBtn: '🏆 COMPLETA EL JUEGO',
+        readyUse: '✅ DESBLOQUEADO — Listo para usar',
+        useHull: 'USAR ESTE CASCO',
+        costPrefix: 'COSTO',
+        youHave: 'Tienes',
+        acquire: 'ADQUIRIR',
+        insufficient: '⭐ INSUFICIENTES',
+        unlockAlienHint: '🏆 Completa el juego para desbloquear la Nave Alien!',
+        activated: 'activada',
+        acquired: 'adquirida',
+        lockCard: '🏆 COMPLETA\nEL JUEGO',
+        inUseTag: 'EN USO'
+    }
+};
+
+function normalizeLanguage(lang) {
+    if (!lang) return 'pt-BR';
+    if (lang.toLowerCase().startsWith('pt')) return 'pt-BR';
+    if (lang.toLowerCase().startsWith('es')) return 'es';
+    return 'en';
+}
+
+function t() {
+    const key = normalizeLanguage(localStorage.getItem('sf_language') || 'pt-BR');
+    return CUSTOMIZE_I18N[key] || CUSTOMIZE_I18N['pt-BR'];
+}
+
+function applyCustomizeStaticLanguage() {
+    const i18n = t();
+
+    const title = document.querySelector('#customize-hull-overlay .hull-header-title');
+    if (title) title.textContent = i18n.title;
+
+    const pilotTag = document.querySelector('#customize-hull-overlay .hull-tag-label');
+    if (pilotTag) pilotTag.textContent = i18n.pilot;
+
+    const chips = document.querySelectorAll('#customize-hull-overlay .hull-chip-label');
+    if (chips[0]) chips[0].textContent = i18n.resources;
+    if (chips[1]) chips[1].textContent = i18n.mission;
+
+    const closeBtn = document.getElementById('btn-close-customize');
+    if (closeBtn) closeBtn.textContent = i18n.close;
+
+    const statLabels = document.querySelectorAll('#customize-hull-overlay .hull-stat-item label');
+    if (statLabels[0]) statLabels[0].childNodes[0].nodeValue = `${i18n.speed} `;
+    if (statLabels[1]) statLabels[1].childNodes[0].nodeValue = `${i18n.resistance} `;
+    if (statLabels[2]) statLabels[2].childNodes[0].nodeValue = `${i18n.energy} `;
+
+    const chassiLabels = document.querySelectorAll('#customize-hull-overlay .chassi-stat-row > span');
+    if (chassiLabels[0]) chassiLabels[0].textContent = i18n.armor;
+    if (chassiLabels[1]) chassiLabels[1].textContent = i18n.speedCaps;
+    if (chassiLabels[2]) chassiLabels[2].textContent = i18n.slots;
+
+    const selectTitle = document.querySelector('#customize-hull-overlay .hull-carousel-section h4');
+    if (selectTitle) selectTitle.textContent = i18n.selectHull;
+}
+
 // ======================================================
 // ABERTURA / FECHAMENTO
 // ======================================================
@@ -20,6 +152,7 @@ let selectedShipId = null;
 export function openCustomizeHull(e) {
     if (e) e.preventDefault();
     if (!div_customize) return;
+    applyCustomizeStaticLanguage();
     div_customize.style.display = 'flex';
     selectedShipId = getCurrentShip();
     renderCarousel();
@@ -62,13 +195,13 @@ function renderCarousel() {
             <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
                 justify-content:flex-end;padding-bottom:8px;background:rgba(0,0,0,0.35);border-radius:8px;">
                 <span style="font-family:'Orbitron',sans-serif;font-size:0.55rem;color:${isAlien ? '#ff9900' : '#ffd700'};text-align:center;line-height:1.3;">
-                    ${isAlien ? '🏆 COMPLETE\nO JOGO' : `🔒 ${ship.price}⭐`}
+                    ${isAlien ? t().lockCard : `🔒 ${ship.price}⭐`}
                 </span>
             </div>` : ''}
             ${isActive ? `
             <div style="position:absolute;top:4px;left:0;right:0;text-align:center;">
                 <span style="font-family:'Orbitron',sans-serif;font-size:0.5rem;color:#ffe600;
-                    background:rgba(0,0,0,0.7);padding:1px 6px;border-radius:4px;">EM USO</span>
+                    background:rgba(0,0,0,0.7);padding:1px 6px;border-radius:4px;">${t().inUseTag}</span>
             </div>` : ''}
         `;
 
@@ -157,25 +290,25 @@ function updateShipInfo(shipId) {
     const btnBuy  = document.querySelector('.btn-buy');
 
     if (isCurrent) {
-        if (priceEl) priceEl.textContent = '✅ CHASSI EM USO';
-        if (btnBuy) setBtnStyle(btnBuy, 'EM USO', true, '#555', '#333', 'default', 'none');
+        if (priceEl) priceEl.textContent = t().inUse;
+        if (btnBuy) setBtnStyle(btnBuy, t().inUseBtn, true, '#555', '#333', 'default', 'none');
 
     } else if (isAlien && !isUnlocked) {
         // Nave alien: apenas por conquista
-        if (priceEl) priceEl.innerHTML = '🏆 <span style="color:#ff9900">BRINDE — Complete o jogo uma vez para desbloquear</span>';
-        if (btnBuy) setBtnStyle(btnBuy, '🏆 COMPLETE O JOGO', true, '#553300', '#221100', 'not-allowed', 'none');
+        if (priceEl) priceEl.innerHTML = t().unlockGift;
+        if (btnBuy) setBtnStyle(btnBuy, t().unlockGameBtn, true, '#553300', '#221100', 'not-allowed', 'none');
 
     } else if (isUnlocked) {
-        if (priceEl) priceEl.textContent = '✅ DESBLOQUEADO — Pronto para uso';
-        if (btnBuy) setBtnStyle(btnBuy, 'USAR ESTE CHASSI', false, '#00aa55', '#007733', 'pointer', '0 0 20px rgba(0,255,100,0.6)');
+        if (priceEl) priceEl.textContent = t().readyUse;
+        if (btnBuy) setBtnStyle(btnBuy, t().useHull, false, '#00aa55', '#007733', 'pointer', '0 0 20px rgba(0,255,100,0.6)');
 
     } else {
         const playerStars = getPlayerData().totalStars || 0;
         const canAfford   = playerStars >= ship.price;
-        if (priceEl) priceEl.textContent = `CUSTO: ${ship.price} ⭐  |  Você tem: ${playerStars} ⭐`;
+        if (priceEl) priceEl.textContent = `${t().costPrefix}: ${ship.price} ⭐  |  ${t().youHave}: ${playerStars} ⭐`;
         if (btnBuy) {
-            if (canAfford) setBtnStyle(btnBuy, `ADQUIRIR — ${ship.price} ⭐`, false, '#cc9900', '#aa7700', 'pointer', '0 0 20px rgba(255,200,0,0.7)');
-            else setBtnStyle(btnBuy, `⭐ INSUFICIENTES — ${ship.price} ⭐`, true, '#444', '#333', 'not-allowed', 'none');
+            if (canAfford) setBtnStyle(btnBuy, `${t().acquire} — ${ship.price} ⭐`, false, '#cc9900', '#aa7700', 'pointer', '0 0 20px rgba(255,200,0,0.7)');
+            else setBtnStyle(btnBuy, `${t().insufficient} — ${ship.price} ⭐`, true, '#444', '#333', 'not-allowed', 'none');
         }
     }
 }
@@ -199,21 +332,21 @@ async function onBuyClick() {
     const unlocked = getUnlockedShips();
 
     if (ship.id === 'alien' && !unlocked.includes('alien')) {
-        showFeedback('🏆 Complete o jogo para desbloquear a Nave Alien!', '#ff9900');
+        showFeedback(t().unlockAlienHint, '#ff9900');
         return;
     }
 
     if (unlocked.includes(selectedShipId)) {
         const result = await selectShip(selectedShipId);
         if (result.success) {
-            showFeedback(`✅ ${ship.name} ativada!`, '#00ff88');
+            showFeedback(`✅ ${ship.name} ${t().activated}!`, '#00ff88');
             renderCarousel();
             updateShipInfo(selectedShipId);
         }
     } else {
         const result = await buyShip(selectedShipId);
         if (result.success) {
-            showFeedback(`✅ ${ship.name} adquirida!`, '#ffd700');
+            showFeedback(`✅ ${ship.name} ${t().acquired}!`, '#ffd700');
             updateStarDisplay();
             renderCarousel();
             updateShipInfo(selectedShipId);
@@ -275,7 +408,16 @@ function updateStarDisplay() {
 if (btn_close) btn_close.addEventListener('click', closeDiv);
 if (btn_open)  btn_open.addEventListener('click', openCustomizeHull);
 
+window.addEventListener('sf-language-changed', () => {
+    applyCustomizeStaticLanguage();
+    if (div_customize && div_customize.style.display === 'flex') {
+        renderCarousel();
+        if (selectedShipId) updateShipInfo(selectedShipId);
+    }
+});
+
 if (div_customize) {
+    applyCustomizeStaticLanguage();
     div_customize.addEventListener('click', e => {
         if (e.target === div_customize) closeDiv();
     });

@@ -64,6 +64,7 @@ html, body {
         rgba(0, 0, 0, 0.12) 30%,
         rgba(0, 0, 0, 0.00) 100%
     );
+    background: none !important;
     z-index: 99999;
     pointer-events: none;
 }

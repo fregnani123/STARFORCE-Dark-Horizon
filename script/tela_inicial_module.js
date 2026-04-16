@@ -1,6 +1,8 @@
 // Importa a função de reprodução de áudio (assumindo que existe em audio_game.js)
 import { playBGM } from './audio_game.js'; 
 
+export const MENU_BGM_PATH = '../assets/audio/musicaGameUS.mp3';
+
 // Elementos do DOM
 
 const loadingScreen = document.getElementById('loading-screen'); 
@@ -32,10 +34,13 @@ export function mostrarTelaInicial() {
     if (divIndex) divIndex.style.display = 'flex';
     if (telaInicio) telaInicio.style.display = 'flex';
     if (videoFundo) videoFundo.play().catch(() => {});
-    
-    // Inicia a música de fundo
+
+    playMenuMusic();
+}
+
+export function playMenuMusic() {
     try {
-        playBGM('../assets/audio/musicaGameBR.mp3', 1); 
+        playBGM(MENU_BGM_PATH, 1);
     } catch (e) {
         console.warn("Módulo de áudio (playBGM) não importado ou definido.");
     }

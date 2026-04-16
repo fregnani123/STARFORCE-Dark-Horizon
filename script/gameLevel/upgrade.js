@@ -5,6 +5,142 @@ import { getPlayerData, buyUpgrade, buySuperLaserUpgrade, buyWingmanUpgrade } fr
 
 const SUPER_LASER_COST = 200;
 
+const UPGRADE_I18N = {
+    'pt-BR': {
+        title: '⚡ UPGRADE SHIP',
+        pilot: 'PILOTO',
+        stars: '⭐ ESTRELAS',
+        mission: '📡 MISSÃO',
+        close: '✕ SAIR',
+        weaponTitle: '🔫 ARMAMENTO',
+        hullTitle: '🛡️ BLINDAGEM',
+        engineTitle: '🚀 PROPULSÃO',
+        laserTitle: '⚡ SUPER LASER',
+        wingmanTitle: '🦊 NAVE PARCEIRA',
+        levelShort: 'Nv',
+        current: '✅ ATUAL',
+        unlocked: '✔ DESBLOQUEADO',
+        buy: 'COMPRAR',
+        wait: 'Aguarde...',
+        missionLock: '🔒 Complete a Missão 1 para desbloquear',
+        errBuyUpgrade: 'Erro ao comprar upgrade.',
+        errWingman: 'Erro ao desbloquear Nave Parceira.',
+        errLaser: 'Erro ao desbloquear Super Laser.',
+        wingmanName: 'NAVE PARCEIRA',
+        wingmanDesc: 'Invoca a nave da raposa android por 15 segundos. Ela combate ao seu lado e mira inimigos automaticamente.',
+        keyText: 'Tecla: <strong style="color:#00ffee">F</strong> &nbsp;|&nbsp; Cooldown: 20s',
+        laserName: 'SUPER LASER',
+        laserDesc: 'Dispara um raio devastador que atravessa todos os inimigos na tela. Carrega durante o combate e pode ser ativado quando estiver 100%.',
+        laserBtnTitle: 'Super Laser (Q)',
+        laserLockTitle: 'Desbloqueie em UPGRADE SHIP',
+        lockedText: 'LOCKED'
+    },
+    en: {
+        title: '⚡ SHIP UPGRADES',
+        pilot: 'PILOT',
+        stars: '⭐ STARS',
+        mission: '📡 MISSION',
+        close: '✕ EXIT',
+        weaponTitle: '🔫 WEAPONS',
+        hullTitle: '🛡️ HULL',
+        engineTitle: '🚀 PROPULSION',
+        laserTitle: '⚡ SUPER LASER',
+        wingmanTitle: '🦊 WINGMAN',
+        levelShort: 'Lv',
+        current: '✅ CURRENT',
+        unlocked: '✔ UNLOCKED',
+        buy: 'BUY',
+        wait: 'Please wait...',
+        missionLock: '🔒 Complete Mission 1 to unlock',
+        errBuyUpgrade: 'Error while purchasing upgrade.',
+        errWingman: 'Error while unlocking Wingman.',
+        errLaser: 'Error while unlocking Super Laser.',
+        wingmanName: 'WINGMAN',
+        wingmanDesc: 'Summons the android fox wingman for 15 seconds. It fights by your side and targets enemies automatically.',
+        keyText: 'Key: <strong style="color:#00ffee">F</strong> &nbsp;|&nbsp; Cooldown: 20s',
+        laserName: 'SUPER LASER',
+        laserDesc: 'Fires a devastating beam that pierces all enemies on screen. Charges during combat and can be activated at 100%.',
+        laserBtnTitle: 'Super Laser (Q)',
+        laserLockTitle: 'Unlock in SHIP UPGRADES',
+        lockedText: 'LOCKED'
+    },
+    es: {
+        title: '⚡ MEJORAS DE NAVE',
+        pilot: 'PILOTO',
+        stars: '⭐ ESTRELLAS',
+        mission: '📡 MISIÓN',
+        close: '✕ SALIR',
+        weaponTitle: '🔫 ARMAMENTO',
+        hullTitle: '🛡️ BLINDAJE',
+        engineTitle: '🚀 PROPULSIÓN',
+        laserTitle: '⚡ SUPER LÁSER',
+        wingmanTitle: '🦊 NAVE COMPAÑERA',
+        levelShort: 'Nv',
+        current: '✅ ACTUAL',
+        unlocked: '✔ DESBLOQUEADO',
+        buy: 'COMPRAR',
+        wait: 'Espere...',
+        missionLock: '🔒 Completa la Misión 1 para desbloquear',
+        errBuyUpgrade: 'Error al comprar mejora.',
+        errWingman: 'Error al desbloquear Nave Compañera.',
+        errLaser: 'Error al desbloquear Super Láser.',
+        wingmanName: 'NAVE COMPAÑERA',
+        wingmanDesc: 'Invoca la nave de zorro androide por 15 segundos. Combate a tu lado y apunta a enemigos automáticamente.',
+        keyText: 'Tecla: <strong style="color:#00ffee">F</strong> &nbsp;|&nbsp; Enfriamiento: 20s',
+        laserName: 'SUPER LÁSER',
+        laserDesc: 'Dispara un rayo devastador que atraviesa a todos los enemigos en pantalla. Se carga durante el combate y puede activarse al 100%.',
+        laserBtnTitle: 'Super Láser (Q)',
+        laserLockTitle: 'Desbloquéalo en MEJORAS DE NAVE',
+        lockedText: 'BLOQUEADO'
+    }
+};
+
+function normalizeLanguage(lang) {
+    if (!lang) return 'pt-BR';
+    if (lang.toLowerCase().startsWith('pt')) return 'pt-BR';
+    if (lang.toLowerCase().startsWith('es')) return 'es';
+    return 'en';
+}
+
+function getCurrentLanguage() {
+    return normalizeLanguage(localStorage.getItem('sf_language') || 'pt-BR');
+}
+
+function t() {
+    return UPGRADE_I18N[getCurrentLanguage()] || UPGRADE_I18N['pt-BR'];
+}
+
+function applyUpgradeStaticLanguage() {
+    const i18n = t();
+    const title = document.querySelector('#upgrade-ship-overlay .upgrade-title');
+    if (title) title.textContent = i18n.title;
+
+    const tag = document.querySelector('#upgrade-ship-overlay .tag-label');
+    if (tag) tag.textContent = i18n.pilot;
+
+    const chips = document.querySelectorAll('#upgrade-ship-overlay .upgrade-stat-chip .chip-label');
+    if (chips[0]) chips[0].textContent = i18n.stars;
+    if (chips[1]) chips[1].textContent = i18n.mission;
+
+    const close = document.getElementById('btn-close-upgrade');
+    if (close) close.textContent = i18n.close;
+
+    const weaponTitle = document.querySelector('#upgrade-col-weapon .upgrade-col-title');
+    if (weaponTitle) weaponTitle.textContent = i18n.weaponTitle;
+
+    const hullTitle = document.querySelector('#upgrade-col-hull .upgrade-col-title');
+    if (hullTitle) hullTitle.textContent = i18n.hullTitle;
+
+    const engineTitle = document.querySelector('#upgrade-col-engine .upgrade-col-title');
+    if (engineTitle) engineTitle.textContent = i18n.engineTitle;
+
+    const laserTitle = document.querySelector('#upgrade-col-laser .upgrade-col-title');
+    if (laserTitle) laserTitle.textContent = i18n.laserTitle;
+
+    const wingmanTitle = document.querySelector('#upgrade-col-wingman .upgrade-col-title');
+    if (wingmanTitle) wingmanTitle.textContent = i18n.wingmanTitle;
+}
+
 const UPGRADE_CONFIG = {
     weapon: {
         label: '🔫 ARMAMENTO',
@@ -53,7 +189,7 @@ function renderLevels(type, currentLevel, totalStars) {
         card.className = `upgrade-card ${isCurrent ? 'state-current' : isUnlocked ? 'state-unlocked' : 'state-locked'}`;
 
         card.innerHTML = `
-            <span class="level-badge">Nv ${levelNum}</span>
+            <span class="level-badge">${t().levelShort} ${levelNum}</span>
             <div class="card-icon">${lvl.icon}</div>
             <div class="card-name">${lvl.name}</div>
             <div class="card-desc">${lvl.desc}</div>
@@ -62,30 +198,30 @@ function renderLevels(type, currentLevel, totalStars) {
         if (isCurrent) {
             const lbl = document.createElement('div');
             lbl.className = 'status-label current';
-            lbl.textContent = '✅ ATUAL';
+            lbl.textContent = t().current;
             card.appendChild(lbl);
         } else if (isUnlocked) {
             const lbl = document.createElement('div');
             lbl.className = 'status-label unlocked';
-            lbl.textContent = '✔ DESBLOQUEADO';
+            lbl.textContent = t().unlocked;
             card.appendChild(lbl);
         } else if (isNext) {
             const canAfford = totalStars >= lvl.cost;
             const btn = document.createElement('button');
             btn.className = 'btn-buy-upgrade';
-            btn.textContent = `COMPRAR — ${lvl.cost} ⭐`;
+            btn.textContent = `${t().buy} — ${lvl.cost} ⭐`;
             btn.disabled = !canAfford;
             btn.addEventListener('click', async () => {
                 btn.disabled = true;
-                btn.textContent = 'Aguarde...';
+                btn.textContent = t().wait;
                 const result = await buyUpgrade(type);
                 if (result.success) {
                     const data = await window.dbAPI.getPlayerData();
                     openUpgradeOverlay(data);
                 } else {
-                    alert(result.error || 'Erro ao comprar upgrade.');
+                    alert(result.error || t().errBuyUpgrade);
                     btn.disabled = false;
-                    btn.textContent = `COMPRAR — ${lvl.cost} ⭐`;
+                    btn.textContent = `${t().buy} — ${lvl.cost} ⭐`;
                 }
             });
             card.appendChild(btn);
@@ -118,42 +254,41 @@ function renderWingman(data) {
     card.className = `upgrade-card ${isUnlocked ? 'state-current' : 'state-locked'}`;
     card.innerHTML = `
         <div class="card-icon">🦊</div>
-        <div class="card-name">NAVE PARCEIRA</div>
+        <div class="card-name">${t().wingmanName}</div>
         <div class="card-desc">
-            Invoca a nave da raposa android por 15 segundos.
-            Ela combate ao seu lado e mira inimigos automaticamente.
+            ${t().wingmanDesc}
             <br><br>
-            Tecla: <strong style="color:#00ffee">F</strong> &nbsp;|&nbsp; Cooldown: 20s
+            ${t().keyText}
         </div>
     `;
 
     if (isUnlocked) {
         const lbl = document.createElement('div');
         lbl.className = 'status-label current';
-        lbl.textContent = '✅ DESBLOQUEADO';
+        lbl.textContent = t().unlocked;
         card.appendChild(lbl);
     } else if (!missionComplete) {
         const lbl = document.createElement('div');
         lbl.className = 'status-label mission-lock';
-        lbl.textContent = '🔒 Complete a Missão 1 para desbloquear';
+        lbl.textContent = t().missionLock;
         card.appendChild(lbl);
     } else {
         const canAfford = totalStars >= WINGMAN_COST;
         const btn = document.createElement('button');
         btn.className = 'btn-buy-upgrade';
-        btn.textContent = `COMPRAR — ${WINGMAN_COST} ⭐`;
+        btn.textContent = `${t().buy} — ${WINGMAN_COST} ⭐`;
         btn.disabled = !canAfford;
         btn.addEventListener('click', async () => {
             btn.disabled = true;
-            btn.textContent = 'Aguarde...';
+            btn.textContent = t().wait;
             const result = await buyWingmanUpgrade();
             if (result.success) {
                 const freshData = await window.dbAPI.getPlayerData();
                 openUpgradeOverlay(freshData);
             } else {
-                alert(result.error || 'Erro ao desbloquear Nave Parceira.');
+                alert(result.error || t().errWingman);
                 btn.disabled = false;
-                btn.textContent = `COMPRAR — ${WINGMAN_COST} ⭐`;
+                btn.textContent = `${t().buy} — ${WINGMAN_COST} ⭐`;
             }
         });
         card.appendChild(btn);
@@ -178,42 +313,40 @@ function renderSuperLaser(data) {
 
     card.innerHTML = `
         <div class="card-icon">⚡</div>
-        <div class="card-name">SUPER LASER</div>
+        <div class="card-name">${t().laserName}</div>
         <div class="card-desc">
-            Dispara um raio devastador que atravessa todos os inimigos na tela.
-            <br><br>
-            Carrega durante o combate e pode ser ativado quando estiver 100%.
+            ${t().laserDesc}
         </div>
     `;
 
     if (isUnlocked) {
         const lbl = document.createElement('div');
         lbl.className = 'status-label current';
-        lbl.textContent = '✅ DESBLOQUEADO';
+        lbl.textContent = t().unlocked;
         card.appendChild(lbl);
     } else if (!missionComplete) {
         const lbl = document.createElement('div');
         lbl.className = 'status-label mission-lock';
-        lbl.textContent = '🔒 Complete a Missão 1 para desbloquear';
+        lbl.textContent = t().missionLock;
         card.appendChild(lbl);
     } else {
         const canAfford = totalStars >= SUPER_LASER_COST;
         const btn = document.createElement('button');
         btn.className = 'btn-buy-upgrade';
-        btn.textContent = `COMPRAR — ${SUPER_LASER_COST} ⭐`;
+        btn.textContent = `${t().buy} — ${SUPER_LASER_COST} ⭐`;
         btn.disabled = !canAfford;
         btn.addEventListener('click', async () => {
             btn.disabled = true;
-            btn.textContent = 'Aguarde...';
+            btn.textContent = t().wait;
             const result = await buySuperLaserUpgrade();
             if (result.success) {
                 const freshData = await window.dbAPI.getPlayerData();
                 openUpgradeOverlay(freshData);
                 syncSuperLaserHUD(true);
             } else {
-                alert(result.error || 'Erro ao desbloquear Super Laser.');
+                alert(result.error || t().errLaser);
                 btn.disabled = false;
-                btn.textContent = `COMPRAR — ${SUPER_LASER_COST} ⭐`;
+                btn.textContent = `${t().buy} — ${SUPER_LASER_COST} ⭐`;
             }
         });
         card.appendChild(btn);
@@ -230,23 +363,25 @@ function syncSuperLaserHUD(isUnlocked) {
     if (isUnlocked) {
         // Estado normal — remove estilo de bloqueado
         btn.classList.remove('laser-locked');
-        btn.title = 'Super Laser (Q)';
+        btn.title = t().laserBtnTitle;
         const label = btn.querySelector('.laser-label');
         if (label) label.textContent = '';
     } else {
         // Estado bloqueado — mostra cadeado, impede clique visual
         btn.classList.add('laser-locked');
-        btn.title = 'Desbloqueie em UPGRADE SHIP';
+        btn.title = t().laserLockTitle;
         const label = btn.querySelector('.laser-label');
         if (label) label.textContent = '🔒';
         const pct = btn.querySelector('.laser-percent');
-        if (pct) pct.textContent = 'LOCKED';
+        if (pct) pct.textContent = t().lockedText;
     }
 }
 
 function openUpgradeOverlay(data) {
     const overlay = document.getElementById('upgrade-ship-overlay');
     if (!overlay) return;
+
+    applyUpgradeStaticLanguage();
 
     const stars   = data?.totalStars   ?? 0;
     const mission = data?.currentMission ?? 1;
@@ -292,8 +427,20 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeUpgradeOverlay();
 });
 
+window.addEventListener('sf-language-changed', async () => {
+    applyUpgradeStaticLanguage();
+    const overlay = document.getElementById('upgrade-ship-overlay');
+    const data = await window.dbAPI.getPlayerData();
+    if (overlay && !overlay.classList.contains('hidden')) {
+        openUpgradeOverlay(data);
+    } else {
+        syncSuperLaserHUD(data?.superLaserUnlocked || false);
+    }
+});
+
 // Inicializa o HUD do super laser conforme o estado salvo
 (async () => {
+    applyUpgradeStaticLanguage();
     const data = await window.dbAPI.getPlayerData();
     syncSuperLaserHUD(data?.superLaserUnlocked || false);
 })();

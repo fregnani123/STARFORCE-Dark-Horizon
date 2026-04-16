@@ -1,7 +1,7 @@
 // ======================================================
 // IMPORTS OBRIGATÓRIOS
 // ======================================================
-import { CONFIG, NODE_IMAGES, NOME_FASES } from './missao_construtor.js'; 
+import { CONFIG, NODE_IMAGES, getMissionNamesByLanguage } from './missao_construtor.js'; 
 import { loadMission, startGame } from '../start_game.js'; // Funções para iniciar a missão
 import {openCustomizeHull,closeDiv} from './customize.js';
 import { getPlayerData, updateMissionProgress, getCurrentShip } from '../saveSystem.js';
@@ -24,6 +24,104 @@ const INFO_PANEL_PADDING_BOTTOM = 30;
 // Estado de progresso
 let current = 1; // Nó atual (1-based)
 let completedNodes = Array(CONFIG.nodes).fill(false); // Array de booleanos (0-based)
+let missionNames = getMissionNamesByLanguage(localStorage.getItem('sf_language') || 'pt-BR');
+
+const LEVEL_UI_TEXT = {
+    'pt-BR': {
+        menu: 'Menu',
+        pilot: 'Piloto:',
+        subtitle: 'Tabuleiro vertical — evolução de fases',
+        firstMission: 'PRIMEIRA MISSÃO',
+        advance: 'Avançar',
+        customize: 'CUSTOMIZE HULL',
+        upgrade: 'UPGRADE SHIP',
+        level: 'Nível:',
+        checkpoints: 'Checkpoints:',
+        stars: '⭐ Estrelas:',
+        playerTitle: 'Você'
+    },
+    en: {
+        menu: 'Menu',
+        pilot: 'Pilot:',
+        subtitle: 'Vertical board — mission progression',
+        firstMission: 'FIRST MISSION',
+        advance: 'Advance',
+        customize: 'CUSTOMIZE HULL',
+        upgrade: 'UPGRADE SHIP',
+        level: 'Level:',
+        checkpoints: 'Checkpoints:',
+        stars: '⭐ Stars:',
+        playerTitle: 'You'
+    },
+    es: {
+        menu: 'Menu',
+        pilot: 'Piloto:',
+        subtitle: 'Tablero vertical — progresión de fases',
+        firstMission: 'PRIMERA MISIÓN',
+        advance: 'Avanzar',
+        customize: 'PERSONALIZAR CASCO',
+        upgrade: 'MEJORAR NAVE',
+        level: 'Nivel:',
+        checkpoints: 'Puntos de control:',
+        stars: '⭐ Estrellas:',
+        playerTitle: 'Tú'
+    }
+};
+
+function normalizeLanguage(lang) {
+    if (!lang) return 'pt-BR';
+    if (lang.toLowerCase().startsWith('pt')) return 'pt-BR';
+    if (lang.toLowerCase().startsWith('es')) return 'es';
+    return 'en';
+}
+
+function applyLevelLanguage(lang) {
+    const key = normalizeLanguage(lang);
+    const t = LEVEL_UI_TEXT[key] || LEVEL_UI_TEXT['pt-BR'];
+
+    const menuBtn = document.getElementById('menuBtnFases');
+    if (menuBtn) menuBtn.textContent = t.menu;
+
+    const titleEl = document.querySelector('#container_levelGame .header .title');
+    const pilotEl = document.getElementById('pilotNameDisplay');
+    if (titleEl) {
+        const pilotName = pilotEl ? pilotEl.textContent : '---';
+        titleEl.innerHTML = `${t.pilot} <span id="pilotNameDisplay">${pilotName}</span>`;
+    }
+
+    const subtitleEl = document.querySelector('#container_levelGame .header .subtitle');
+    if (subtitleEl) subtitleEl.textContent = t.subtitle;
+
+    const reset = document.getElementById('resetBtn');
+    if (reset) reset.textContent = t.firstMission;
+
+    const next = document.getElementById('nextBtn');
+    if (next) next.textContent = t.advance;
+
+    const customizeLabel = document.querySelector('#btn_customize_open span');
+    if (customizeLabel) customizeLabel.textContent = t.customize;
+
+    const upgradeLabel = document.querySelector('#btn-upgrade-open span');
+    if (upgradeLabel) upgradeLabel.textContent = t.upgrade;
+
+    const lvlEl = document.getElementById('lvl');
+    if (lvlEl && lvlEl.parentElement) {
+        lvlEl.parentElement.innerHTML = `${t.level} <strong id="lvl">${lvlEl.textContent}</strong>`;
+    }
+
+    const cpEl = document.getElementById('cp');
+    if (cpEl && cpEl.parentElement) {
+        cpEl.parentElement.innerHTML = `${t.checkpoints} <strong id="cp">${cpEl.textContent}</strong>`;
+    }
+
+    const starsEl = document.getElementById('starCountMissions');
+    if (starsEl && starsEl.parentElement) {
+        starsEl.parentElement.innerHTML = `${t.stars} <strong id="starCountMissions">${starsEl.textContent}</strong>`;
+    }
+
+    const playerMarker = document.getElementById('player');
+    if (playerMarker) playerMarker.title = t.playerTitle;
+}
 
 
 // =======================
@@ -44,7 +142,7 @@ function buildNodes(n){
         
         const arrayIndex = i - 1; 
         
-        node.innerHTML = `<div class='label'>${NOME_FASES[arrayIndex]}</div>`;
+        node.innerHTML = `<div class='label'>${missionNames[arrayIndex] || ''}</div>`;
         
         // Define a imagem de fundo via JavaScript
         if (NODE_IMAGES[arrayIndex]) {
@@ -246,8 +344,8 @@ export function initLevelDesigner() {
     if (NODE_IMAGES.length !== CONFIG.nodes) {
         console.error(`O array NODE_IMAGES deve conter ${CONFIG.nodes} imagens.`);
     }
-    if (NOME_FASES.length !== CONFIG.nodes) {
-        console.error(`O array NOME_FASES deve conter ${CONFIG.nodes} nomes de fases.`);
+    if (missionNames.length !== CONFIG.nodes) {
+        console.error(`O array de nomes de fases deve conter ${CONFIG.nodes} itens.`);
     }
     
     // 2. Captura elementos DOM
@@ -271,7 +369,9 @@ export function initLevelDesigner() {
     }
 
     // 3. Constrói a UI
+    missionNames = getMissionNamesByLanguage(localStorage.getItem('sf_language') || 'pt-BR');
     buildNodes(CONFIG.nodes);
+    applyLevelLanguage(localStorage.getItem('sf_language') || 'pt-BR');
     
     // 4. Anexa Listeners de Ação
     nextBtn.addEventListener('click', completeCurrentNode);
@@ -309,7 +409,7 @@ export function initLevelDesigner() {
             
             // Retomar música do menu
             if (typeof window.playBGM === 'function') {
-                window.playBGM('../assets/audio/musicaGameBR.mp3', 1);
+                window.playBGM('../assets/audio/musicaGameUS.mp3', 1);
             }
         });
     }
@@ -319,4 +419,11 @@ export function initLevelDesigner() {
     
     // 6. Atualiza o estado inicial
     updateUI();
+
+    window.addEventListener('sf-language-changed', (e) => {
+        const lang = e.detail || localStorage.getItem('sf_language') || 'pt-BR';
+        missionNames = getMissionNamesByLanguage(lang);
+        buildNodes(CONFIG.nodes);
+        applyLevelLanguage(lang);
+    });
 }

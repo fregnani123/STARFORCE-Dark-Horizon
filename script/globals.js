@@ -6,6 +6,8 @@ import { addStars } from './saveSystem.js';
 
 export let BOSS_SCORE_TRIGGER = 3000;
 export let currentMissionId = 1;
+export let isOpeningMission = false;
+export let openingLandingActive = false;
 export const MAX_DELTA_TIME_MS = 100;
 export let ENEMY_SPAWN_INTERVAL = 1000;
 export const SUPER_LASER_REQUIREMENT = 100;
@@ -158,7 +160,19 @@ export function setRequiredScoreForNextLaser(val) { requiredScoreForNextLaser = 
 export function setSuperLaserUsed(state) { superLaserUsed = state; }
 export function setMagnetActive(state) { magnetActive = state; }
 export function setCurrentMissionId(id) { currentMissionId = id; }
+export function setIsOpeningMission(state) { isOpeningMission = !!state; }
+export function setOpeningLandingActive(state) { openingLandingActive = !!state; }
 export function setBossScoreTrigger(val) { BOSS_SCORE_TRIGGER = val; }
+
+let postLandingCallback = null;
+export function setPostLandingCallback(fn) { postLandingCallback = typeof fn === 'function' ? fn : null; }
+export function triggerPostLandingCallback() {
+    if (postLandingCallback) {
+        const fn = postLandingCallback;
+        postLandingCallback = null;
+        fn();
+    }
+}
 
 export function updateScore(points) { score += points; }
 export function updateUpgradePoints(points) { upgradePoints += points; }
@@ -197,6 +211,9 @@ export function resetMissionState() {
     nextHealthPickupScore = 50;
     nextWeaponUpgradeCost = 200;
     magnetActive = true;
+    isOpeningMission = false;
+    openingLandingActive = false;
+    postLandingCallback = null;
     
     console.log('✅ Estado da missão resetado completamente');
 }

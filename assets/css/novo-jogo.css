@@ -170,7 +170,7 @@
     top: 0; left: 0;
     width: 100vw; height: 100vh;
     z-index: 20000;
-    background: #000;
+    background: transparent !important;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -241,4 +241,3 @@
     transform: scale(1.05);
     filter: brightness(1.1);
 }
-

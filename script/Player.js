@@ -357,8 +357,11 @@ export class Player extends GameObject {
 
     ctx.save();
 
-    // --- Escala base + pulso ---
-    let scale = this.inIntro ? this.currentScale : 1.0;
+        // --- Escala base + pulso ---
+        let scale = this.inIntro ? this.currentScale : 1.0;
+        if (this.openingLandingScale) {
+                scale *= this.openingLandingScale;
+        }
     if (this.superLaserPulsing) {
         const pulseProgress = Math.min(1, this.superLaserPulseTimer / this.superLaserPulseDuration);
         const eased = easeOutQuad(pulseProgress);

@@ -8,11 +8,13 @@ import { gameLoop } from './gameLoop.js';
 import {
     playerShip, lastTime, CANVAS_WIDTH, CANVAS_HEIGHT,
     setLastTime, setPlayerShip, gameBackgrounds, isPaused, setPause, resetMissionState,
-    setShipSpeed, CRUISE_SPEED, setMissionDifficulty, setCurrentMissionId, setBossScoreTrigger
+    setShipSpeed, CRUISE_SPEED, setMissionDifficulty, setCurrentMissionId, setBossScoreTrigger, setIsOpeningMission, setOpeningLandingActive,
+    setPostLandingCallback
 } from './globals.js';
 import { MISSIONS } from './gameLevel/missao_construtor.js';
 import { getPlayerData, hasSavedGame, savePlayerData, getCurrentShip, getUpgradeLevels } from './saveSystem.js';
 import { updateUI } from './gameLevel/level_designer.js';
+import { playMenuMusic } from './tela_inicial_module.js';
 
 // ======================================================
 // ESTADO INTERNO E CONFIGURAÇÕES
@@ -24,6 +26,53 @@ let isGameLoopRunning = false;
 const MIN_LOADING_TIME_MS = 2500;  // 🆙 Aumentado de 1500ms para 2500ms - Loading screen mais visível
 const DEFAULT_IMAGES = ["../assets/img/nave-player/nave-metal.png"];  // 🆙 Mudado para nave-metal
 let IMAGES_TO_LOAD = [...DEFAULT_IMAGES];
+const CUTSCENE_BGM_PATH = '../assets/audio/leberch-space-ambient-509783.mp3';
+const OPENING_MISSION_ID = 0;
+let shouldAutoStartOpeningMission = false;
+let openingMissionTimer = null;
+let isFinishingCutscene = false;
+let openingCinematicTimers = [];
+let openingAwaitingAck = false;
+let openingAckCleanup = null;
+let openingSkipChronicleCleanup = null;
+let openingSkipTriggered = false;
+const OPENING_CHRONICLE_TEXT = [
+    'INT. ÓRBITA LUNAR - SILÊNCIO ABSOLUTO.',
+    'Durante nove séculos, os hangares da FGL-01 permaneceram adormecidos, cobertos por poeira cósmica.',
+    'Agora, no limite entre sombra e luz, os reatores despertam e a base retorna ao estado de guerra.',
+    'Longe dali, uma assinatura massiva cruza o vazio em direção à Terra.',
+    'A ordem ecoa nos canais: todos os pilotos, em posição imediata.'
+].join('\n');
+const OPENING_SEQUENCE = [
+    { id: 'openingFilmCard', startAt: 0, endAt: 3600 },
+    { id: 'openingDevelopersCard', startAt: 4300, endAt: 8200 },
+    { id: 'openingRightsCard', startAt: 9000, endAt: 12600 },
+    { id: 'openingTimeCard', startAt: 13600, endAt: 18800 },
+    { id: 'openingReturnCard', startAt: 19600, endAt: 25600 },
+    { id: 'openingStoryCrawl', startAt: 26400, endAt: 54600 },
+    { id: 'openingBaseCall', startAt: 55600, endAt: 70000 }
+];
+const OPENING_BLACKOUTS = [3800, 8500, 13000, 19000, 25800, 54800, 70600];
+const OPENING_SUBTITLES = [
+    { startAt: 0, endAt: 3600, text: 'Uma produção FGL Software Solutions.' },
+    { startAt: 4300, endAt: 8200, text: 'Desenvolvido por Fabiano Fregnani.' },
+    { startAt: 9000, endAt: 12600, text: 'Todos os direitos reservados.' },
+    { startAt: 13600, endAt: 18800, text: 'Faz 998 anos desde o último sinal enviado pela superfície terrestre.' },
+    { startAt: 19600, endAt: 25600, text: 'Agora, a base lunar FGL-01 desperta seus hangares e reacende o protocolo de retorno.' },
+    { startAt: 26400, endAt: 35000, text: 'No vazio entre a Lua e a Terra, uma ameaça colossal atravessa a escuridão.' },
+    { startAt: 35200, endAt: 44400, text: 'Durante séculos, ninguém respondeu ao chamado do planeta perdido.' },
+    { startAt: 44600, endAt: 54600, text: 'Agora, o retorno deixa de ser esperança e se torna mobilização imediata.' },
+    { startAt: 55600, endAt: 70000, text: 'Base lunar FGL-01 chamando todos os pilotos. Protocolos Omega restaurados. Identificação de esquadrão em andamento.' },
+    { startAt: 71000, endAt: 999999, text: 'Perfis confirmados. Pressione OK para entrar na escuta.' }
+];
+const POST_ACK_BLACKOUTS = [0, 8200];
+const POST_ACK_SEQUENCE = [
+    { id: 'openingThreatCard', startAt: 800, endAt: 9400 }
+];
+const POST_ACK_SUBTITLES = [
+    { startAt: 900, endAt: 5600, text: 'Base FGL-01: identificamos uma nave gigantesca se aproximando da Terra.' },
+    { startAt: 5800, endAt: 9400, text: 'Todos os pilotos em prontidão máxima. Interceptação autorizada.' }
+];
 
 // Referências do DOM
 const btnNovoJogo = document.getElementById('novo-jogo');
@@ -35,6 +84,7 @@ const cutsceneContainer = document.getElementById('cutsceneContainer');
 const historiaFrame = document.getElementById('historiaFrame');
 const divIniciar = document.getElementById('div-index');
 const divLevel = document.getElementById('container_levelGame');
+const levelBoardWrap = document.querySelector('#container_levelGame .wrap');
 const startScreen = document.getElementById('startScreen');
 const loadingOverlay = document.getElementById('loadingOverlay');
 
@@ -50,6 +100,192 @@ function formatProgressDetails(data) {
     if (lang === 'en') return `Level ${data.currentMission}, ${data.totalStars} Stars`;
     if (lang === 'es') return `Nivel ${data.currentMission}, ${data.totalStars} Estrellas`;
     return `Nivel ${data.currentMission}, ${data.totalStars} Estrelas`;
+}
+
+function getRosterPlayerShipPath() {
+    const shipId = getCurrentShip() || 'metal';
+    return shipId === 'dark'
+        ? '../assets/img/nave-player/nave-player-dark.png'
+        : `../assets/img/nave-player/nave-${shipId}.png`;
+}
+
+function clearOpeningAck() {
+    if (typeof openingAckCleanup === 'function') {
+        openingAckCleanup();
+    }
+    openingAckCleanup = null;
+    openingAwaitingAck = false;
+}
+
+function clearOpeningSkipChronicle() {
+    if (typeof openingSkipChronicleCleanup === 'function') {
+        openingSkipChronicleCleanup();
+    }
+    openingSkipChronicleCleanup = null;
+}
+
+function showLandingBaseOverlay(show, preRender = false) {
+    const landingOverlay = document.getElementById('landingBaseOverlay');
+    if (!landingOverlay) return;
+    // Overlay de base desativado: a zona de pouso é desenhada apenas no canvas.
+    landingOverlay.classList.remove('show');
+    landingOverlay.classList.remove('prep');
+    landingOverlay.classList.add('hidden');
+}
+
+function finishOpeningMissionSequence() {
+    clearOpeningAck();
+    if (openingMissionTimer) {
+        clearTimeout(openingMissionTimer);
+        openingMissionTimer = null;
+    }
+
+    const overlay = document.getElementById('openingMissionOverlay');
+    const fadeBlack = document.getElementById('openingFadeBlack');
+    const narrationBar = document.getElementById('openingNarrationBar');
+    const narrationText = document.getElementById('openingNarrationText');
+
+    if (fadeBlack) {
+        fadeBlack.classList.remove('hidden');
+    }
+    if (narrationBar) {
+        narrationBar.classList.remove('show');
+        narrationBar.classList.add('hidden');
+    }
+    if (narrationText) {
+        narrationText.textContent = '';
+    }
+
+    ['openingPilotRoster', 'openingThreatCard'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('show');
+        el.classList.add('hidden');
+    });
+
+    OPENING_SEQUENCE.forEach(({ id }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('show');
+        el.classList.add('hidden');
+    });
+
+    clearOpeningSkipChronicle();
+
+    // Transição escurecida antes da base assumir a cena de pouso.
+    if (fadeBlack) {
+        fadeBlack.classList.add('show');
+    }
+
+    setTimeout(() => {
+        if (fadeBlack) {
+            fadeBlack.classList.remove('show');
+            fadeBlack.classList.add('hidden');
+        }
+        if (overlay) {
+            overlay.classList.add('hidden');
+            overlay.style.display = 'none';
+        }
+        // Entra na fase de pouso automático com a base já pré-renderizada para evitar pop visual.
+        showLandingBaseOverlay(true, false);
+        setOpeningLandingActive(true);
+    }, 420);
+}
+
+/**
+ * Após o pouso na base lunar, escurece a tela e dispara a cutscene da Cena 04.
+ */
+function triggerPostLandingCutscene() {
+    const mainWrapper = document.getElementById('main-wrapper');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const divLevel = document.getElementById('container_levelGame');
+    const overlay = document.getElementById('openingMissionOverlay');
+
+    // 1. Ativa o loading imediatamente para esconder o tabuleiro que possa estar por baixo
+    if (loadingOverlay) {
+        loadingOverlay.classList.remove('hidden');
+        loadingOverlay.style.display = 'flex';
+    }
+
+    // 2. Esconde o canvas do jogo e a div de missões
+    if (mainWrapper) mainWrapper.style.display = 'none';
+    if (divLevel) divLevel.style.display = 'none';
+
+    if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.style.display = 'none';
+    }
+
+    setPause(true);
+
+    setTimeout(() => {
+        loadCena04Cutscene();
+        // Esconde o loading assim que a cutscene começa a carregar (o iframe cobrirá a tela)
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('hidden');
+            loadingOverlay.style.display = 'none';
+        }
+    }, 1200);
+}
+
+/**
+ * Carrega historia-cena04.html dentro do iframe de cutscene,
+ * segue o mesmo padrão do historia.html existente.
+ */
+function loadCena04Cutscene() {
+    const container = document.getElementById('cutsceneContainer');
+    const frame = document.getElementById('historiaFrame');
+    if (!container || !frame) return;
+
+    isFinishingCutscene = false; // 🛑 Reseta para permitir o encerramento da cena
+
+    const lang = localStorage.getItem('sf_language') || 'pt-BR';
+    const storyUrl = `historia-cena04.html?lang=${encodeURIComponent(lang)}&t=${Date.now()}`;
+
+    frame.src = 'about:blank';
+    setTimeout(() => {
+        frame.src = storyUrl;
+    }, 50);
+
+    container.classList.remove('hidden');
+    container.style.display = 'flex';
+}
+
+/**
+ * Recebe o postMessage do iframe quando a Cena 04 termina e continua o fluxo.
+ */
+function finishCena04Cutscene() {
+    if (isFinishingCutscene) return;
+    isFinishingCutscene = true;
+
+    const frame = document.getElementById('historiaFrame');
+    if (frame) frame.src = '';
+
+    const cutsceneContainer = document.getElementById('cutsceneContainer');
+    if (cutsceneContainer) {
+        cutsceneContainer.classList.add('hidden');
+        cutsceneContainer.style.display = 'none';
+    }
+
+    // 🛑 RESTAURA A TELA DE MISSÕES: Tira o display: none e força o flex
+    if (divLevel) {
+        divLevel.style.display = 'flex';
+        divLevel.classList.remove('hidden');
+    }
+    if (levelBoardWrap) {
+        levelBoardWrap.style.display = 'flex';
+        levelBoardWrap.classList.remove('hidden');
+    }
+
+    updateUI(); // Atualiza XP, Estrelas e os nós das missões no mapa
+    playMenuMusic(); // Toca a música do tabuleiro
+
+    // Libera os controles e despausa
+    setPause(false);
+}
+
+function queueOpeningTimer(callback, delayMs) {
+    openingCinematicTimers.push(setTimeout(callback, delayMs));
 }
 
 // ======================================================
@@ -108,6 +344,7 @@ async function handleConfirmPlayer() { // Make it async
         updateUI();
         creationOverlay.classList.add('hidden');
         playerNameInput.value = '';
+        shouldAutoStartOpeningMission = true;
         startStoryCutscene();
     } else {
         playerNameInput.style.borderColor = "red";
@@ -163,6 +400,12 @@ playerNameInput?.addEventListener('keydown', (e) => e.key === 'Enter' && handleC
 
 function startStoryCutscene() {
     if (!cutsceneContainer) return finishCutscene();
+
+    isFinishingCutscene = false;
+
+    stopBGM();
+    playBGM(CUTSCENE_BGM_PATH, 0.65);
+
     cutsceneContainer.classList.remove('hidden');
     cutsceneContainer.style.display = 'flex';
 
@@ -185,6 +428,7 @@ function startStoryCutscene() {
 // Escuta a mensagem do iframe quando a história terminar
 window.addEventListener('message', (e) => {
     if (e.data === 'historiaEnded') finishCutscene();
+    if (e.data === 'historiaCena04Ended') finishCena04Cutscene();
 });
 
 function startVideoTimer() { /* legado — substituído pelo iframe */ }
@@ -192,6 +436,11 @@ function startVideoTimer() { /* legado — substituído pelo iframe */ }
 
 // 🚀 FUNÇÃO CORRIGIDA: Abre o menu de fases após a história
 function finishCutscene() {
+    if (isFinishingCutscene) return;
+    isFinishingCutscene = true;
+
+    stopBGM();
+
     // Descarrega o iframe para libertar memória
     if (historiaFrame) historiaFrame.src = '';
 
@@ -200,6 +449,18 @@ function finishCutscene() {
     cutsceneContainer.style.display = '';
     creationOverlay.classList.add('hidden');
 
+    if (shouldAutoStartOpeningMission) {
+        shouldAutoStartOpeningMission = false;
+        if (divIniciar) divIniciar.style.display = 'none';
+        if (divLevel) divLevel.style.display = 'flex';
+        if (levelBoardWrap) levelBoardWrap.style.display = 'none';
+        loadMission(OPENING_MISSION_ID);
+        startGame();
+        return;
+    }
+
+    playMenuMusic();
+
     // MOSTRA O MENU DE FASES
     if (startScreen) startScreen.classList.remove('hidden');
     if (divIniciar) divIniciar.style.display = 'none';
@@ -207,10 +468,25 @@ function finishCutscene() {
 }
 
 // Atalhos Cutscene
-document.getElementById('skipCutscene')?.addEventListener('click', finishCutscene);
+document.getElementById('skipCutscene')?.addEventListener('click', () => {
+    // 🛑 CORREÇÃO DO BOTÃO PULAR: Verifica se é a Cena 04 ou a Intro Inicial
+    if (historiaFrame && (historiaFrame.src.includes('historia-cena04.html') || historiaFrame.contentWindow.location.href.includes('historia-cena04.html'))) {
+        finishCena04Cutscene();
+    } else {
+        finishCutscene();
+    }
+});
+
 window.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT') return;
-    if (e.key === "Escape" && !cutsceneContainer.classList.contains('hidden')) finishCutscene();
+    if (e.key === "Escape" && !cutsceneContainer.classList.contains('hidden')) {
+        // Se a frame da Cena 04 estiver carregada, finaliza ela, senao o historia normal
+        if (historiaFrame && historiaFrame.src.includes('historia-cena04.html')) {
+            finishCena04Cutscene();
+        } else {
+            finishCutscene();
+        }
+    }
 });
 
 // Startup orchestration handled by init.js → tela_logo_video.js
@@ -223,6 +499,7 @@ export function loadMission(id) {
     const mission = MISSIONS.find(m => m.id === Number(id));
     if (!mission) return;
     CURRENT_MISSION = mission;
+    setIsOpeningMission(!!mission.openingScene);
     MULTI_BACKGROUND_IMAGES = [...mission.layers];
     IMAGES_TO_LOAD = [...DEFAULT_IMAGES, ...MULTI_BACKGROUND_IMAGES];
     SCROLL_SPEED = mission.scrollSpeed;
@@ -242,6 +519,7 @@ export function startGame() {
 
     // 🔴 RESETAR TUDO DA MISSÃO ANTES DE COMEÇAR
     resetMissionState();
+    setIsOpeningMission(!!CURRENT_MISSION?.openingScene);
     
     setPause(false);
     if (!CURRENT_MISSION) loadMission(1);
@@ -287,12 +565,20 @@ export function startGame() {
         }
         if (gameContainer) gameContainer.style.display = "flex";
 
+        if (CURRENT_MISSION?.openingScene) {
+            startOpeningMissionOverlay();
+        } else {
+            stopOpeningMissionOverlay();
+        }
+
         const bgVideo = document.getElementById("bgVideo");
         if (bgVideo) bgVideo.play().catch(() => { });
 
-        setTimeout(() => {
-            if (typeof startShootSoundLoop === 'function') startShootSoundLoop();
-        }, 2500); // Aguarda a intro da nave terminar (introDuration = 2000ms) + margem
+        if (CURRENT_MISSION?.allowShoot !== false) {
+            setTimeout(() => {
+                if (typeof startShootSoundLoop === 'function') startShootSoundLoop();
+            }, 2500); // Aguarda a intro da nave terminar (introDuration = 2000ms) + margem
+        }
 
         if (!isGameLoopRunning) {
             isGameLoopRunning = true;
@@ -309,14 +595,260 @@ export function startGame() {
     });
 }
 
+function startOpeningMissionOverlay() {
+    stopOpeningMissionOverlay();
+    setOpeningLandingActive(false);
+    showLandingBaseOverlay(true, true);
+    openingSkipTriggered = false;
+
+    // Registra callback para disparar cutscene da Cena 04 apos o pouso
+    setPostLandingCallback(triggerPostLandingCutscene);
+
+    const overlay = document.getElementById('openingMissionOverlay');
+    const mainWrapper = document.getElementById('main-wrapper');
+    if (overlay) {
+        overlay.classList.remove('hidden');
+        overlay.style.display = 'block';
+    }
+    if (mainWrapper) {
+        mainWrapper.classList.add('opening-clean-view');
+    }
+
+    const sequenceElements = OPENING_SEQUENCE
+        .map(({ id }) => document.getElementById(id))
+        .filter(Boolean);
+    const fadeBlack = document.getElementById('openingFadeBlack');
+    const narrationBar = document.getElementById('openingNarrationBar');
+    const narrationText = document.getElementById('openingNarrationText');
+    const roster = document.getElementById('openingPilotRoster');
+    const threatCard = document.getElementById('openingThreatCard');
+    const ackButton = document.getElementById('openingAckButton');
+    const pilotOneName = document.getElementById('openingPilotOneName');
+    const pilotOneShip = document.getElementById('openingPilotOneShip');
+    const pilotTwoShip = document.getElementById('openingPilotTwoShip');
+    const playerData = getPlayerData?.() || {};
+    const skipChronicleButton = document.getElementById('openingSkipChronicle');
+    const storyChronicle = document.getElementById('openingStoryCrawl');
+    const baseCall = document.getElementById('openingBaseCall');
+    const scriptText = document.getElementById('openingScriptText');
+
+    sequenceElements.forEach((el) => {
+        if (!el) return;
+        el.classList.remove('hidden');
+        el.classList.remove('show');
+    });
+    [roster, threatCard].forEach((el) => {
+        if (!el) return;
+        el.classList.remove('hidden');
+        el.classList.remove('show');
+    });
+    if (fadeBlack) {
+        fadeBlack.classList.remove('hidden');
+        fadeBlack.classList.remove('show');
+    }
+    if (narrationBar) {
+        narrationBar.classList.remove('hidden');
+        narrationBar.classList.remove('show');
+    }
+    if (narrationText) {
+        narrationText.textContent = '';
+    }
+    if (pilotOneName) {
+        pilotOneName.textContent = playerData.pilotName || 'FABIANO FREGNANI';
+    }
+    if (pilotOneShip) {
+        pilotOneShip.src = getRosterPlayerShipPath();
+    }
+    if (pilotTwoShip) {
+        pilotTwoShip.src = '../assets/img/cenarios/cenario-missao/inicio-game/nave-lua.png';
+    }
+    if (ackButton) {
+        ackButton.disabled = false;
+    }
+    if (skipChronicleButton) {
+        skipChronicleButton.classList.remove('hidden');
+    }
+    clearOpeningAck();
+    clearOpeningSkipChronicle();
+    if (scriptText) {
+        scriptText.textContent = OPENING_CHRONICLE_TEXT;
+        // Reinicia a animacao de subida ao iniciar a crônica
+        scriptText.style.animation = 'none';
+        void scriptText.offsetWidth;
+        scriptText.style.animation = '';
+    }
+
+    const queueCard = (element, startAt, endAt) => {
+        if (!element) return;
+        queueOpeningTimer(() => element.classList.add('show'), startAt);
+        queueOpeningTimer(() => element.classList.remove('show'), endAt);
+    };
+
+    const queueBlackout = (startAt) => {
+        if (!fadeBlack) return;
+        queueOpeningTimer(() => fadeBlack.classList.add('show'), startAt);
+        queueOpeningTimer(() => fadeBlack.classList.remove('show'), startAt + 550);
+    };
+
+    const queueSubtitle = ({ startAt, endAt, text }) => {
+        if (!narrationBar || !narrationText) return;
+        queueOpeningTimer(() => {
+            narrationText.textContent = text;
+            narrationBar.classList.add('show');
+        }, startAt);
+        queueOpeningTimer(() => {
+            narrationBar.classList.remove('show');
+        }, endAt);
+    };
+
+    const showRosterAndWaitAck = () => {
+        if (!roster || !ackButton) return;
+        openingAwaitingAck = true;
+        roster.classList.add('show');
+        narrationText.textContent = 'Perfis confirmados. Pressione OK para entrar na escuta.';
+        narrationBar?.classList.add('show');
+
+        const continueSequence = () => {
+            if (!openingAwaitingAck) return;
+            clearOpeningAck();
+            ackButton.disabled = true;
+            roster.classList.remove('show');
+            narrationBar?.classList.remove('show');
+
+            POST_ACK_BLACKOUTS.forEach((offset) => queueBlackout(offset));
+            POST_ACK_SEQUENCE.forEach(({ id, startAt, endAt }) => {
+                queueCard(document.getElementById(id), startAt, endAt);
+            });
+            POST_ACK_SUBTITLES.forEach(queueSubtitle);
+
+            openingMissionTimer = setTimeout(finishOpeningMissionSequence, 11200);
+        };
+
+        const onKeyDown = (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                continueSequence();
+            }
+        };
+
+        ackButton.addEventListener('click', continueSequence);
+        window.addEventListener('keydown', onKeyDown);
+        openingAckCleanup = () => {
+            ackButton.removeEventListener('click', continueSequence);
+            window.removeEventListener('keydown', onKeyDown);
+        };
+    };
+
+    const chronicleStart = OPENING_SEQUENCE.find((s) => s.id === 'openingStoryCrawl')?.startAt || 26400;
+    const baseCallStart = OPENING_SEQUENCE.find((s) => s.id === 'openingBaseCall')?.startAt || 55600;
+
+    const jumpToBaseCallNow = () => {
+        if (openingSkipTriggered) return;
+        openingSkipTriggered = true;
+
+        openingCinematicTimers.forEach((timerId) => clearTimeout(timerId));
+        openingCinematicTimers = [];
+        clearOpeningSkipChronicle();
+
+        if (storyChronicle) {
+            storyChronicle.classList.remove('show');
+            storyChronicle.classList.add('hidden');
+        }
+        if (baseCall) {
+            baseCall.classList.remove('hidden');
+            baseCall.classList.add('show');
+        }
+        if (fadeBlack) {
+            fadeBlack.classList.remove('show');
+        }
+        if (narrationText) {
+            narrationText.textContent = 'Base lunar FGL-01 chamando todos os pilotos. Protocolos Omega restaurados. Identificação de esquadrão em andamento.';
+        }
+        narrationBar?.classList.add('show');
+
+        queueOpeningTimer(() => {
+            if (baseCall) baseCall.classList.remove('show');
+            narrationBar?.classList.remove('show');
+            showRosterAndWaitAck();
+        }, 7200);
+    };
+
+    if (skipChronicleButton) {
+        const onSkip = () => jumpToBaseCallNow();
+        skipChronicleButton.addEventListener('click', onSkip);
+        openingSkipChronicleCleanup = () => {
+            skipChronicleButton.removeEventListener('click', onSkip);
+        };
+    }
+
+    OPENING_SEQUENCE.forEach(({ id, startAt, endAt }) => {
+        queueCard(document.getElementById(id), startAt, endAt);
+    });
+    OPENING_BLACKOUTS.forEach(queueBlackout);
+    OPENING_SUBTITLES.forEach(queueSubtitle);
+    queueOpeningTimer(showRosterAndWaitAck, 71000);
+
+    openingMissionTimer = null;
+}
+
+function stopOpeningMissionOverlay() {
+    if (openingMissionTimer) {
+        clearTimeout(openingMissionTimer);
+        openingMissionTimer = null;
+    }
+    openingCinematicTimers.forEach((timerId) => clearTimeout(timerId));
+    openingCinematicTimers = [];
+    clearOpeningSkipChronicle();
+    clearOpeningAck();
+    showLandingBaseOverlay(false);
+    const mainWrapper = document.getElementById('main-wrapper');
+    if (mainWrapper) {
+        mainWrapper.classList.remove('opening-clean-view');
+    }
+    const overlay = document.getElementById('openingMissionOverlay');
+    const fadeBlack = document.getElementById('openingFadeBlack');
+    const narrationBar = document.getElementById('openingNarrationBar');
+    const narrationText = document.getElementById('openingNarrationText');
+    if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.style.display = 'none';
+    }
+    if (fadeBlack) {
+        fadeBlack.classList.remove('show');
+        fadeBlack.classList.add('hidden');
+    }
+    if (narrationBar) {
+        narrationBar.classList.remove('show');
+        narrationBar.classList.add('hidden');
+    }
+    if (narrationText) {
+        narrationText.textContent = '';
+    }
+    ['openingPilotRoster', 'openingThreatCard'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('show');
+        el.classList.add('hidden');
+    });
+    OPENING_SEQUENCE.forEach(({ id }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('show');
+        el.classList.add('hidden');
+    });
+}
+
 export function initGame() {
     const SHIP_WIDTH = 70;
     const SHIP_HEIGHT = 80;
 
     const shipId  = getCurrentShip() || 'metal';
-    const shipImg = shipId === 'dark'
+    const defaultShipImg = shipId === 'dark'
         ? `../assets/img/nave-player/nave-player-dark.png`
         : `../assets/img/nave-player/nave-${shipId}.png`;
+    const shipImg = CURRENT_MISSION?.openingScene && CURRENT_MISSION?.openingShipImage
+        ? CURRENT_MISSION.openingShipImage
+        : defaultShipImg;
 
     const { weaponLevel, hullLevel, engineLevel } = getUpgradeLevels();
     const HULL_HP = [700, 800, 900, 1000, 1200];

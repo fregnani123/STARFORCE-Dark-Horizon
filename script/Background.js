@@ -9,10 +9,10 @@ export class Background {
         // layersConfig agora recebe o array de objetos da missão [{path, factor, oneShot?, startY?, scale?, x?}, ...]
         this.layers = layersConfig.map((config) => {
             const img = new Image();
-            img.src = config.path;
 
             return {
                 img: img,
+                path: config.path,
                 y: 0,
                 isReady: false,
                 scaledHeight: 0,
@@ -32,9 +32,9 @@ export class Background {
 
     initLayers() {
         this.layers.forEach(layer => {
-            if (!layer.img.src || layer.img.src.endsWith('/') || layer.img.src.includes('undefined')) return;
+            if (!layer.path || layer.path.endsWith('/') || String(layer.path).includes('undefined')) return;
 
-            layer.img.onload = () => {
+            const finalizeLayer = () => {
                 layer.isReady = true;
                 const ratio = this.canvasWidth / layer.img.width;
                 // scaledHeight considera o scale da camada
@@ -53,6 +53,17 @@ export class Background {
                     layer.y = this.canvasHeight - layer.scaledHeight;
                 }
             };
+
+            layer.img.onload = () => {
+                finalizeLayer();
+            };
+
+            layer.img.src = layer.path;
+
+            // Em alguns cenários de cache o onload pode não disparar; finaliza manualmente.
+            if (layer.img.complete && layer.img.naturalWidth > 0) {
+                finalizeLayer();
+            }
         });
     }
 

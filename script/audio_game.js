@@ -50,7 +50,7 @@ export function playBGM(path, volume = 1) {
     currentBGM = new Audio(path);
     currentBGM.loop = true;
     currentBGM.volume = _musicVolume * volume;
-    currentBGM.play();
+    currentBGM.play().catch(() => { });
     isMusicPlaying = true;
 }
 

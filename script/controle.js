@@ -11,6 +11,8 @@ import {
     nextWeaponUpgradeCost,
    currentShipSpeed, setShipSpeed, CRUISE_SPEED, SOUND_SPEED, setPause, setLastTime, resetMissionState,
    updateScore,
+    isOpeningMission,
+    openingLandingActive,
    currentWingman, setCurrentWingman,
 } from './globals.js';
 
@@ -122,13 +124,17 @@ let _movScoreTimer = 0;
 
 export function updatePlayerMovement() {
     if (!playerShip) return;
+    if (openingLandingActive) {
+        updateFictionalStats();
+        return;
+    }
 
     // Score por movimento/tempo (ativo enquanto jogando)
     const now = Date.now();
     if (_movScoreLast === 0) _movScoreLast = now;
     const elapsed = now - _movScoreLast;
     _movScoreLast = now;
-    if (!isPaused && playerShip.isAlive && !playerShip.inIntro) {
+    if (!isPaused && playerShip.isAlive && !playerShip.inIntro && !isOpeningMission) {
         _movScoreTimer += elapsed;
         if (_movScoreTimer >= 3000) {
             updateScore(5);
@@ -182,7 +188,7 @@ export function updatePlayerMovement() {
         else if (keys.down) dy = 1;
 
         playerShip.move(dx, dy);
-        if (keys.shoot) playerShip.fire();
+        if (keys.shoot && !isOpeningMission) playerShip.fire();
 
         touch.lastX = null;
         touch.lastY = null;

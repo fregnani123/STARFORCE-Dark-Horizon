@@ -28,6 +28,56 @@ export const NOME_FASES = [
     'UNIVERSO INFINITO',
 ];
 
+const NOME_FASES_EN = [
+    'AREA 51',
+    'INVASION',
+    'RED MARS',
+    'CHAOTIC JUPITER',
+    'SATURN RINGS',
+    'FROZEN URANUS',
+    'BLUE NEPTUNE',
+    'ASTEROID BELT',
+    'NEBULA',
+    'BLACK HOLE',
+    'SPACE STATION',
+    'TRAVELER COMET',
+    'ANDROMEDA GALAXY',
+    'PLANET X',
+    'INFINITE UNIVERSE',
+];
+
+const NOME_FASES_ES = [
+    'AREA 51',
+    'INVASION',
+    'MARTE ROJO',
+    'JUPITER CAOTICO',
+    'ANILLOS DE SATURNO',
+    'URANO HELADO',
+    'NEPTUNO AZUL',
+    'CINTURON DE ASTEROIDES',
+    'NEBULOSA',
+    'AGUJERO NEGRO',
+    'ESTACION ESPACIAL',
+    'COMETA VIAJERO',
+    'GALAXIA ANDROMEDA',
+    'PLANETA X',
+    'UNIVERSO INFINITO',
+];
+
+function normalizeUiLanguage(lang) {
+    if (!lang) return 'pt-BR';
+    if (lang.toLowerCase().startsWith('pt')) return 'pt-BR';
+    if (lang.toLowerCase().startsWith('es')) return 'es';
+    return 'en';
+}
+
+export function getMissionNamesByLanguage(lang) {
+    const key = normalizeUiLanguage(lang);
+    if (key === 'en') return NOME_FASES_EN;
+    if (key === 'es') return NOME_FASES_ES;
+    return NOME_FASES;
+}
+
 // ======================================================
 // DEFINIÇÃO DAS MISSÕES (EXPORTADA)
 // ======================================================
@@ -39,6 +89,21 @@ export const NOME_FASES = [
  */
 
 export const MISSIONS = [
+
+    {
+        id: 0,
+        name: 'ABERTURA LUNAR',
+        layers: [
+            { path: "../assets/img/cenarios/cenario-missao/inicio-game/background-solo-lua.jpg", factor: 0.12 },
+        ],
+        openingShipImage: "../assets/img/cenarios/cenario-missao/inicio-game/nave-lua.png",
+        music: "../assets/audio/musicaGameUS.mp3",
+        scrollSpeed: 120,
+        bossScoreTrigger: 999999,
+        enemyConfig: { spawnRate: 0, difficulty: 1 },
+        openingScene: true,
+        allowShoot: false,
+    },
 
     {
         id: 1,

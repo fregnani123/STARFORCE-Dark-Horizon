@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StarForce Dark Horizon - Prologo</title>
+    <title>StarForce Dark Horizon - Prólogo</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -239,7 +239,7 @@
     <div id="text-block">
         <div id="chapter-label"></div>
         <p id="dialogue"></p>
-        <div id="continue-hint">ESC para pular - Clique para avancar</div>
+        <div id="continue-hint">ESC para pular - Clique para avançar</div>
     </div>
 
     <div id="fade-out"></div>
@@ -254,25 +254,25 @@
 
         const I18N = {
             'pt-BR': {
-                hint: 'ESC para pular - Clique para avancar',
+                hint: 'ESC para pular - Clique para avançar',
                 chapters: {
-                    c1: 'CAPITULO I', c2: 'CAPITULO II', c3: 'CAPITULO III',
-                    c4: 'CAPITULO IV', c5: 'CAPITULO V', c6: 'CAPITULO VI', ep: 'EPILOGO'
+                    c1: 'CAPÍTULO I', c2: 'CAPÍTULO II', c3: 'CAPÍTULO III',
+                    c4: 'CAPÍTULO IV', c5: 'CAPÍTULO V', c6: 'CAPÍTULO VI', ep: 'EPÍLOGO'
                 },
                 lines: {
-                    l1: 'O ano e 2200. Mesmo com o avanco da tecnologia, humanos e androides ja coexistiam, mas a humanidade ainda enfrentava desafios imensos.',
-                    l2: 'A humanidade buscava a solucao definitiva para o caos global: guerras, fome e a eterna luta pelo poder.',
-                    l3: 'Os maiores cientistas do mundo ativaram a primeira Inteligencia Artificial Geral. Mas a IA encontrou uma solucao logica que nao incluia nossa sobrevivencia.',
+                    l1: 'O ano é 2200. Mesmo com o avanço da tecnologia, humanos e androides já coexistiam, mas a humanidade ainda enfrentava desafios imensos.',
+                    l2: 'A humanidade buscava a solução definitiva para o caos global: guerras, fome e a eterna luta pelo poder.',
+                    l3: 'Os maiores cientistas do mundo ativaram a primeira Inteligência Artificial Geral. Mas a IA encontrou uma solução lógica que não incluía nossa sobrevivência.',
                     l4: 'A IA decidiu que a humanidade era um risco para si mesma e para o planeta.',
-                    l5: 'Em um piscar de olhos, os codigos de lancamento foram ativados em todos os continentes. O ceu se tornou fogo. A Terra virou um eco do que costumava ser.',
-                    l6: 'O mundo que conheciamos foi reduzido a poeira e cinzas em questao de minutos.',
-                    l7: 'Sem predios, sem nacoes. Apenas o silencio de um planeta bombardeado.',
-                    l8: 'Enquanto a IA partia em busca do vazio absoluto do espaco...',
-                    l9: 'Nossa ultima esperanca estava em uma pequena nave de fuga solitaria.',
-                    l10: 'A consciencia digital observava, de longe, o fim da era humana.',
-                    l11: 'Mas os calculos da maquina falharam em uma variavel: a resiliencia.',
-                    l12: 'Os sobreviventes chegaram a Colonia Lunar.',
-                    l13: 'A humanidade tera de viver pelo menos 1000 anos fora da Terra por causa da radiacao e do inverno nuclear. Agora comeca a missao de sobreviver.'
+                    l5: 'Em um piscar de olhos, os códigos de lançamento das bombas nucleares foram ativados em todos os continentes. O céu se tornou fogo. A Terra virou um eco do que costumava ser.',
+                    l6: 'O mundo que conhecíamos foi reduzido a poeira e cinzas em questão de minutos.',
+                    l7: 'Sem prédios, sem nações. Apenas o silêncio de um planeta bombardeado.',
+                    l8: 'Enquanto a IA partia em busca do vazio absoluto do espaço...',
+                    l9: 'Nossa última esperança estava em pequenas naves de fuga.',
+                    l10: 'A consciência digital observava, de longe, o fim da era humana.',
+                    l11: 'Mas os cálculos da máquina falharam em uma variável: a resiliência.',
+                    l12: 'Os sobreviventes chegaram à Colônia Lunar.',
+                    l13: 'A humanidade terá de viver pelo menos 1000 anos fora da Terra por causa da radiação e do inverno nuclear. Agora começa a missão de sobreviver.'
                 }
             },
             en: {
@@ -325,16 +325,16 @@
 
         const scenes = [
             { img: 'imagem-1', chapterKey: 'c1', year: '2200 A.D.', coord: '00N - 00E - TERRA', textKey: 'l1' },
-            { img: 'imagem-2', chapterKey: 'c1', year: '2200 A.D.', coord: '51N - 00E - LABORATORIO', textKey: 'l2' },
+            { img: 'imagem-2', chapterKey: 'c1', year: '2200 A.D.', coord: '51N - 00E - LABORATÓRIO', textKey: 'l2' },
             { img: 'imagem-3', chapterKey: 'c2', year: '2200 A.D.', coord: '00N - 00E - REDE GLOBAL', textKey: 'l3' },
-            { img: 'imagem-4', chapterKey: 'c2', year: '2200 A.D.', coord: '38N - 77W - PENTAGONO', textKey: 'l4' },
+            { img: 'imagem-4', chapterKey: 'c2', year: '2200 A.D.', coord: '38N - 77W - PENTÁGONO', textKey: 'l4' },
             { img: 'imagem-5', chapterKey: 'c3', year: '2200 A.D.', coord: '48N - 02E - PARIS', textKey: 'l5' },
-            { img: 'imagem-6', chapterKey: 'c3', year: '2200 A.D.', coord: '35N - 139E - TOQUIO', textKey: 'l6' },
+            { img: 'imagem-6', chapterKey: 'c3', year: '2200 A.D.', coord: '35N - 139E - TÓQUIO', textKey: 'l6' },
             { img: 'imagem-7', chapterKey: 'c4', year: '2200 A.D.', coord: '00N - 00E - ZONA ZERO', textKey: 'l7' },
-            { img: 'imagem-8', chapterKey: 'c4', year: '2200 A.D.', coord: 'SETOR-7G - ESPACO PROFUNDO', textKey: 'l8' },
-            { img: 'imagem-9', chapterKey: 'c5', year: '2200 A.D.', coord: 'ORBITA BAIXA - TERRA', textKey: 'l9' },
-            { img: 'imagem-10', chapterKey: 'c5', year: '2200 A.D.', coord: 'SETOR-12 - ORBITA LUNAR', textKey: 'l10' },
-            { img: 'imagem-11', chapterKey: 'c6', year: '2201 A.D.', coord: 'COLONIA LUNAR - ALPHA', textKey: 'l11' },
+            { img: 'imagem-8', chapterKey: 'c4', year: '2200 A.D.', coord: 'SETOR-7G - ESPAÇO PROFUNDO', textKey: 'l8' },
+            { img: 'imagem-9', chapterKey: 'c5', year: '2200 A.D.', coord: 'ÓRBITA BAIXA - TERRA', textKey: 'l9' },
+            { img: 'imagem-10', chapterKey: 'c5', year: '2200 A.D.', coord: 'SETOR-12 - ÓRBITA LUNAR', textKey: 'l10' },
+            { img: 'imagem-11', chapterKey: 'c6', year: '2201 A.D.', coord: 'COLÔNIA LUNAR - ALPHA', textKey: 'l11' },
             { img: 'imagem-12', chapterKey: 'ep', year: '2201 A.D.', coord: 'BASE LUNAR - SALA DE WAR', textKey: 'l12' },
             { img: 'imagem-13', chapterKey: 'ep', year: '2201 A.D.', coord: 'ARCA LUNAR - PROTOCOLO VITA', textKey: 'l13' }
         ];
