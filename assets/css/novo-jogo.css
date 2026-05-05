@@ -186,7 +186,7 @@
     z-index: 1;
 }
 
-#skipCutscene {
+#skipCutscene, .openingSkipIntroAll{
     position: absolute;
     bottom: 40px; right: 40px;
     background: rgba(0, 0, 0, 0.8);
@@ -201,7 +201,7 @@
     transition: 0.3s;
 }
 
-#skipCutscene:hover {
+#skipCutscene:hover,.openingSkipIntroAll:hover {
     background: #ffd900;
     color: #000;
 }

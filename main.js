@@ -15,14 +15,37 @@ function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
             contextIsolation: true,
-            autoplayPolicy: 'no-user-gesture-required'
+            autoplayPolicy: 'no-user-gesture-required',
+            // 🛡️ Remove os erros de Autofill.enable do console
+            disableBlinkFeatures: 'Autofill'
         }
     });
 
     mainWindow.loadFile(path.join(__dirname, 'public', 'index.html'));
+    mainWindow.webContents.openDevTools(); // Abre as ferramentas de desenvolvimento    
 }
 
+const { session } = require('electron');
+
 app.whenReady().then(() => {
+
+    // 🔐 CSP FORÇADA (resolve o warning)
+    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+        callback({
+            responseHeaders: {
+                ...details.responseHeaders,
+                'Content-Security-Policy': [
+                    "default-src 'self'; " +
+                    "script-src 'self'; " +
+                    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+                    "font-src https://fonts.gstatic.com; " +
+                    "img-src 'self' data:;"
+                ]
+            }
+        });
+    });
+
+    // 🚀 SEU CÓDIGO NORMAL
     initDatabase().then(() => {
         createWindow();
     });
@@ -31,7 +54,6 @@ app.whenReady().then(() => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
 });
-
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") app.quit();
     if (db) {
@@ -312,7 +334,7 @@ ipcMain.handle('buy-upgrade', async (event, { upgradeType }) => {
 
 ipcMain.handle('buy-superlaser', async () => {
     const SUPER_LASER_COST = 200;
-    if (cachedSettings.superLaserUnlocked) return { success: false, error: 'Super Laser já desbloqueado!' };
+    if (cachedData.superLaserUnlocked) return { success: false, error: 'Super Laser já desbloqueado!' };
     if ((cachedData.currentMission || 1) <= 1)
         return { success: false, error: 'Complete a Missão 1 primeiro!' };
     if (cachedData.totalStars < SUPER_LASER_COST)

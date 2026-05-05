@@ -15,11 +15,40 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="stylesheet" href="../assets/css/settings.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 
   <title> Starforce Dark Horizon</title>
 </head>
 
-<body>
+<body> 
+<div class="crt-monitor"></div>
+
+<style>
+.crt-monitor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999999999;
+  pointer-events: none;
+  
+  /* Gradiente fixo, sem blend mode, para garantir que as linhas apareçam */
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.15) 50%
+  );
+  background-size: 100% 4px;
+  
+  /* Vinheta leve nas bordas para dar profundidade sem escurecer o centro */
+  background-image: 
+    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%),
+    radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.3) 150%);
+    
+  /* Força um pouco de brilho e contraste para compensar */
+  filter: brightness(1.1) contrast(1.1);
+}
+</style>
   <!-- 
 // ======================================================
 //  Div tela de inicio 
@@ -133,7 +162,7 @@
           </div>
 
           <div class="player" id="player" title="Você">
-            <img src="../assets/img/nave-player/nave-level.png" alt="avatar">
+            <img  alt="avatar">
           </div>
         </div>
       </div>
@@ -149,9 +178,19 @@
 
       <div id="openingMissionOverlay" class="hidden">
         <div id="openingFadeBlack" class="opening-fade-black hidden"></div>
+        
+        <!-- ⏭️ Botão de Pulo Global para a Abertura -->
+        <button id="openingSkipIntroAll" class="opening-skip-chronicle openingSkipIntroAll">PULAR TUDO [ESC]</button>
 
-        <!-- Overlay de TV de tubo / scanlines para a abertura da missão -->
-        <div class="opening-crt-overlay" aria-hidden="true"></div>
+        <!-- 📡 Radar Tático Profissional -->
+        <div class="opening-tactical-radar">
+          <div class="radar-grid"></div>
+          <div class="radar-sweep"></div>
+          <div class="radar-blip blip-1"></div>
+          <div class="radar-blip blip-2"></div>
+          <div class="radar-blip blip-3"></div>
+          <div class="radar-label">SCANNING SECTOR 0-LUNA</div>
+        </div>
 
         <div id="openingFilmCard" class="opening-card opening-card-credit hidden">
           <div class="opening-kicker">UMA PRODUÇÃO</div>
@@ -192,16 +231,24 @@
         </div>
 
         <div id="openingBaseCall" class="opening-card opening-card-story hidden">
-          <div class="opening-base-call-box">
+          <div class="opening-base-call-box" style="display: flex !important;">
+            <!-- Ondas de rádio decorativas -->
+            <div class="radio-waves"></div>
             <div class="opening-base-portrait">
-              <img src="../assets/img/cenarios/cenario-missao/inicio-game/capitao.png" alt="Responsável da base"
-                style="width:150px; height:auto;">
+              <!-- 🎙️ Visualizador de Rádio (Barrinhas de áudio) -->
+              <div class="transmission-visualizer">
+                <div class="t-bar"></div>
+                <div class="t-bar"></div>
+                <div class="t-bar"></div>
+                <div class="t-bar"></div>
+                <div class="t-bar"></div>
+              </div>
+              <img src="../assets/img/cenarios/cenario-missao/inicio-game/capitao.png" alt="Responsável da base">
             </div>
             <div class="opening-base-call-text">
               <div class="opening-kicker">TRANSMISSÃO PRIORITÁRIA</div>
-              <div class="opening-title opening-title-small">BASE LUNAR FGL-01 CHAMANDO TODOS OS PILOTOS</div>
-              <div class="opening-subtitle">Comandante da base em canal aberto. Protocolos Omega restaurados.
-                Identificação de esquadrão em andamento.</div>
+              <div class="opening-title opening-title-small"></div> <!-- ⌨️ Preenchido via JS -->
+              <div class="opening-subtitle"></div>
             </div>
           </div>
         </div>
@@ -221,8 +268,8 @@
                 <div class="opening-pilot-name" id="openingPilotOneName">PILOTO PRINCIPAL</div>
                 <div class="opening-pilot-role">Vetor de Reconhecimento Alfa</div>
                 <div class="opening-ship-box">
-               <img id="openingPilotTwoShip" src="../assets/img/cenarios/cenario-missao/inicio-game/nave-lua.png"
-                    alt="Nave de escolta" style="width:120px; height:auto;">
+                  <img id="openingPilotOneShip" src=""
+                    alt="Nave do jogador" style="width:120px; height:auto;">
                   <div class="opening-ship-label">NAVE REGISTRADA // ALFA-01</div>
                 </div>
               </div>
@@ -249,7 +296,7 @@
 
         <div id="openingThreatCard" class="opening-card opening-card-story hidden">
           <img id="openingThreatShip" src="../assets/img/cenarios/cenario-missao/inicio-game/nave-mae.png"
-            alt="Nave-mae" style="width:200px; height:auto;">
+            alt="Nave-mae">
           <div class="opening-kicker">ALERTA MÁXIMO</div>
           <div class="opening-title opening-title-small">NAVE GIGANTESCA DETECTADA EM APROXIMAÇÃO À TERRA</div>
           <div class="opening-subtitle">Todos os pilotos em prontidão imediata. Interceptação autorizada.</div>
@@ -325,22 +372,22 @@
             text-align: center;
             min-width: 420px;
           ">
-            <div style="font-size:11px; letter-spacing:7px; color:#ffd64a; margin-bottom:14px; opacity:0.85;">✦
+            <div style="font-size:11px; letter-spacing:7px; color:#fff; margin-bottom:14px; opacity:0.85;">✦
               STARFORCE DARK HORIZON ✦</div>
             <h1
-              style="font-size:36px; color:#fff; margin:0 0 4px; text-shadow: 0 0 24px rgba(0,183,255,0.7); letter-spacing:2px;">
+              style="font-size:36px; color:#fff; margin:0 0 4px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); letter-spacing:2px;">
               MISSÃO COMPLETA!</h1>
             <p id="missionCompleteSubtitle"
-              style="color:#66d9ff; font-size:12px; letter-spacing:4px; margin:0 0 28px; opacity:0.9;"></p>
+              style="color:#fff; font-size:12px; letter-spacing:4px; margin:0 0 28px; opacity:0.9;"></p>
 
             <!-- Divisor -->
-            <div style="border-top:1px solid rgba(0,183,255,0.25); margin-bottom:24px;"></div>
+            <div style="border-top:1px solid rgba(255,255,255,0.15); margin-bottom:24px;"></div>
 
             <!-- Stats grid -->
             <div
               style="display:grid; grid-template-columns:1fr 1fr; gap:16px 32px; margin-bottom:28px; text-align:left;">
               <div>
-                <div style="font-size:9px; letter-spacing:3px; color:#66d9ff; opacity:0.75; margin-bottom:4px;">PILOTO
+                <div style="font-size:9px; letter-spacing:3px; color:#fff; opacity:0.6; margin-bottom:4px;">PILOTO
                 </div>
                 <div id="mc-pilot" style="font-size:16px; color:#fff; letter-spacing:1px;">—</div>
               </div>
@@ -393,6 +440,7 @@
           </div>
         </div>
 
+        <!-- HUD do jogo -->
         <div id="hudPanel">
 
           <div class="info-and-health">
@@ -809,6 +857,9 @@
 
     </div>
   </div>
+
+  <!-- 📺 Efeito de Monitor Antigo (Scanlines) - Global -->
+  <div class="opening-crt-overlay" aria-hidden="true"></div>
 
 </body>
 <script type="module" src="../script/init.js"></script>

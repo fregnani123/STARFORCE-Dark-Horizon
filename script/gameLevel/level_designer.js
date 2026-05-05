@@ -212,9 +212,14 @@ export function updateUI() {
     playerEl.style.bottom = `${playerBottom}px`;
 
     const shipId = getCurrentShip() || 'metal';
-    const shipImgPath = shipId === 'dark'
+    // 🛡️ Fallback para evitar erro 'nave-level.png'
+    const validShips = ['metal', 'alien', 'branca', 'fgl', 'hibrida', 'dark', 'preta'];
+    const safeShipId = validShips.includes(shipId) ? shipId : 'metal';
+
+    const shipImgPath = safeShipId === 'dark'
         ? '../assets/img/nave-player/nave-player-dark.png'
-        : `../assets/img/nave-player/nave-${shipId}.png`;
+        : `../assets/img/nave-player/nave-${safeShipId}.png`;
+        
     const playerImg = playerEl.querySelector('img');
     if (playerImg && playerImg.src !== shipImgPath) {
         playerImg.src = shipImgPath;

@@ -1,37 +1,38 @@
 // ======================================================
 // IMPORTS OBRIGATÓRIOS (ORQUESTRAÇÃO DO JOGO)
 // ======================================================
-import { 
-    lastTime, isPaused, MAX_DELTA_TIME_MS, 
-    CANVAS_WIDTH, CANVAS_HEIGHT, ctx, 
-    playerShip, enemies, enemyProjectiles, currentBoss, gameBackgrounds, 
-    score, superLaserCharge, SUPER_LASER_REQUIREMENT, 
-    enemySpawnTimer, ENEMY_SPAWN_INTERVAL, nextHealthPickupScore, 
-    particles, pickups, BACKGROUND_SPEED_DIVISOR,
+import {
+    lastTime, isPaused, MAX_DELTA_TIME_MS,
+    CANVAS_WIDTH, CANVAS_HEIGHT, ctx,
+    currentMissionId,
+    playerShip, enemies, enemyProjectiles, currentBoss, gameBackgrounds,
+    score, superLaserCharge, SUPER_LASER_REQUIREMENT,
+    enemySpawnTimer, ENEMY_SPAWN_INTERVAL, nextHealthPickupScore,
+    particles, pickups, BACKGROUND_SPEED_DIVISOR,
     isOpeningMission,
     openingLandingActive,
     setOpeningLandingActive,
     triggerPostLandingCallback,
-    // 🛑 IMPORTAÇÃO DOS SETTERS PARA MODIFICAR O ESTADO GLOBAL 🛑
-    setLastTime, 
-    setEnemySpawnTimer,
-    updateScore,
-    updateSuperLaserCharge,
-    // 🛑 CORREÇÃO CRÍTICA: Adicionar o setter de Health Pickup
+    // 🛑 IMPORTAÇÃO DOS SETTERS PARA MODIFICAR O ESTADO GLOBAL 🛑
+    setLastTime,
+    setEnemySpawnTimer,
+    updateScore,
+    updateSuperLaserCharge,
+    // 🛑 CORREÇÃO CRÍTICA: Adicionar o setter de Health Pickup
     setNextHealthPickupScore,
     currentWingman, setCurrentWingman,
-} from './globals.js'; 
+} from './globals.js';
 
 // Importa funções de utilidade e controle
-import { checkCollision, findNearestEnemy } from './utils.js'; 
+import { checkCollision, findNearestEnemy } from './utils.js';
 import { updateSuperLaserButton, updateUpgradeButton } from './btnUpdate.js';
-import { spawnRandomEnemy } from './Spawn.js'; 
-import { spawnHealthPickup, spawnStarPickups } from './spawnItem.js'; 
+import { spawnRandomEnemy } from './Spawn.js';
+import { spawnHealthPickup, spawnStarPickups } from './spawnItem.js';
 import { updatePlayerMovement, updateHTMLHUD } from './controle.js';
 import { playExplosionSound, playCoinSound } from './audio_game.js';
 
 // Variável local para o deslocamento do background neste frame
-let BACKGROUND_SPEED_Y = 0; 
+let BACKGROUND_SPEED_Y = 0;
 // Acumulador para score por movimento
 let movementScoreAccumulator = 0;
 const openingCompanionImg = new Image();
@@ -374,7 +375,7 @@ function _drawWhitePad(padX, padY, size, label, now, lineAlpha) {
     ctx.beginPath(); ctx.moveTo(cx, padY + 22); ctx.lineTo(cx, padY + size - 22); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(cx - 20, cy); ctx.lineTo(cx + 20, cy); ctx.stroke();
 
-    const corners = [[padX + 7, padY + 7],[padX + size - 7, padY + 7],[padX + 7, padY + size - 7],[padX + size - 7, padY + size - 7]];
+    const corners = [[padX + 7, padY + 7], [padX + size - 7, padY + 7], [padX + 7, padY + size - 7], [padX + size - 7, padY + size - 7]];
     corners.forEach(([px, py], i) => {
         const b = 0.3 + Math.max(0, Math.sin((now * 0.012) + i) * 0.5);
         ctx.fillStyle = `rgba(120, 230, 255, ${b})`;
@@ -438,7 +439,7 @@ function drawOpeningLandingZone() {
     // glow leve
     function drawGlow(x, y, size) {
         ctx.beginPath();
-        ctx.arc(x + size/2, y + size/2, size/1.4, 0, Math.PI * 2);
+        ctx.arc(x + size / 2, y + size / 2, size / 1.4, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(120,200,255,${pulse * 0.15})`;
         ctx.fill();
     }
@@ -446,7 +447,7 @@ function drawOpeningLandingZone() {
     drawGlow(LZ.leftX, LZ.topY, LZ.padSize);
     drawGlow(secondPadX, LZ.topY, LZ.padSize);
 
- 
+
 
     ctx.restore();
 }
@@ -559,26 +560,26 @@ function updateOpeningLandingAutopilot(deltaTime, playerShipInstance) {
 // --------------------------------------------------------------------------------------------------
 
 /**
- * Função principal do Game Loop.
- * @param {DOMHighResTimeStamp} timestamp - Tempo atual fornecido pelo requestAnimationFrame.
- */
+ * Função principal do Game Loop.
+ * @param {DOMHighResTimeStamp} timestamp - Tempo atual fornecido pelo requestAnimationFrame.
+ */
 export function gameLoop(timestamp) {
 
-    // --- 1. CÁLCULO DO DELTA TIME E PAUSA ---
-    let deltaTime = timestamp - lastTime;
+    // --- 1. CÁLCULO DO DELTA TIME E PAUSA ---
+    let deltaTime = timestamp - lastTime;
 
-// 🛑 Limpa o canvas mantendo transparência
+    // 🛑 Limpa o canvas mantendo transparência
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     ctx.restore();
-    
-    setLastTime(timestamp); 
 
-    if (isPaused) {
-        requestAnimationFrame(gameLoop);
-        return;
-    }
+    setLastTime(timestamp);
+
+    if (isPaused) {
+        requestAnimationFrame(gameLoop);
+        return;
+    }
 
     if (!isOpeningMission) {
         openingCompanionX = null;
@@ -586,19 +587,19 @@ export function gameLoop(timestamp) {
         resetOpeningLandingState();
     }
 
-    if (deltaTime > MAX_DELTA_TIME_MS) {
-        deltaTime = MAX_DELTA_TIME_MS;
-    }
+    if (deltaTime > MAX_DELTA_TIME_MS) {
+        deltaTime = MAX_DELTA_TIME_MS;
+    }
 
-    updateSuperLaserButton(); 
+    updateSuperLaserButton();
 
-    // ---------------------------------------------
-    // BACKGROUND & CÁLCULO DE SCROLL SPEED
-    // ---------------------------------------------
-   // ---------------------------------------------
+    // ---------------------------------------------
+    // BACKGROUND & CÁLCULO DE SCROLL SPEED
+    // ---------------------------------------------
+    // ---------------------------------------------
     // BACKGROUND & LIMPEZA DE TELA
 
-    BACKGROUND_SPEED_Y = 0; 
+    BACKGROUND_SPEED_Y = 0;
 
     // 🛑 CORREÇÃO DEFINITIVA DO RASTRO (FLASH) 🛑
     // Em vez de clearRect, usamos fillRect preto para atropelar qualquer rastro de movimento.
@@ -607,41 +608,41 @@ export function gameLoop(timestamp) {
 
     if (gameBackgrounds && gameBackgrounds.length > 0) {
         // ... restante do código do background ...
-        const mainBg = gameBackgrounds[0];
+        const mainBg = gameBackgrounds[0];
         const lockBackgroundScroll = isOpeningMission && openingLandingActive;
-        
-        if (!lockBackgroundScroll && mainBg.isScrolling && mainBg.speed && BACKGROUND_SPEED_DIVISOR) {
-            BACKGROUND_SPEED_Y = (mainBg.speed * deltaTime) / BACKGROUND_SPEED_DIVISOR; 
-        }
 
-        for (const bg of gameBackgrounds) {
+        if (!lockBackgroundScroll && mainBg.isScrolling && mainBg.speed && BACKGROUND_SPEED_DIVISOR) {
+            BACKGROUND_SPEED_Y = (mainBg.speed * deltaTime) / BACKGROUND_SPEED_DIVISOR;
+        }
+
+        for (const bg of gameBackgrounds) {
             if (!lockBackgroundScroll) {
-                bg.update(deltaTime);
+                bg.update(deltaTime);
             }
-            bg.draw(ctx);
-        }
-    } else {
-        ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    }
+            bg.draw(ctx);
+        }
+    } else {
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    }
 
-    // ---------------------------------------------
-    // BOSS
-    // ---------------------------------------------
-    if (currentBoss && currentBoss.isAlive) {
-        currentBoss.update(deltaTime, BACKGROUND_SPEED_Y); 
-        currentBoss.fire(enemyProjectiles);
-        currentBoss.draw(ctx);
-    }
+    // ---------------------------------------------
+    // BOSS
+    // ---------------------------------------------
+    if (currentBoss && currentBoss.isAlive) {
+        currentBoss.update(deltaTime, BACKGROUND_SPEED_Y);
+        currentBoss.fire(enemyProjectiles);
+        currentBoss.draw(ctx);
+    }
 
-    // ---------------------------------------------
-    
-
+    // ---------------------------------------------
 
 
 
-    // ---------------------------------------------
-    // PLAYER & SPAWN
+
+
+    // ---------------------------------------------
+    // PLAYER & SPAWN
     // ---------------------------------------------
     // ---------------------------------------------
     // WINGMAN (nave parceira — tecla F)
@@ -689,193 +690,197 @@ export function gameLoop(timestamp) {
     if (playerShip && playerShip.isAlive) {
 
         if (isOpeningMission && openingLandingActive) {
+            // 🛑 Limpa as estrelas remanescentes para silenciar o ambiente e o visual durante o pouso
+            if (pickups.length > 0) pickups.length = 0;
             drawOpeningLandingZone();
         }
 
-        // Spawn inimigos e pickups
-    if (!isOpeningMission && !playerShip.inIntro && !playerShip.superLaserActive) {
+        // Spawn inimigos e pickups
+        // 🌟 Permitir spawn durante a intro APENAS na Missão 0
+        if ((!isOpeningMission || currentMissionId === 0) && (currentMissionId === 0 || !playerShip.inIntro) && !playerShip.superLaserActive && !openingLandingActive) {
 
-            // Usa Setter para manipular enemySpawnTimer
-            setEnemySpawnTimer(enemySpawnTimer + deltaTime); 
-            
-            if (enemySpawnTimer >= ENEMY_SPAWN_INTERVAL) {
-                spawnRandomEnemy(playerShip); 
-                // Usa Setter para subtrair do timer
-                setEnemySpawnTimer(enemySpawnTimer - ENEMY_SPAWN_INTERVAL);
-            }
+            // Usa Setter para manipular enemySpawnTimer
+            setEnemySpawnTimer(enemySpawnTimer + deltaTime);
 
-            // Lógica de spawn de vida
-            if (score >= nextHealthPickupScore && playerShip.health < playerShip.maxHealth) {
-                spawnHealthPickup(); 
-                // 🛑 CORREÇÃO FINAL: Usa Setter para nextHealthPickupScore (Linha 110)
+            if (enemySpawnTimer >= ENEMY_SPAWN_INTERVAL) {
+                spawnRandomEnemy(playerShip);
+                // Usa Setter para subtrair do timer
+                setEnemySpawnTimer(enemySpawnTimer - ENEMY_SPAWN_INTERVAL);
+            }
+
+            // Lógica de spawn de vida
+            if (score >= nextHealthPickupScore && playerShip.health < playerShip.maxHealth) {
+                spawnHealthPickup();
+                // 🛑 CORREÇÃO FINAL: Usa Setter para nextHealthPickupScore (Linha 110)
                 setNextHealthPickupScore(nextHealthPickupScore + 50);
-            }
-        }
+            }
+        }
 
-        // Movimento player
-    if (!openingLandingActive) {
-            updatePlayerMovement(); 
-    }
-        playerShip.update(deltaTime);
-    if (isOpeningMission && openingLandingActive) {
-        updateOpeningLandingAutopilot(deltaTime, playerShip);
-    }
+        // Movimento player
+        if (!openingLandingActive) {
+            updatePlayerMovement();
+        }
+        playerShip.update(deltaTime);
+        if (isOpeningMission && openingLandingActive) {
+            updateOpeningLandingAutopilot(deltaTime, playerShip);
+        }
         if (!isOpeningMission) {
-            const newProjectiles = playerShip.fire(); 
+            const newProjectiles = playerShip.fire();
             playerShip.projectiles.push(...newProjectiles);
         }
-        
-        // --- PROJÉTEIS DO PLAYER ---
-        for (let i = playerShip.projectiles.length - 1; i >= 0; i--) {
-            const projectile = playerShip.projectiles[i];
-            projectile.update(deltaTime);
-            if (!projectile.isAlive || projectile.y + projectile.height < 0) {
-                playerShip.projectiles.splice(i, 1);
-            }
-        }
 
-        // Guiamento 
-        for (const projectile of playerShip.projectiles) {
-            if (projectile.isGuided) {
-                if (!projectile.target || !projectile.target.isAlive) {
-                    projectile.target = findNearestEnemy(projectile, enemies); 
-                }
-            }
-        }
+        // --- PROJÉTEIS DO PLAYER ---
+        for (let i = playerShip.projectiles.length - 1; i >= 0; i--) {
+            const projectile = playerShip.projectiles[i];
+            projectile.update(deltaTime);
+            if (!projectile.isAlive || projectile.y + projectile.height < 0) {
+                playerShip.projectiles.splice(i, 1);
+            }
+        }
 
-        // --- COLISÃO PLAYER PROJÉTEIS → BOSS ---
-        if (currentBoss && currentBoss.isAlive) {
-            for (let j = playerShip.projectiles.length - 1; j >= 0; j--) {
-                const projectile = playerShip.projectiles[j];
-                if (checkCollision(projectile, currentBoss)) { 
-                    currentBoss.takeDamage(projectile.damage, particles);
-                    projectile.isAlive = false;
-                    playerShip.projectiles.splice(j, 1);
-                }
-            }
-        }
+        // Guiamento 
+        for (const projectile of playerShip.projectiles) {
+            if (projectile.isGuided) {
+                if (!projectile.target || !projectile.target.isAlive) {
+                    projectile.target = findNearestEnemy(projectile, enemies);
+                }
+            }
+        }
 
-        // --- INIMIGOS ---
+        // --- COLISÃO PLAYER PROJÉTEIS → BOSS ---
+        if (currentBoss && currentBoss.isAlive) {
+            for (let j = playerShip.projectiles.length - 1; j >= 0; j--) {
+                const projectile = playerShip.projectiles[j];
+                if (checkCollision(projectile, currentBoss)) {
+                    currentBoss.takeDamage(projectile.damage, particles);
+                    projectile.isAlive = false;
+                    playerShip.projectiles.splice(j, 1);
+                }
+            }
+        }
+
+        // --- 🟢 INIMIGOS: LÓGICA E ATUALIZAÇÃO ---
         if (!isOpeningMission) {
             for (let i = enemies.length - 1; i >= 0; i--) {
                 const enemy = enemies[i];
                 enemy.update(deltaTime, enemyProjectiles, BACKGROUND_SPEED_Y);
 
-            // Lógica de pontuação e superLaserCharge (Na destruição do inimigo)
-            if (enemy.isExploding && enemy.isScored) {
-                updateScore(enemy.scoreValue); 
+                // Lógica de pontuação e superLaserCharge ao destruir inimigo
+                if (enemy.isExploding && enemy.isScored) {
+                    updateScore(enemy.scoreValue);
+                    const newCharge = Math.min(superLaserCharge + enemy.scoreValue, SUPER_LASER_REQUIREMENT);
+                    updateSuperLaserCharge(newCharge);
+                    enemy.isScored = false;
+                }
 
-                const newCharge = Math.min(
-                    superLaserCharge + enemy.scoreValue,
-                    SUPER_LASER_REQUIREMENT
-                );
-                updateSuperLaserCharge(newCharge);
+                // Colisão: Projéteis do Player -> Inimigo
+                for (let j = playerShip.projectiles.length - 1; j >= 0; j--) {
+                    const proj = playerShip.projectiles[j];
+                    if (checkCollision(proj, enemy)) {
+                        enemy.takeDamage(proj.damage, particles);
+                        proj.isAlive = false;
+                        playerShip.projectiles.splice(j, 1);
+                        if (enemy.isExploding) {
+                            spawnStarPickups(enemy);
+                            break;
+                        }
+                    }
+                }
 
-                enemy.isScored = false;
-            }
-
-            // Colisão Player Projéteis → Inimigo
-            for (let j = playerShip.projectiles.length - 1; j >= 0; j--) {
-                const projectile = playerShip.projectiles[j];
-
-                if (checkCollision(projectile, enemy)) { 
-                    enemy.takeDamage(projectile.damage, particles); 
-                    projectile.isAlive = false;
-                    playerShip.projectiles.splice(j, 1);
-
-                    if (enemy.isExploding) {
-                        spawnStarPickups(enemy); 
-                        break;
-                    }
-                }
-            }
-
-                if (!enemy.isAlive || enemy.y > CANVAS_HEIGHT + enemy.height) { 
+                // Remoção definitiva de inimigos mortos ou fora da tela
+                if (!enemy.isAlive) {
                     enemies.splice(i, 1);
-                    playExplosionSound(); 
-                } else {
-                    enemy.draw(ctx); 
+                    playExplosionSound();
+                }
+
+                  if ( enemy.y > CANVAS_HEIGHT + enemy.height) {
+                    enemies.splice(i, 1);
+                    
                 }
             }
-        }
 
-        // --- PARTÍCULAS ---
-        for (let i = particles.length - 1; i >= 0; i--) {
-            particles[i].update();
-            if (!particles[i].isAlive) particles.splice(i, 1);
-        }
+            // --- 🔵 INIMIGOS: RENDERIZAÇÃO ORDENADA ---
+            // (Walkers Priority 0 primeiro, Aviões Priority 1 depois)
+            const sortedEnemies = [...enemies].sort((a, b) => (a.renderPriority || 0) - (b.renderPriority || 0));
+            sortedEnemies.forEach(enemy => enemy.draw(ctx));
+        }
+
+        // --- PARTÍCULAS ---
+        for (let i = particles.length - 1; i >= 0; i--) {
+            particles[i].update();
+            if (!particles[i].isAlive) particles.splice(i, 1);
+        }
 
         // --- PICKUPS (Colisão com Player) ---
-        if (!isOpeningMission) {
+        if ((!isOpeningMission || currentMissionId === 0) && !openingLandingActive) {
             for (let i = pickups.length - 1; i >= 0; i--) {
                 const pickup = pickups[i];
 
-            pickup.update(deltaTime, playerShip, BACKGROUND_SPEED_Y); 
-
-            if (checkCollision(playerShip, pickup)) { 
-                pickup.applyEffect(playerShip);
-                playCoinSound(); 
-                pickups.splice(i, 1);
-                continue;
-            }
-
-                if (!pickup.isAlive || pickup.y > CANVAS_HEIGHT + 50) { 
+                pickup.update(deltaTime, playerShip, BACKGROUND_SPEED_Y);
+                if (checkCollision(playerShip, pickup)) {
+                    pickup.applyEffect(playerShip);
+                    playCoinSound();
                     pickups.splice(i, 1);
                     continue;
                 }
 
-                pickup.draw(ctx); 
+                if (!pickup.isAlive || pickup.y > CANVAS_HEIGHT + 50) {
+                    pickups.splice(i, 1);
+                    continue;
+                }
+
+                pickup.draw(ctx);
             }
-        }
+        }
 
-        // --- SUPER LASER (Dano Ao Inimigo) ---
-    if (!isOpeningMission && playerShip.superLaserActive) {
-            for (let i = enemies.length - 1; i >= 0; i--) {
-                const enemy = enemies[i];
+        // --- SUPER LASER (Dano Ao Inimigo) ---
+        if (!isOpeningMission && playerShip.superLaserActive) {
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const enemy = enemies[i];
 
-                if (enemy.isAlive) {
-                    enemy.takeDamage(playerShip.superLaserDamage, particles); 
+                if (enemy.isAlive) {
+                    enemy.takeDamage(playerShip.superLaserDamage, particles);
 
-                    // Lógica de pontuação/carga (Repetida, mas necessária para dano do laser)
-                    if (enemy.isExploding && enemy.isScored) {
-                        updateScore(enemy.scoreValue); 
-                        
-                        const newCharge = Math.min(
-                            superLaserCharge + enemy.scoreValue,
-                            SUPER_LASER_REQUIREMENT
-                        );
-                        updateSuperLaserCharge(newCharge);
+                    // Lógica de pontuação/carga (Repetida, mas necessária para dano do laser)
+                    if (enemy.isExploding && enemy.isScored) {
+                        updateScore(enemy.scoreValue);
 
-                        enemy.isScored = false;
-                    }
-                }
-            }
-            // Limpa projéteis inimigos quando o laser está ativo (Mutação direta do Array Const)
-            enemyProjectiles.length = 0; 
-        }
+                        const newCharge = Math.min(
+                            superLaserCharge + enemy.scoreValue,
+                            SUPER_LASER_REQUIREMENT
+                        );
+                        updateSuperLaserCharge(newCharge);
 
-        // --- PROJÉTEIS INIMIGOS (Colisão com Player) ---
-    if (!isOpeningMission && !playerShip.superLaserActive) {
-            for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
-                const projectile = enemyProjectiles[i];
-                projectile.update(deltaTime);
+                        enemy.isScored = false;
+                    }
+                }
+            }
+            // Limpa projéteis inimigos quando o laser está ativo (Mutação direta do Array Const)
+            enemyProjectiles.length = 0;
+        }
 
-                if (checkCollision(projectile, playerShip)) { 
-                    playerShip.takeDamage(projectile.damage);
-                    projectile.isAlive = false;
-                    enemyProjectiles.splice(i, 1);
-                } else if (!projectile.isAlive || projectile.y > CANVAS_HEIGHT) { 
-                    enemyProjectiles.splice(i, 1);
-                } else {
-                    projectile.draw(ctx); 
-                }
-            }
-        }
-    }
+        // --- PROJÉTEIS INIMIGOS (Colisão com Player) ---
+        if (!isOpeningMission && !playerShip.superLaserActive) {
+            for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
+                const projectile = enemyProjectiles[i];
+                projectile.update(deltaTime);
 
-    // ---------------------------------------------
-    // DESENHO FINAL
-    // ---------------------------------------------
+                if (checkCollision(projectile, playerShip)) {
+                    playerShip.takeDamage(projectile.damage);
+                    projectile.isAlive = false;
+                    enemyProjectiles.splice(i, 1);
+                } else if (!projectile.isAlive || projectile.y > CANVAS_HEIGHT) {
+                    enemyProjectiles.splice(i, 1);
+                } else {
+                    projectile.draw(ctx);
+                }
+            }
+        }
+    }
+
+    // ---------------------------------------------
+    // DESENHO FINAL
+    // ---------------------------------------------
     if (playerShip) {
         playerShip.projectiles.forEach(p => p.draw(ctx));
 
@@ -886,13 +891,13 @@ export function gameLoop(timestamp) {
         // Nave 2 removida da missão zero
     }
 
-    
+
     if (currentWingman) currentWingman.draw(ctx);
-    particles.forEach(p => p.draw(ctx)); 
+    particles.forEach(p => p.draw(ctx));
 
-    updateHTMLHUD(); 
-    updateUpgradeButton(); 
+    updateHTMLHUD();
+    updateUpgradeButton();
 
-    // Chama o próximo frame (recursividade do Game Loop)
-    requestAnimationFrame(gameLoop); 
+    // Chama o próximo frame (recursividade do Game Loop)
+    requestAnimationFrame(gameLoop);
 }

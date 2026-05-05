@@ -38,15 +38,20 @@ window.addEventListener('DOMContentLoaded', async () => { // Keep async
     // Gerenciamento do botão Continuar
     const btnContinuar = document.getElementById('continuar');
     if (btnContinuar) {
-        const salvo = hasSavedGame(); // This will now read from the cachedData in saveSystem.js
-        btnContinuar.disabled = !salvo;
-        if (salvo) {
-            btnContinuar.classList.add('btn-continuar-pulse');
-            btnContinuar.style.opacity = "1";
-        } else {
-            btnContinuar.classList.remove('btn-continuar-pulse');
-            btnContinuar.style.opacity = "0.4"; // Efeito de "apagado"
-        }
+        const checkSave = () => {
+            const salvo = hasSavedGame();
+            btnContinuar.disabled = !salvo;
+            if (salvo) {
+                btnContinuar.classList.add('btn-continuar-pulse');
+                btnContinuar.style.opacity = "1";
+                btnContinuar.style.pointerEvents = "auto";
+            } else {
+                btnContinuar.classList.remove('btn-continuar-pulse');
+                btnContinuar.style.opacity = "0.4"; 
+                btnContinuar.style.pointerEvents = "none";
+            }
+        };
+        checkSave();
     }
 
     initTelaInicial();

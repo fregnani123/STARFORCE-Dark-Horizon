@@ -6,6 +6,7 @@ import {
     magnetActive,
     magnetRadius,
     magnetStrength,
+    currentMissionId,
     // Importamos a função para atualizar as estrelas com segurança
     updatePlayerStars 
 } from './globals.js'; 
@@ -53,8 +54,12 @@ export class Pickup {
             const dy = playerCenterY - pickupCenterY;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            if (dist < magnetRadius && dist > 1) { 
-                const attractionFactor = magnetStrength * (1 - dist / magnetRadius) * 200; 
+            // 🧲 Magnetismo 3x mais forte para estrelas decorativas da Missão 0
+            const isDecorative = this.effect.type === 'decorative_star';
+            const effectiveRadius = isDecorative ? magnetRadius * 1.5 : magnetRadius;
+            
+            if (dist < effectiveRadius && dist > 1) { 
+                const attractionFactor = magnetStrength * (1 - dist / effectiveRadius) * (isDecorative ? 600 : 200); 
                 const ux = dx / dist;
                 const uy = dy / dist;
                 
@@ -85,6 +90,13 @@ export class Pickup {
         const centerX = this.x + this.width / 2;
         const centerY = this.y + this.height / 2;
         ctx.translate(centerX, centerY);
+
+        // ✨ Efeito de Brilho Neon para Estrelas
+        if (this.effect.type === 'star' || this.effect.type === 'decorative_star') {
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#ffd700";
+        }
+
         ctx.rotate(this.rotation); 
         ctx.drawImage(this.image, -this.width / 2, -this.height / 2, this.width, this.height);
         ctx.restore(); 
@@ -100,6 +112,10 @@ export class Pickup {
             case 'star':
                 // 🚀 USA A FUNÇÃO DO GLOBALS PARA SOMAR AS ESTRELAS
                 updatePlayerStars(this.effect.value);
+                break;
+            
+            case 'decorative_star':
+                // Apenas barulho e visual, não altera o banco de dados
                 break;
                 
             case 'upgradePoints':

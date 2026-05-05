@@ -3,7 +3,7 @@
 // ======================================================
 import { Background } from './Background.js';
 import { Player } from './Player.js';
-import { playBGM, startShootSoundLoop, stopBGM } from './audio_game.js';
+import { playBGM, startShootSoundLoop, stopBGM, stopShootSoundLoop } from './audio_game.js';
 import { gameLoop } from './gameLoop.js';
 import {
     playerShip, lastTime, CANVAS_WIDTH, CANVAS_HEIGHT,
@@ -43,6 +43,8 @@ const OPENING_CHRONICLE_TEXT = [
     'Longe dali, uma assinatura massiva cruza o vazio em direção à Terra.',
     'A ordem ecoa nos canais: todos os pilotos, em posição imediata.'
 ].join('\n');
+const BASE_CALL_TITLE_TEXT = "BASE LUNAR FGL-01 CHAMANDO TODOS OS PILOTOS";
+const BASE_CALL_SUBTITLE_TEXT = "Comandante da base em canal aberto. Protocolos Omega restaurados. Identificação de esquadrão em andamento.";
 const OPENING_SEQUENCE = [
     { id: 'openingFilmCard', startAt: 0, endAt: 3600 },
     { id: 'openingDevelopersCard', startAt: 4300, endAt: 8200 },
@@ -50,9 +52,9 @@ const OPENING_SEQUENCE = [
     { id: 'openingTimeCard', startAt: 13600, endAt: 18800 },
     { id: 'openingReturnCard', startAt: 19600, endAt: 25600 },
     { id: 'openingStoryCrawl', startAt: 26400, endAt: 54600 },
-    { id: 'openingBaseCall', startAt: 55600, endAt: 70000 }
+    { id: 'openingBaseCall', startAt: 55600, endAt: 70000 } // ⏱️ Definido para 30s de leitura confortável
 ];
-const OPENING_BLACKOUTS = [3800, 8500, 13000, 19000, 25800, 54800, 70600];
+const OPENING_BLACKOUTS = [3800, 8500, 13000, 19000, 25800, 54800, 85800];
 const OPENING_SUBTITLES = [
     { startAt: 0, endAt: 3600, text: 'Uma produção FGL Software Solutions.' },
     { startAt: 4300, endAt: 8200, text: 'Desenvolvido por Fabiano Fregnani.' },
@@ -62,8 +64,6 @@ const OPENING_SUBTITLES = [
     { startAt: 26400, endAt: 35000, text: 'No vazio entre a Lua e a Terra, uma ameaça colossal atravessa a escuridão.' },
     { startAt: 35200, endAt: 44400, text: 'Durante séculos, ninguém respondeu ao chamado do planeta perdido.' },
     { startAt: 44600, endAt: 54600, text: 'Agora, o retorno deixa de ser esperança e se torna mobilização imediata.' },
-    { startAt: 55600, endAt: 70000, text: 'Base lunar FGL-01 chamando todos os pilotos. Protocolos Omega restaurados. Identificação de esquadrão em andamento.' },
-    { startAt: 71000, endAt: 999999, text: 'Perfis confirmados. Pressione OK para entrar na escuta.' }
 ];
 const POST_ACK_BLACKOUTS = [0, 8200];
 const POST_ACK_SEQUENCE = [
@@ -104,9 +104,13 @@ function formatProgressDetails(data) {
 
 function getRosterPlayerShipPath() {
     const shipId = getCurrentShip() || 'metal';
+    // 🛡️ Segurança: Se shipId for inválido ou 'level', força 'metal'
+    const validShips = ['metal', 'alien', 'branca', 'fgl', 'hibrida', 'dark', 'preta'];
+    const safeShipId = validShips.includes(shipId) ? shipId : 'metal';
+    
     return shipId === 'dark'
         ? '../assets/img/nave-player/nave-player-dark.png'
-        : `../assets/img/nave-player/nave-${shipId}.png`;
+        : `../assets/img/nave-player/nave-${safeShipId}.png`;
 }
 
 function clearOpeningAck() {
@@ -147,10 +151,12 @@ function finishOpeningMissionSequence() {
 
     if (fadeBlack) {
         fadeBlack.classList.remove('hidden');
+        fadeBlack.style.display = 'block';
     }
     if (narrationBar) {
         narrationBar.classList.remove('show');
         narrationBar.classList.add('hidden');
+        narrationBar.style.display = 'none';
     }
     if (narrationText) {
         narrationText.textContent = '';
@@ -200,6 +206,10 @@ function triggerPostLandingCutscene() {
     const loadingOverlay = document.getElementById('loadingOverlay');
     const divLevel = document.getElementById('container_levelGame');
     const overlay = document.getElementById('openingMissionOverlay');
+
+    // 🛑 MUSICA: Troca a música da missão pela música da história
+    stopBGM();
+    playBGM(CUTSCENE_BGM_PATH, 0.65);
 
     // 1. Ativa o loading imediatamente para esconder o tabuleiro que possa estar por baixo
     if (loadingOverlay) {
@@ -267,6 +277,10 @@ function finishCena04Cutscene() {
         cutsceneContainer.style.display = 'none';
     }
 
+    // Restaura o vídeo de fundo do tabuleiro (que foi escondido na missão 0)
+    const levelVideo = document.getElementById('video-background');
+    if (levelVideo) levelVideo.style.display = 'block';
+
     // 🛑 RESTAURA A TELA DE MISSÕES: Tira o display: none e força o flex
     if (divLevel) {
         divLevel.style.display = 'flex';
@@ -315,7 +329,14 @@ if (btnContinuar) {
         if (hasSavedGame()) {
             const data = getPlayerData();
             console.log(`Bem-vindo de volta, Comandante ${data.pilotName}.`);
-            // Não para a música — ela continua tocando no tabuleiro
+            
+            // Garante que o tabuleiro de missões esteja visível e funcional
+            if (levelBoardWrap) levelBoardWrap.style.display = 'flex';
+            if (divLevel) {
+                divLevel.style.display = 'flex';
+                divLevel.classList.remove('hidden');
+            }
+            
             updateUI();
             finishCutscene();
         }
@@ -479,12 +500,22 @@ document.getElementById('skipCutscene')?.addEventListener('click', () => {
 
 window.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT') return;
-    if (e.key === "Escape" && !cutsceneContainer.classList.contains('hidden')) {
-        // Se a frame da Cena 04 estiver carregada, finaliza ela, senao o historia normal
-        if (historiaFrame && historiaFrame.src.includes('historia-cena04.html')) {
-            finishCena04Cutscene();
-        } else {
-            finishCutscene();
+    if (e.key === "Escape") {
+        // 1. Se estiver no Intro da Missão 0
+        const openingOverlay = document.getElementById('openingMissionOverlay');
+        if (openingOverlay && !openingOverlay.classList.contains('hidden')) {
+            finishOpeningMissionSequence();
+            stopBGM();
+            return;
+        }
+
+        // 2. Se estiver em uma Cutscene (História)
+        if (!cutsceneContainer.classList.contains('hidden')) {
+            if (historiaFrame && (historiaFrame.src.includes('historia-cena04.html') || historiaFrame.contentWindow.location.href.includes('historia-cena04.html'))) {
+                finishCena04Cutscene();
+            } else {
+                finishCutscene();
+            }
         }
     }
 });
@@ -501,7 +532,29 @@ export function loadMission(id) {
     CURRENT_MISSION = mission;
     setIsOpeningMission(!!mission.openingScene);
     MULTI_BACKGROUND_IMAGES = [...mission.layers];
-    IMAGES_TO_LOAD = [...DEFAULT_IMAGES, ...MULTI_BACKGROUND_IMAGES];
+
+    // Configuração de Skins para Missão 1
+    let missionEnemySkins = [];
+    if (mission.id === 1) {
+        missionEnemySkins = [
+            // "../assets/img/inimigos/inimigo1.png",
+            // "../assets/img/inimigos/inimigo-black.png"
+        ];
+    }
+
+    // 🛑 CORREÇÃO: Extrair apenas os caminhos das imagens para o preload
+    const backgroundPaths = MULTI_BACKGROUND_IMAGES
+        .map(layer => layer.path)
+        .filter(path => typeof path === 'string');
+
+    // 🌟 Adiciona a estrela de pickup para a missão 0
+    const missionIdNum = Number(id);
+    const extraAssets = [];
+    if (missionIdNum === 0) {
+        extraAssets.push("../assets/img/pickup/estrela-marela.png");
+    }
+
+    IMAGES_TO_LOAD = [...DEFAULT_IMAGES, ...backgroundPaths, ...missionEnemySkins, ...extraAssets];
     SCROLL_SPEED = mission.scrollSpeed;
     if (mission.music) playBGM(mission.music, 1);
     // Configura dificuldade global (spawn rate, max inimigos, HP base)
@@ -532,6 +585,12 @@ export function startGame() {
         loadingOverlay.classList.remove('hidden');
         loadingOverlay.style.display = "flex";  // 📍 Garantir display visível
         loadingOverlay.style.zIndex = "99999999";  // 📍 Z-index altíssimo
+    }
+
+    // 🛑 ESCONDE O VÍDEO DO TABULEIRO SE FOR MISSÃO 0
+    const levelVideo = document.getElementById('video-background');
+    if (levelVideo) {
+        levelVideo.style.display = (CURRENT_MISSION?.id === 0) ? 'none' : 'block';
     }
     
     // 3️⃣ TERCEIRO: ESCONDER OS CONTAINERS DO JOGO ANTERIOR
@@ -573,6 +632,11 @@ export function startGame() {
 
         const bgVideo = document.getElementById("bgVideo");
         if (bgVideo) bgVideo.play().catch(() => { });
+
+        // 🔇 Garante que o som de tiro pare se a missão não permitir disparos
+        if (CURRENT_MISSION?.allowShoot === false) {
+            if (typeof stopShootSoundLoop === 'function') stopShootSoundLoop();
+        }
 
         if (CURRENT_MISSION?.allowShoot !== false) {
             setTimeout(() => {
@@ -628,6 +692,7 @@ function startOpeningMissionOverlay() {
     const pilotTwoShip = document.getElementById('openingPilotTwoShip');
     const playerData = getPlayerData?.() || {};
     const skipChronicleButton = document.getElementById('openingSkipChronicle');
+    const skipIntroAllButton = document.getElementById('openingSkipIntroAll');
     const storyChronicle = document.getElementById('openingStoryCrawl');
     const baseCall = document.getElementById('openingBaseCall');
     const scriptText = document.getElementById('openingScriptText');
@@ -663,7 +728,8 @@ function startOpeningMissionOverlay() {
         pilotTwoShip.src = '../assets/img/cenarios/cenario-missao/inicio-game/nave-lua.png';
     }
     if (ackButton) {
-        ackButton.disabled = false;
+        ackButton.disabled = true; // 🚫 Desativado conforme solicitado
+        ackButton.style.display = 'none'; // 🚫 Escondido para não poluir
     }
     if (skipChronicleButton) {
         skipChronicleButton.classList.remove('hidden');
@@ -678,10 +744,35 @@ function startOpeningMissionOverlay() {
         scriptText.style.animation = '';
     }
 
+    // ⏭️ Lógica de Pular Tudo
+    if (skipIntroAllButton) {
+        skipIntroAllButton.onclick = () => {
+            finishOpeningMissionSequence();
+            stopBGM();
+        };
+    }
+
     const queueCard = (element, startAt, endAt) => {
         if (!element) return;
         queueOpeningTimer(() => element.classList.add('show'), startAt);
         queueOpeningTimer(() => element.classList.remove('show'), endAt);
+    };
+
+    // ⌨️ Função para efeito de digitação
+    const startTypewriter = (element, text, speed = 25) => {
+        if (!element) return;
+        element.textContent = "";
+        let i = 0;
+        const type = () => {
+            if (!element.parentElement) return; // Segurança se o elemento for removido
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+                // Armazena o timeout para poder cancelar se pular a cena
+                openingCinematicTimers.push(setTimeout(type, speed));
+            }
+        };
+        type();
     };
 
     const queueBlackout = (startAt) => {
@@ -701,15 +792,37 @@ function startOpeningMissionOverlay() {
         }, endAt);
     };
 
+    // 📟 Prepara os textos da Capitã para digitação
+    const baseCallTitleEl = baseCall?.querySelector('.opening-title');
+    const baseCallSubEl = baseCall?.querySelector('.opening-subtitle');
+
+    if (baseCallTitleEl) baseCallTitleEl.textContent = "";
+    if (baseCallSubEl) baseCallSubEl.textContent = "";
+
+    // Agenda o início da digitação sincronizado com a aparição do card
+    const baseCallStartAt = OPENING_SEQUENCE.find(s => s.id === 'openingBaseCall')?.startAt || 55600;
+    
+    queueOpeningTimer(() => {
+        startTypewriter(baseCallTitleEl, BASE_CALL_TITLE_TEXT, 45); // ⌨️ Digitação mais lenta (Título)
+        openingCinematicTimers.push(setTimeout(() => {
+            startTypewriter(baseCallSubEl, BASE_CALL_SUBTITLE_TEXT, 55); // ⌨️ Digitação mais lenta (Subtítulo)
+        }, 1800)); 
+    }, baseCallStartAt + 800); // 800ms após o card começar a aparecer (fade-in)
+
     const showRosterAndWaitAck = () => {
         if (!roster || !ackButton) return;
         openingAwaitingAck = true;
         roster.classList.add('show');
-        narrationText.textContent = 'Perfis confirmados. Pressione OK para entrar na escuta.';
-        narrationBar?.classList.add('show');
+        if (narrationText) {
+            narrationText.textContent = 'Perfis confirmados. Pressione OK para entrar na escuta.';
+            narrationBar?.classList.add('show');
+        }
+
+        let autoSkipTimer;
 
         const continueSequence = () => {
             if (!openingAwaitingAck) return;
+            if (autoSkipTimer) clearTimeout(autoSkipTimer); // 🛑 Cancela o pulo automático se o jogador interagir
             clearOpeningAck();
             ackButton.disabled = true;
             roster.classList.remove('show');
@@ -719,10 +832,13 @@ function startOpeningMissionOverlay() {
             POST_ACK_SEQUENCE.forEach(({ id, startAt, endAt }) => {
                 queueCard(document.getElementById(id), startAt, endAt);
             });
-            POST_ACK_SUBTITLES.forEach(queueSubtitle);
+            // 🚫 Legendas removidas para evitar redundância
 
             openingMissionTimer = setTimeout(finishOpeningMissionSequence, 11200);
         };
+
+        // 🕒 Inicia cronômetro de 15 segundos para avançar automaticamente para a Nave-Mãe
+        autoSkipTimer = setTimeout(continueSequence, 15000);
 
         const onKeyDown = (event) => {
             if (event.key === 'Enter' || event.key === ' ') {
@@ -734,6 +850,7 @@ function startOpeningMissionOverlay() {
         ackButton.addEventListener('click', continueSequence);
         window.addEventListener('keydown', onKeyDown);
         openingAckCleanup = () => {
+            if (autoSkipTimer) clearTimeout(autoSkipTimer);
             ackButton.removeEventListener('click', continueSequence);
             window.removeEventListener('keydown', onKeyDown);
         };
@@ -761,16 +878,21 @@ function startOpeningMissionOverlay() {
         if (fadeBlack) {
             fadeBlack.classList.remove('show');
         }
-        if (narrationText) {
-            narrationText.textContent = 'Base lunar FGL-01 chamando todos os pilotos. Protocolos Omega restaurados. Identificação de esquadrão em andamento.';
-        }
-        narrationBar?.classList.add('show');
+
+        // 🚀 Inicia a digitação imediatamente ao pular para esta fase
+        if (baseCallTitleEl) baseCallTitleEl.textContent = "";
+        if (baseCallSubEl) baseCallSubEl.textContent = "";
+        
+        startTypewriter(baseCallTitleEl, BASE_CALL_TITLE_TEXT, 45);
+        openingCinematicTimers.push(setTimeout(() => {
+            startTypewriter(baseCallSubEl, BASE_CALL_SUBTITLE_TEXT, 55);
+        }, 1500));
 
         queueOpeningTimer(() => {
             if (baseCall) baseCall.classList.remove('show');
             narrationBar?.classList.remove('show');
             showRosterAndWaitAck();
-        }, 7200);
+        }, 20000); // 🕒 20s de leitura após pular a crônica
     };
 
     if (skipChronicleButton) {
@@ -785,8 +907,8 @@ function startOpeningMissionOverlay() {
         queueCard(document.getElementById(id), startAt, endAt);
     });
     OPENING_BLACKOUTS.forEach(queueBlackout);
-    OPENING_SUBTITLES.forEach(queueSubtitle);
-    queueOpeningTimer(showRosterAndWaitAck, 71000);
+    // 🚫 Legendas da crônica removidas (o jogador já lê no card central)
+    queueOpeningTimer(showRosterAndWaitAck, 86600); // 🕒 Próxima etapa sincronizada (31s após início da chamada)
 
     openingMissionTimer = null;
 }
@@ -816,6 +938,7 @@ function stopOpeningMissionOverlay() {
     if (fadeBlack) {
         fadeBlack.classList.remove('show');
         fadeBlack.classList.add('hidden');
+        fadeBlack.style.display = 'none';
     }
     if (narrationBar) {
         narrationBar.classList.remove('show');
@@ -875,7 +998,9 @@ export function initGame() {
 // ======================================================
 
 function preloadImages(paths) {
-    return Promise.all(paths.map(path => new Promise((resolve) => {
+    // 🛡️ Filtra apenas strings válidas para evitar [object Object]
+    const validPaths = paths.filter(p => typeof p === 'string' && p.length > 0);
+    return Promise.all(validPaths.map(path => new Promise((resolve) => {
         const img = new Image();
         img.src = path;
         img.onload = resolve;

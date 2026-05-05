@@ -5,7 +5,7 @@
 // ======================================================
 import { Projectile } from './Projectile.js';
 import { Particle } from './particle.js';
-import { derrotouBoss } from './FimDoGame_NEW.js';
+import { derrotouBoss } from './FimDaMissao.js';
 import { playBGM } from './audio_game.js';
 import {
     CANVAS_WIDTH,
@@ -16,10 +16,12 @@ import {
     bossDefeated
 } from './globals.js';
 
+import { playerShip } from './globals.js'; // Importa a instância do player para mira
+
 export class Boss1 {
     constructor(x, y) {
-        this.originalWidth = 200;
-        this.originalHeight = 160;
+        this.originalWidth = 250; // Aumentado
+        this.originalHeight = 200; // Aumentado
         this.width = this.originalWidth;
         this.height = this.originalHeight;
 
@@ -28,7 +30,7 @@ export class Boss1 {
         this.x = x;
 
         this.startY = -220;
-        this.targetY = 60;
+        this.targetY = 80; // Ajustado para manter visível
         this.y = -220;
 
         this.moveTimer = 0;
@@ -57,6 +59,10 @@ export class Boss1 {
         this.exitHideTime = 1000;
 
         // Visual
+        this.rotation = 0;
+        this.reticleX = 0;
+        this.reticleY = 0;
+
         this.ringRotation = 0;
         this.coreGlow = 0;
         this.coreGlowDir = 1;
@@ -157,6 +163,23 @@ export class Boss1 {
             this.y = this.targetY + Math.sin(now * this.floatSpeed) * this.floatAmplitude;
         }
 
+        // 🎯 Inteligência de Mira Visual: O corpo e a mira acompanham o Player suavemente
+        if (playerShip && playerShip.isAlive) {
+            const centerX = this.x + this.width / 2;
+            const centerY = this.y + this.height / 2;
+            const targetAngle = Math.atan2((playerShip.y + playerShip.height / 2) - centerY, (playerShip.x + playerShip.width / 2) - centerX);
+            const targetRotationDeg = (targetAngle - Math.PI / 2) * (180 / Math.PI);
+            
+            let diff = targetRotationDeg - this.rotation;
+            while (diff > 180) diff -= 360;
+            while (diff < -180) diff += 360;
+            this.rotation += diff * 0.05; // Velocidade do giro do torso
+
+            // Lógica da Mira (O círculo tecnológico que busca o player)
+            this.reticleX += (((playerShip.x + playerShip.width / 2) - centerX) * 0.9 - this.reticleX) * 0.06;
+            this.reticleY += (((playerShip.y + playerShip.height / 2) - centerY) * 0.9 - this.reticleY) * 0.06;
+        }
+
         // Visual updates
         this.ringRotation += 2 * (deltaTime / 16.67);
         this.auraRotation += 1.5 * (deltaTime / 16.67);
@@ -200,19 +223,27 @@ export class Boss1 {
         if (this.fireTimer < this.weaponCooldown) return;
         this.fireTimer = 0;
         switch (this.phase) {
-            case 1: this.shootSpread3(arr); break;
-            case 2: this.shootSpread5(arr); break;
-            case 3: this.shootSpread5(arr); this.shootSideGuns(arr); break;
+            case 1: this.shootSpread3(arr); break; // Tiros em leque
+            case 2: this.shootSpread5(arr); break; // Tiros em leque maior
+            case 3: this.shootSpread5(arr); this.shootSideGuns(arr); break; // Tiros em leque + laterais
         }
     }
 
     shootSpread3(arr) {
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height * 0.85;
+        
+        let angleToPlayer = Math.PI / 2; // Padrão: reto para baixo
+        if (playerShip && playerShip.isAlive) {
+            const playerCenterX = playerShip.x + playerShip.width / 2;
+            const playerCenterY = playerShip.y + playerShip.height / 2;
+            angleToPlayer = Math.atan2(playerCenterY - cy, playerCenterX - cx);
+        }
+
         const projs = [
-            new Projectile(cx, cy, 20, 35, '../assets/img/projectile/tiro-verde.png', 750, 18, 'enemy', 0),
-            new Projectile(cx - 30, cy - 10, 20, 35, '../assets/img/projectile/tiro-verde.png', 750, 18, 'enemy', -0.18),
-            new Projectile(cx + 30, cy - 10, 20, 35, '../assets/img/projectile/tiro-verde.png', 750, 18, 'enemy', 0.18),
+            new Projectile(cx, cy, 20, 35, '../assets/img/projectile/tiro-verde.png', 850, 18, 'enemy', angleToPlayer, true),
+            new Projectile(cx - 30, cy - 10, 20, 35, '../assets/img/projectile/tiro-verde.png', 850, 18, 'enemy', angleToPlayer - 0.18, true),
+            new Projectile(cx + 30, cy - 10, 20, 35, '../assets/img/projectile/tiro-verde.png', 850, 18, 'enemy', angleToPlayer + 0.18, true),
         ];
         projs.forEach(p => { p.customGlowColor = '#00ff55'; arr.push(p); });
     }
@@ -220,8 +251,16 @@ export class Boss1 {
     shootSpread5(arr) {
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height * 0.85;
+
+        let angleToPlayer = Math.PI / 2; // Padrão: reto para baixo
+        if (playerShip && playerShip.isAlive) {
+            const playerCenterX = playerShip.x + playerShip.width / 2;
+            const playerCenterY = playerShip.y + playerShip.height / 2;
+            angleToPlayer = Math.atan2(playerCenterY - cy, playerCenterX - cx);
+        }
+
         for (let i = -2; i <= 2; i++) {
-            const p = new Projectile(cx + i * 22, cy, 20, 32, '../assets/img/projectile/tiro-verde.png', 700, 20, 'enemy', i * 0.14);
+            const p = new Projectile(cx + i * 22, cy, 20, 32, '../assets/img/projectile/tiro-verde.png', 800, 20, 'enemy', angleToPlayer + i * 0.14, true);
             p.customGlowColor = '#00ff55';
             arr.push(p);
         }
@@ -229,8 +268,20 @@ export class Boss1 {
 
     shootSideGuns(arr) {
         const cy = this.y + this.height / 2;
-        const p1 = new Projectile(this.x - 5, cy, 22, 32, '../assets/img/projectile/espinho-verde.png', 600, 15, 'enemy', 0.5);
-        const p2 = new Projectile(this.x + this.width - 13, cy, 22, 32, '../assets/img/projectile/espinho-verde.png', 600, 15, 'enemy', -0.5);
+        const leftGunX = this.x - 5;
+        const rightGunX = this.x + this.width - 13;
+
+        let angleToPlayerLeft = Math.PI / 2 + 0.5; // Padrão: ligeiramente angulado
+        let angleToPlayerRight = Math.PI / 2 - 0.5; // Padrão: ligeiramente angulado
+        if (playerShip && playerShip.isAlive) {
+            const playerCenterX = playerShip.x + playerShip.width / 2;
+            const playerCenterY = playerShip.y + playerShip.height / 2;
+            angleToPlayerLeft = Math.atan2(playerCenterY - cy, playerCenterX - leftGunX);
+            angleToPlayerRight = Math.atan2(playerCenterY - cy, playerCenterX - rightGunX);
+        }
+
+        const p1 = new Projectile(leftGunX, cy, 22, 32, '../assets/img/projectile/espinho-verde.png', 700, 15, 'enemy', angleToPlayerLeft, true);
+        const p2 = new Projectile(rightGunX, cy, 22, 32, '../assets/img/projectile/espinho-verde.png', 700, 15, 'enemy', angleToPlayerRight, true);
         p1.customGlowColor = '#00ff55';
         p2.customGlowColor = '#00ff55';
         arr.push(p1, p2);
@@ -295,14 +346,28 @@ export class Boss1 {
         // === IMAGEM DO BOSS (base) ===
         if (this._imgReady) {
             ctx.save();
+            ctx.rotate(this.rotation * Math.PI / 180);
             ctx.shadowColor = `rgb(${auraR},${auraG},${auraB})`;
             ctx.shadowBlur = 20 + this.coreGlow * 15;
             ctx.drawImage(this._img, -this.originalWidth / 2, -this.originalHeight / 2, this.originalWidth, this.originalHeight);
             ctx.restore();
         }
 
-        // === ROTATING DASHED RING ===
+        // === LASER SIGHT (LINHA DE MIRA TÁTICA) ===
         ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(0, 0); // Ponto de origem: Centro do Boss
+        ctx.lineTo(this.reticleX, this.reticleY); // Ponto final: Centro da Retícula
+        // Aplica uma opacidade variável para simular instabilidade de energia
+        ctx.strokeStyle = `rgba(${auraR},${auraG},${auraB}, ${0.15 + Math.random() * 0.15})`;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([8, 12]); // Linha pontilhada estilo radar
+        ctx.stroke();
+        ctx.restore();
+
+        // === ROTATING DASHED RING (MIRA RETÍCULA) ===
+        ctx.save();
+        ctx.translate(this.reticleX, this.reticleY); // A mira "foge" do centro para buscar o player
         ctx.rotate(this.ringRotation * Math.PI / 180);
         ctx.strokeStyle = `rgba(${auraR},${auraG},${auraB},0.85)`;
         ctx.lineWidth = 2;

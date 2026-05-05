@@ -39,7 +39,13 @@ export class Enemy extends GameObject {
         isRotating = false,
         isPropulsor = false,
         isPlasmaHalo = true,
-        enableTilt = true
+        enableTilt = true,
+
+        // 🛑 NOVOS PARÂMETROS PARA INIMIGOS TERRESTRES
+        isWalking = false,
+        walkerType = 'light',
+        legLength = 30,
+        legCount = 4
     ) {
 
         super(x, y, width, height, imagePath);
@@ -109,6 +115,14 @@ export class Enemy extends GameObject {
         this.enemyPlasmaSpeed = 0.005;
         this.enemyPlasmaOffset = 0;
         this.enemyPlasmaColor = 'rgba(50, 200, 255, 1.0)';
+
+        // TERRESTRES
+        this.isWalking = isWalking;
+        this.walkerType = walkerType;
+        this.legLength = legLength;
+        this.legCount = legCount;
+        // Prioridade de renderização: Walkers (0) ficam abaixo de Aviões (1)
+        this.renderPriority = isWalking ? 0 : 1;
     }
 
     getProjectileImg(index) {
@@ -258,6 +272,81 @@ export class Enemy extends GameObject {
         }
     }
     
+    /**
+     * Desenha as patas de aranha procedurais para inimigos da Missão 3
+     */
+    drawSpiderLegs(ctx) {
+        const time = performance.now() / 200;
+        // Cores Robóticas Industriais
+        const baseColor = "#4a4a4a";    // Cinza escuro para a base
+        const segmentColor = "#8e8e8e"; // Cinza médio
+        const jointColor = "#d1d1d1";   // Cinza claro/prata para o joelho
+        
+        ctx.save();
+        ctx.strokeStyle = "rgba(0,0,0,0.3)"; // Sombra
+        ctx.lineWidth = this.walkerType === 'heavy' ? 5 : 3;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        const centerX = Math.round(this.x + this.width / 2);
+        const centerY = Math.round(this.y + this.height / 2);
+
+        for (let i = 0; i < this.legCount; i++) {
+            // Ângulo base distribuído ao redor do chassi (visão top-down)
+            const baseAngle = (i / this.legCount) * Math.PI * 2;
+            
+            // Movimento de "extensão" (perna estica e encolhe)
+            const stepOffset = i * (Math.PI / 2);
+            const extension = Math.sin(time + stepOffset) * (this.legLength * 0.2);
+            const lift = Math.abs(Math.cos(time + stepOffset)) * 6; // Altura visual do passo
+
+            const currentLength = this.legLength + extension;
+
+            // Origem no chassi (reduzido para parecer que sai de baixo)
+            const startX = centerX + Math.cos(baseAngle) * (this.width / 4);
+            const startY = centerY + Math.sin(baseAngle) * (this.height / 4);
+            
+            const endX = centerX + Math.cos(baseAngle) * currentLength;
+            const endY = centerY + Math.sin(baseAngle) * currentLength;
+
+            // Ponto da articulação (joelho)
+            const midX = lerp(startX, endX, 0.5);
+            const midY = lerp(startY, endY, 0.5) - lift;
+
+            // 1. Desenha Sombra projetada no solo
+            ctx.beginPath();
+            ctx.moveTo(startX + 4, startY + 8);
+            ctx.lineTo(endX + 4, endY + 8);
+            ctx.stroke();
+
+            // 2. Desenha Segmento Superior (Coxa Robótica)
+            ctx.strokeStyle = baseColor;
+            ctx.lineWidth = this.walkerType === 'heavy' ? 5 : 3;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(midX, midY);
+            ctx.stroke();
+
+            // 3. Desenha Segmento Inferior (Canela/Pistão)
+            ctx.strokeStyle = segmentColor;
+            ctx.lineWidth = this.walkerType === 'heavy' ? 3 : 2;
+            ctx.beginPath();
+            ctx.moveTo(midX, midY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+
+            // 4. Desenha a Articulação (Círculo de Metal)
+            ctx.fillStyle = jointColor;
+            ctx.beginPath();
+            ctx.arc(midX, midY, this.walkerType === 'heavy' ? 3.5 : 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#222";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
     takeDamage(dmg, particlesArray) {
         if (!this.isAlive || this.isExploding) return;
         this.currentHealth -= dmg;
@@ -297,55 +386,96 @@ export class Enemy extends GameObject {
         const originX = this.x + this.width / 2;
         const originY = this.y + this.height / 2;
         const angle = Math.atan2(targetY - originY, targetX - originX); 
-        arr.push(new Projectile(originX - (this.projectileWidth / 2), originY, this.projectileWidth, this.projectileHeight, this.getProjectileImg(0), this.projectileSpeed * 1.5, this.fireDamage, "enemy", angle, true));
+        const proj = new Projectile(originX - (this.projectileWidth / 2), originY, this.projectileWidth, this.projectileHeight, this.getProjectileImg(0), this.projectileSpeed * 1.5, this.fireDamage, "enemy", angle, true);
+        // ✨ Brilho de energia para o tiro único ficar mais bonito
+        proj.customGlowColor = "#ffaa00"; 
+        arr.push(proj);
     }
 
     fireSingle(arr) {
-        const y = this.y + this.height * 0.7;
-        const xSpawn = this.x + this.width * 0.5 - (this.projectileWidth / 2);
-        arr.push(new Projectile(xSpawn, y, this.projectileWidth, this.projectileHeight, this.getProjectileImg(0), this.projectileSpeed, this.fireDamage, "enemy", Math.PI / 2, true));
+        const originX = this.x + this.width / 2;
+        const originY = this.y + this.height / 2;
+        let angle = Math.PI / 2; // Direção padrão: para baixo
+        let finalSpeed = this.projectileSpeed;
+
+        // 🎯 Lógica de Mira: Se o player estiver vivo, mira diretamente nele
+        if (this.targetPlayer && this.targetPlayer.isAlive) {
+            const tx = this.targetPlayer.x + this.targetPlayer.width / 2;
+            const ty = this.targetPlayer.y + this.targetPlayer.height / 2;
+            angle = Math.atan2(ty - originY, tx - originX);
+            
+            // ⚡ Incremento de velocidade solicitado ("um pouco mais veloz" -> +35%)
+            finalSpeed *= 1.35;
+        }
+
+        const proj = new Projectile(originX - (this.projectileWidth / 2), originY, this.projectileWidth, this.projectileHeight, this.getProjectileImg(0), finalSpeed, this.fireDamage, "enemy", angle, true);
+        // ✨ Brilho de energia para o tiro único ficar mais bonito
+        proj.customGlowColor = "#ff9900";
+        arr.push(proj);
     }
 
     fireDouble(arr, isTargeted = false) {
         const img = this.getProjectileImg(1) || this.getProjectileImg(0);
-        const y = this.y + this.height * 0.7;
-        let targetX = this.targetPlayer ? this.targetPlayer.x + this.targetPlayer.width / 2 : this.x + this.width / 2;
-        let targetY = this.targetPlayer ? this.targetPlayer.y + this.targetPlayer.height / 2 : Infinity;
+        const originX = this.x + this.width / 2;
+        const originY = this.y + this.height / 2;
+        const ySpawn = this.y + this.height * 0.7;
+        
         const spread = 0.35; 
         const PROJ_WIDTH = this.projectileWidth;
         const PROJ_HEIGHT = this.projectileHeight;
-        const xCenterOffset = this.x + this.width * 0.5;
         const xLeft = this.x + this.width * 0.20 - (PROJ_WIDTH / 2);
         const xRight = this.x + this.width * 0.80 - (PROJ_WIDTH / 2);
+        
         let baseAngle = Math.PI / 2; 
-        if (isTargeted) {
-             const originY = this.y + this.height / 2;
-             baseAngle = Math.atan2(targetY - originY, targetX - xCenterOffset);
-        } 
-        arr.push(new Projectile(xLeft, y, PROJ_WIDTH, PROJ_HEIGHT, img, this.projectileSpeed * 1.2, this.fireDamage, "enemy", baseAngle - spread, true));
-        arr.push(new Projectile(xRight, y, PROJ_WIDTH, PROJ_HEIGHT, img, this.projectileSpeed * 1.2, this.fireDamage, "enemy", baseAngle + spread, true));
+        let finalSpeed = this.projectileSpeed * 1.2;
+
+        // 🎯 Lógica de Mira e Velocidade (Consistente com tiro único)
+        if ((isTargeted || this.state === this.STATE_ATTACKING) && this.targetPlayer && this.targetPlayer.isAlive) {
+            const tx = this.targetPlayer.x + this.targetPlayer.width / 2;
+            const ty = this.targetPlayer.y + this.targetPlayer.height / 2;
+            baseAngle = Math.atan2(ty - originY, tx - originX);
+            finalSpeed *= 1.35; // ⚡ Aumento de 35% na velocidade
+        }
+
+        const p1 = new Projectile(xLeft, ySpawn, PROJ_WIDTH, PROJ_HEIGHT, img, finalSpeed, this.fireDamage, "enemy", baseAngle - spread, true);
+        const p2 = new Projectile(xRight, ySpawn, PROJ_WIDTH, PROJ_HEIGHT, img, finalSpeed, this.fireDamage, "enemy", baseAngle + spread, true);
+        
+        // ✨ Brilho Neon Laranja para dar o aspecto encorpado
+        p1.customGlowColor = "#ff9900";
+        p2.customGlowColor = "#ff9900";
+        
+        arr.push(p1, p2);
     }
 
     fireTriple(arr, isTargeted = false) {
         const img = this.getProjectileImg(2) || this.getProjectileImg(0);
-        const y = this.y + this.height * 0.7;
-        let targetX = this.targetPlayer ? this.targetPlayer.x + this.targetPlayer.width / 2 : this.x + this.width / 2;
-        let targetY = this.targetPlayer ? this.targetPlayer.y + this.targetPlayer.height / 2 : Infinity;
+        const originX = this.x + this.width / 2;
+        const originY = this.y + this.height / 2;
+        const ySpawn = this.y + this.height * 0.7;
+
         const spread = 0.15; 
         const PROJ_WIDTH = this.projectileWidth; 
         const PROJ_HEIGHT = this.projectileHeight; 
-        const xCenterOffset = this.x + this.width * 0.5; 
-        const xCenter = xCenterOffset - (PROJ_WIDTH / 2); 
+        const xCenter = originX - (PROJ_WIDTH / 2); 
         const xLeft = this.x + this.width * 0.20 - (PROJ_WIDTH / 2);
         const xRight = this.x + this.width * 0.80 - (PROJ_WIDTH / 2);
+        
         let baseAngle = Math.PI / 2; 
-        if (isTargeted) {
-             const originY = this.y + this.height / 2;
-             baseAngle = Math.atan2(targetY - originY, targetX - xCenterOffset);
+        let speedMult = 1.0;
+
+        if ((isTargeted || this.state === this.STATE_ATTACKING) && this.targetPlayer && this.targetPlayer.isAlive) {
+            const tx = this.targetPlayer.x + this.targetPlayer.width / 2;
+            const ty = this.targetPlayer.y + this.targetPlayer.height / 2;
+            baseAngle = Math.atan2(ty - originY, tx - originX);
+            speedMult = 1.35;
         }
-        arr.push(new Projectile(xCenter, y, PROJ_WIDTH, PROJ_HEIGHT, img, this.projectileSpeed * 0.9, this.fireDamage, "enemy", baseAngle, true));
-        arr.push(new Projectile(xLeft, y, PROJ_WIDTH, PROJ_HEIGHT, img, this.projectileSpeed * 1.25, this.fireDamage, "enemy", baseAngle - spread, true));
-        arr.push(new Projectile(xRight, y, PROJ_WIDTH, PROJ_HEIGHT, img, this.projectileSpeed * 1.25, this.fireDamage, "enemy", baseAngle + spread, true));
+
+        const p1 = new Projectile(xCenter, ySpawn, PROJ_WIDTH, PROJ_HEIGHT, img, this.projectileSpeed * 0.9 * speedMult, this.fireDamage, "enemy", baseAngle, true);
+        const p2 = new Projectile(xLeft, ySpawn, PROJ_WIDTH, PROJ_HEIGHT, img, this.projectileSpeed * 1.25 * speedMult, this.fireDamage, "enemy", baseAngle - spread, true);
+        const p3 = new Projectile(xRight, ySpawn, PROJ_WIDTH, PROJ_HEIGHT, img, this.projectileSpeed * 1.25 * speedMult, this.fireDamage, "enemy", baseAngle + spread, true);
+        
+        [p1, p2, p3].forEach(p => p.customGlowColor = "#ff9900");
+        arr.push(p1, p2, p3);
     }
 
     fireExplosion360(arr) {
@@ -359,7 +489,9 @@ export class Enemy extends GameObject {
         const xSpawn = cx - (PROJ_WIDTH / 2); 
         const ySpawn = cy - (PROJ_HEIGHT / 2);
         for (let i = 0; i < total; i++) {
-            arr.push(new Projectile(xSpawn, ySpawn, PROJ_WIDTH, PROJ_HEIGHT, img, this.projectileSpeed * 1.4, this.fireDamage, "enemy", step * i, true));
+            const p = new Projectile(xSpawn, ySpawn, PROJ_WIDTH, PROJ_HEIGHT, img, this.projectileSpeed * 1.4, this.fireDamage, "enemy", step * i, true);
+            p.customGlowColor = "#ff9900";
+            arr.push(p);
         }
     }
     
@@ -405,9 +537,13 @@ export class Enemy extends GameObject {
         const cy = this.y + this.height / 2;
         ctx.save();
         ctx.globalCompositeOperation = "lighter";
+        
+        // 🌟 Estrelas brilham em amarelo/ouro, inimigos em azul/plasma
+        const flashColor = this.isDecorative ? "255, 215, 0" : "0, 100, 255";
+
         const g1 = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.25);
         g1.addColorStop(0, `rgba(255,255,255,${opacity})`);
-        g1.addColorStop(1, `rgba(0,100,255,0)`);
+        g1.addColorStop(1, `rgba(${flashColor}, 0)`);
         ctx.fillStyle = g1;
         ctx.beginPath();
         ctx.arc(cx, cy, radius * 0.25, 0, Math.PI * 2);
@@ -429,6 +565,11 @@ export class Enemy extends GameObject {
         if (this.isExploding) {
             this.drawExplosion(ctx);
             return;
+        }
+
+        // DESENHA AS PATAS ANTES DA NAVE (para ficarem por baixo)
+        if (this.isWalking) {
+            this.drawSpiderLegs(ctx);
         }
 
         if (this.isPropulsor) this.drawPropulsor(ctx);
@@ -455,3 +596,5 @@ export class Enemy extends GameObject {
         ctx.restore();
     }
 }
+
+function lerp(a, b, t) { return a + (b - a) * t; }

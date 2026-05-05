@@ -4,7 +4,7 @@
 import { GameObject } from './GameObject.js';
 import { Projectile } from './Projectile.js';
 import { Particle } from './particle.js';
-import { derrotouBoss } from './FimDoGame_NEW.js';  // 🛑 IMPORTAR FUNÇÃO DE FIM DE JOGO 🛑
+import { derrotouBoss } from './FimDaMissao.js'; 
 // Importa a função de áudio (se playBGM estiver em audio_game.js, precisamos importar)
 import { playBGM } from './audio_game.js';
 import {

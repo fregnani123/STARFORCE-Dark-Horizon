@@ -8,7 +8,7 @@ import {
         CANVAS_WIDTH,
         CANVAS_HEIGHT
 } from './globals.js';
-import { endGamePlayer } from './FimDoGame_NEW.js';
+import { endGamePlayer } from './FimDaMissao.js';
 
 
 // Função de easing 
@@ -102,7 +102,11 @@ export class Player extends GameObject {
 
         // Método que cria projéteis. Ele retorna os projéteis criados.
       fire() {
-    if (this.fireTimer < this.fireRate || !this.isAlive || this.inIntro || this.superLaserActive || this.isExiting) {
+    // 🚀 Ajuste: Permite atirar na intro se for Missão 0
+    const isMissionZero = window.isOpeningMission || false;
+    const canFireInIntro = isMissionZero && this.inIntro;
+
+    if (this.fireTimer < this.fireRate || !this.isAlive || (this.inIntro && !canFireInIntro) || this.superLaserActive || this.isExiting) {
         return [];
     }
 
@@ -147,7 +151,7 @@ export class Player extends GameObject {
 
         const BOMB_FIRE_RATE = 1000;
         if (this.bombTimer >= BOMB_FIRE_RATE) {
-            newProjectiles.push(new Projectile(this.x + this.width / 15 - 15, this.y - 10, 30, 30, "../assets/img/projectile/tiro.png", 250, 50, 'player', 0, false, null, true));
+            newProjectiles.push(new Projectile(this.x + this.width / 2 - 15, this.y - 10, 30, 30, "../assets/img/projectile/bomba.png", 250, 50, 'player', 0, false, null, true));
             this.bombTimer = 0;
         }
     }

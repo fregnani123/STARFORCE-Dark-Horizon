@@ -188,7 +188,18 @@ export function updatePlayerMovement() {
         else if (keys.down) dy = 1;
 
         playerShip.move(dx, dy);
-        if (keys.shoot && !isOpeningMission) playerShip.fire();
+
+        if (keys.shoot) {
+            if (isOpeningMission) {
+                // 🚀 TRIPLO DISPARO NA MISSÃO ZERO (Simulação de elite)
+                playerShip.weaponLevel = 3; 
+                const shots = playerShip.fire();
+                if (shots && shots.length > 0) playerShip.projectiles.push(...shots);
+            } else {
+                const shots = playerShip.fire();
+                if (shots && shots.length > 0) playerShip.projectiles.push(...shots);
+            }
+        }
 
         touch.lastX = null;
         touch.lastY = null;
@@ -277,13 +288,13 @@ export function updateHTMLHUD() {
 
         if (percent > 0.5) {
             // --- ESTADO VERDE ---
-            healthBar.style.setProperty('--ledColor', '#1cff6b');
+            healthBar.style.setProperty('--ledColor', '#1cff6b'); 
             luz_manutençao.src = "../assets/img/pickup/manutencao-verde.png";
             pararAlertaPiloto(); // Garante que o vídeo pare se recuperou vida
         } 
         else if (percent > 0.2) {
             // --- ESTADO AMARELO ---
-            healthBar.style.setProperty('--ledColor', '#ffc107');
+            healthBar.style.setProperty('--ledColor', '#ffd700'); 
             luz_manutençao.src = "../assets/img/pickup/manutencao-amarela.png";
             luz_manutençao.classList.add("blink-warning");
             pararAlertaPiloto(); // 🚀 Mata o vídeo e o áudio se sair do crítico
