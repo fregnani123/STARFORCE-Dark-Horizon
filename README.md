@@ -30,16 +30,17 @@ O jogador assume o comando de naves avançadas em uma missão através do horizo
 
 ---
 
-## 📸 Screenshots
+## 📸 Screenshots do Projeto
 
 <p align="center">
-  <img src="https://github.com/fregnani123/STARFORCE-Dark-Horizon/blob/main/public/img-git/Captura%20de%20tela%202026-05-05%20104519%20-%20Copia%20-%20Copia.png" />
-  
-  <img src="https://github.com/fregnani123/STARFORCE-Dark-Horizon/blob/main/public/img-git/Captura%20de%20tela%202026-05-05%20110011%20-%20Copia.png" />
+  <!-- Duas imagens lado a lado (48% cada para deixar um pequeno espaço entre elas) -->
+  <img src="https://github.com/fregnani123/STARFORCE-Dark-Horizon/blob/main/public/img-git/Captura%20de%20tela%202026-05-05%20104519%20-%20Copia%20-%20Copia.png?raw=true" width="48%" />
+  <img src="https://github.com/fregnani123/STARFORCE-Dark-Horizon/blob/main/public/img-git/Captura%20de%20tela%202026-05-05%20110011%20-%20Copia.png?raw=true" width="48%" />
 </p>
 
 <p align="center">
-  <img src="https://github.com/fregnani123/STARFORCE-Dark-Horizon/blob/main/public/img-git/Captura%20de%20tela%202026-05-05%20110053%20-%20Copia.png" />
+  <!-- Imagem centralizada um pouco maior para destaque -->
+  <img src="https://github.com/fregnani123/STARFORCE-Dark-Horizon/blob/main/public/img-git/Captura%20de%20tela%202026-05-05%20110053%20-%20Copia.png?raw=true" width="70%" />
 </p>
 
 ---
