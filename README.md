@@ -1,4 +1,3 @@
-````md
 # Starforce: Dark Horizon 🚀
 
 ![Banner do Jogo](https://github.com/fregnani123/STARFORCE-Dark-Horizon/blob/main/public/img-git/Captura%20de%20tela%202026-05-05%20110019%20-%20Copia.png)
@@ -34,11 +33,13 @@ O jogador assume o comando de naves avançadas em uma missão através do horizo
 ## 📸 Screenshots do Projeto
 
 <p align="center">
+  <!-- Duas imagens lado a lado (48% cada para deixar um pequeno espaço entre elas) -->
   <img src="https://github.com/fregnani123/STARFORCE-Dark-Horizon/blob/main/public/img-git/Captura%20de%20tela%202026-05-05%20104519%20-%20Copia%20-%20Copia.png?raw=true" width="48%" />
   <img src="https://github.com/fregnani123/STARFORCE-Dark-Horizon/blob/main/public/img-git/Captura%20de%20tela%202026-05-05%20110011%20-%20Copia.png?raw=true" width="48%" />
 </p>
 
 <p align="center">
+  <!-- Imagem centralizada um pouco maior para destaque -->
   <img src="https://github.com/fregnani123/STARFORCE-Dark-Horizon/blob/main/public/img-git/Captura%20de%20tela%202026-05-05%20110053%20-%20Copia.png?raw=true" width="70%" />
 </p>
 
@@ -46,8 +47,7 @@ O jogador assume o comando de naves avançadas em uma missão através do horizo
 
 ## ⚠️ Status do Projeto
 
-Este projeto está **em desenvolvimento ativo**.
-
+Este projeto está **em desenvolvimento ativo**. 
 - [ ] Implementação de novos níveis.
 - [ ] Refinamento do sistema de partículas.
 - [ ] Expansão da árvore de habilidades.
@@ -58,66 +58,53 @@ Este projeto está **em desenvolvimento ativo**.
 
 Se você deseja testar o build atual:
 
-### 1️⃣ Clone o repositório
+1. Clone o repositório:
+   ```bash
+   git clone [https://github.com/seu-usuario/starforce-dark-horizon.git](https://github.com/seu-usuario/starforce-dark-horizon.git)
 
-```bash
-git clone https://github.com/fregnani123/STARFORCE-Dark-Horizon.git
-```
 
-### 2️⃣ Entre na pasta do projeto
+2️⃣ Entre na pasta do projeto
 
-```bash
 cd STARFORCE-Dark-Horizon
-```
-
-### 3️⃣ Instale as dependências
-
-```bash
-npm install
-```
-
-### 4️⃣ Execute o projeto
-
-```bash
-npm start
-```
 
 ---
 
-## 🎯 Objetivo do Projeto
+3️⃣ Instale as dependências
+
+npm install
+
+---
+
+4️⃣ Execute o projeto
+
+npm start
+
+---
+
+🎯 Objetivo do Projeto
 
 Este projeto foi desenvolvido com foco em:
 
-- 🎮 Estudo de desenvolvimento de jogos desktop.
-- ⚙️ Arquitetura utilizando Electron.
-- 🛰️ Renderização 2D com HTML5 Canvas.
-- 🚀 Sistemas de gameplay e progressão.
-- 📦 Performance e organização de código.
+Estudo de desenvolvimento de jogos desktop.
+Arquitetura utilizando Electron.
+Renderização 2D com Canvas.
+Sistemas de gameplay e progressão.
+Performance e organização de código.
 
----
 
-## 👨‍💻 Desenvolvedor
+👨‍💻 Desenvolvedor
 
-Desenvolvido por **Fabiano Fregnani**.
+Desenvolvido por Fabiano Fregnani.
 
-### 🔗 GitHub
+GitHub:
 👉 https://github.com/fregnani123
 
----
+📌 Observações
 
-## 📌 Observações
+Este projeto ainda está em desenvolvimento e novas funcionalidades serão adicionadas futuramente.
 
-⚠️ Este projeto ainda está em desenvolvimento ativo e novas funcionalidades serão adicionadas futuramente.
+Feedbacks, sugestões e contribuições são sempre bem-vindos.
 
-💡 Feedbacks, sugestões e contribuições são sempre bem-vindos.
+⭐ Starforce: Dark Horizon
 
----
-
-<div align="center">
-
-# ⭐ Starforce: Dark Horizon
-
-### *“Explore o horizonte negro e sobreviva às batalhas espaciais mais intensas da galáxia.”*
-
-</div>
-````
+“Explore o horizonte negro e sobreviva às batalhas espaciais mais intensas da galáxia.”
