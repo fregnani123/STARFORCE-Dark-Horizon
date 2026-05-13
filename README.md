@@ -91,6 +91,7 @@ Renderização 2D com Canvas.
 Sistemas de gameplay e progressão.
 Performance e organização de código.
 
+---
 
 👨‍💻 Desenvolvedor
 
@@ -99,11 +100,15 @@ Desenvolvido por Fabiano Fregnani.
 GitHub:
 👉 https://github.com/fregnani123
 
+---
+
 📌 Observações
 
 Este projeto ainda está em desenvolvimento e novas funcionalidades serão adicionadas futuramente.
 
 Feedbacks, sugestões e contribuições são sempre bem-vindos.
+
+---
 
 ⭐ Starforce: Dark Horizon
 
