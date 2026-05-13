@@ -33,11 +33,13 @@ O jogador assume o comando de naves avançadas em uma missão através do horizo
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="sua-img-hangar.jpg" width="45%" />
-  <img src="sua-img-gameplay.jpg" width="45%" />
+  <img src="https://github.com/fregnani123/STARFORCE-Dark-Horizon/blob/main/public/img-git/Captura%20de%20tela%202026-05-05%20110053%20-%20Copia.jpg?raw=true" width="48%" alt="Hangar de Customização" />
+  
+  <img src="https://github.com/fregnani123/STARFORCE-Dark-Horizon/blob/main/public/img-git/Captura%20de%20tela%202026-05-05%20110011%20-%20Copia.png" />
 </p>
+
 <p align="center">
-  <img src="sua-img-boss.jpg" width="90%" />
+  <img src="https://github.com/fregnani123/STARFORCE-Dark-Horizon/blob/main/public/img-git/Captura%20de%20tela%202026-05-05%20110053%20-%20Copia.png" />
 </p>
 
 ---
