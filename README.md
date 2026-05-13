@@ -61,3 +61,50 @@ Se você deseja testar o build atual:
 1. Clone o repositório:
    ```bash
    git clone [https://github.com/seu-usuario/starforce-dark-horizon.git](https://github.com/seu-usuario/starforce-dark-horizon.git)
+
+
+2️⃣ Entre na pasta do projeto
+
+cd STARFORCE-Dark-Horizon
+
+---
+
+3️⃣ Instale as dependências
+
+npm install
+
+---
+
+4️⃣ Execute o projeto
+
+npm start
+
+---
+
+🎯 Objetivo do Projeto
+
+Este projeto foi desenvolvido com foco em:
+
+Estudo de desenvolvimento de jogos desktop.
+Arquitetura utilizando Electron.
+Renderização 2D com Canvas.
+Sistemas de gameplay e progressão.
+Performance e organização de código.
+
+
+👨‍💻 Desenvolvedor
+
+Desenvolvido por Fabiano Fregnani.
+
+GitHub:
+👉 https://github.com/fregnani123
+
+📌 Observações
+
+Este projeto ainda está em desenvolvimento e novas funcionalidades serão adicionadas futuramente.
+
+Feedbacks, sugestões e contribuições são sempre bem-vindos.
+
+⭐ Starforce: Dark Horizon
+
+“Explore o horizonte negro e sobreviva às batalhas espaciais mais intensas da galáxia.”
